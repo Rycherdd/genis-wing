@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Professores from "./pages/Professores";
 import Turmas from "./pages/Turmas";
 import Agenda from "./pages/Agenda";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,16 +19,15 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/professores" element={<Professores />} />
-            <Route path="/turmas" element={<Turmas />} />
-            <Route path="/agenda" element={<Agenda />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Layout><Index /></Layout>} />
+          <Route path="/professores" element={<Layout><Professores /></Layout>} />
+          <Route path="/turmas" element={<Layout><Turmas /></Layout>} />
+          <Route path="/agenda" element={<Layout><Agenda /></Layout>} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

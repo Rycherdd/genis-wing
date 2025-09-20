@@ -22,7 +22,7 @@ interface SidebarItem {
   badge?: string;
 }
 
-const sidebarItems: SidebarItem[] = [
+export const sidebarItems: SidebarItem[] = [
   { label: "Dashboard", icon: Home, href: "/" },
   { label: "Professores", icon: Users, href: "/professores" },
   { label: "Turmas", icon: GraduationCap, href: "/turmas" },
@@ -91,6 +91,16 @@ export function Sidebar() {
             <p className="text-xs text-muted-foreground">admin@dogenis.com</p>
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full mt-3"
+          asChild
+        >
+          <Link to="/login">
+            Sair do Sistema
+          </Link>
+        </Button>
       </div>
     </div>
   );

@@ -3,9 +3,11 @@ import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { sidebarItems } from "./Sidebar";
+
 const pageNames: Record<string, string> = {
   "/": "Dashboard",
-  "/professores": "Professores",
+  "/professores": "Professores", 
   "/turmas": "Turmas",
   "/cursos": "Cursos",
   "/agenda": "Agenda",
