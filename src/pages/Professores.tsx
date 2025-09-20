@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, Filter, MoreHorizontal, Mail, Phone, MapPin } from "lucide-react";
+import { Plus, Search, Filter, MoreHorizontal, Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,68 +11,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface Professor {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  specialties: string[];
-  status: "ativo" | "inativo" | "pendente";
-  totalClasses: number;
-  rating: number;
-  location: string;
-  avatar?: string;
-}
-
-const mockProfessors: Professor[] = [
-  {
-    id: "1",
-    name: "Ana Silva Santos",
-    email: "ana.silva@email.com",
-    phone: "(11) 99999-9999",
-    specialties: ["Comunicação Empresarial", "Oratória"],
-    status: "ativo",
-    totalClasses: 45,
-    rating: 4.8,
-    location: "São Paulo, SP",
-  },
-  {
-    id: "2", 
-    name: "Carlos Roberto Lima",
-    email: "carlos.lima@email.com",
-    phone: "(11) 88888-8888",
-    specialties: ["Técnicas de Apresentação", "Public Speaking"],
-    status: "ativo",
-    totalClasses: 32,
-    rating: 4.6,
-    location: "Rio de Janeiro, RJ",
-  },
-  {
-    id: "3",
-    name: "Mariana Costa Oliveira",
-    email: "mariana.costa@email.com", 
-    phone: "(11) 77777-7777",
-    specialties: ["Comunicação Digital", "Media Training"],
-    status: "pendente",
-    totalClasses: 0,
-    rating: 0,
-    location: "Belo Horizonte, MG",
-  },
-];
+import { useProfessores } from "@/hooks/useProfessores";
 
 export default function Professores() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [professors] = useState<Professor[]>(mockProfessors);
+  const { professores, loading, deleteProfessor } = useProfessores();
 
-  const filteredProfessors = professors.filter(professor =>
-    professor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    professor.specialties.some(specialty => 
+  const filteredProfessores = professores.filter(professor =>
+    professor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (professor.especializacao && professor.especializacao.some((specialty: string) => 
       specialty.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    ))
   );
 
-  const getStatusBadge = (status: Professor['status']) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "ativo":
         return <Badge className="bg-accent text-accent-foreground">Ativo</Badge>;
@@ -84,6 +36,14 @@ export default function Professores() {
         return <Badge variant="secondary">{status}</Badge>;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -123,7 +83,9 @@ export default function Professores() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-accent">127</p>
+              <p className="text-2xl font-bold text-accent">
+                {professores.filter(p => p.status === 'ativo').length}
+              </p>
               <p className="text-sm text-muted-foreground">Total Ativos</p>
             </div>
           </CardContent>
@@ -131,7 +93,11 @@ export default function Professores() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">8</p>
+              <p className="text-2xl font-bold text-primary">
+                {professores.filter(p => 
+                  new Date(p.created_at).getMonth() === new Date().getMonth()
+                ).length}
+              </p>
               <p className="text-sm text-muted-foreground">Novos este Mês</p>
             </div>
           </CardContent>
@@ -139,7 +105,9 @@ export default function Professores() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-muted-foreground">15</p>
+              <p className="text-2xl font-bold text-muted-foreground">
+                {professores.filter(p => p.status === 'pendente').length}
+              </p>
               <p className="text-sm text-muted-foreground">Pendentes</p>
             </div>
           </CardContent>
@@ -147,8 +115,8 @@ export default function Professores() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold">4.7</p>
-              <p className="text-sm text-muted-foreground">Avaliação Média</p>
+              <p className="text-2xl font-bold">{professores.length}</p>
+              <p className="text-sm text-muted-foreground">Total Professores</p>
             </div>
           </CardContent>
         </Card>
@@ -156,19 +124,18 @@ export default function Professores() {
 
       {/* Professors Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredProfessors.map((professor) => (
+        {filteredProfessores.map((professor) => (
           <Card key={professor.id} className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src={professor.avatar} />
                     <AvatarFallback>
-                      {professor.name.split(' ').map(n => n[0]).join('')}
+                      {professor.nome.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <CardTitle className="text-lg">{professor.name}</CardTitle>
+                    <CardTitle className="text-lg">{professor.nome}</CardTitle>
                     {getStatusBadge(professor.status)}
                   </div>
                 </div>
@@ -182,7 +149,10 @@ export default function Professores() {
                     <DropdownMenuItem>Ver Perfil</DropdownMenuItem>
                     <DropdownMenuItem>Editar</DropdownMenuItem>
                     <DropdownMenuItem>Ver Agenda</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem 
+                      className="text-destructive"
+                      onClick={() => deleteProfessor(professor.id)}
+                    >
                       Desativar
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -198,11 +168,7 @@ export default function Professores() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
-                  {professor.phone}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  {professor.location}
+                  {professor.telefone || "Não informado"}
                 </div>
               </div>
 
@@ -210,31 +176,28 @@ export default function Professores() {
               <div>
                 <p className="text-sm font-medium mb-2">Especialidades:</p>
                 <div className="flex flex-wrap gap-1">
-                  {professor.specialties.map((specialty, index) => (
+                  {professor.especializacao?.map((specialty, index) => (
                     <Badge key={index} variant="secondary" className="text-xs">
                       {specialty}
                     </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="flex justify-between text-sm">
-                <div>
-                  <p className="font-medium">{professor.totalClasses}</p>
-                  <p className="text-muted-foreground">Aulas</p>
-                </div>
-                <div>
-                  <p className="font-medium">
-                    {professor.rating > 0 ? professor.rating.toFixed(1) : "N/A"}
-                  </p>
-                  <p className="text-muted-foreground">Avaliação</p>
+                  )) || <p className="text-xs text-muted-foreground">Nenhuma especialização</p>}
                 </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {filteredProfessores.length === 0 && !loading && (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">
+            {professores.length === 0 
+              ? "Nenhum professor cadastrado. Clique em 'Novo Professor' para começar."
+              : "Nenhum professor encontrado com os critérios de busca."
+            }
+          </p>
+        </div>
+      )}
     </div>
   );
 }

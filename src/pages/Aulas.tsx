@@ -1,69 +1,22 @@
 import { useState } from "react";
-import { Search, Plus, Calendar, Clock, Users, MapPin, MoreVertical, Edit, Eye, Trash2 } from "lucide-react";
+import { Search, Plus, Calendar, Clock, Users, MapPin, MoreVertical, Edit, Eye, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-interface Aula {
-  id: string;
-  titulo: string;
-  professor: {
-    nome: string;
-    avatar?: string;
-  };
-  turma: string;
-  data: string;
-  horario: string;
-  duracao: number; // em minutos
-  local: string;
-  presentes: number;
-  totalAlunos: number;
-  status: "agendada" | "em-andamento" | "concluida" | "cancelada";
-}
-
-const mockAulas: Aula[] = [
-  {
-    id: "1",
-    titulo: "Técnicas de Oratória",
-    professor: { nome: "Ana Silva" },
-    turma: "Comunicação Avançada",
-    data: "2024-03-20",
-    horario: "14:00",
-    duracao: 120,
-    local: "Sala A1",
-    presentes: 18,
-    totalAlunos: 20,
-    status: "concluida"
-  },
-  {
-    id: "2", 
-    titulo: "Apresentação em Público",
-    professor: { nome: "Carlos Santos" },
-    turma: "Oratória Básica",
-    data: "2024-03-21",
-    horario: "09:00",
-    duracao: 90,
-    local: "Auditório",
-    presentes: 0,
-    totalAlunos: 15,
-    status: "agendada"
-  }
-];
+import { useAulas } from "@/hooks/useAulas";
 
 export default function Aulas() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [aulas] = useState<Aula[]>(mockAulas);
+  const { aulas, loading, deleteAula } = useAulas();
 
   const filteredAulas = aulas.filter(aula =>
-    aula.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    aula.professor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    aula.turma.toLowerCase().includes(searchTerm.toLowerCase())
+    aula.titulo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStatusBadge = (status: Aula['status']) => {
+  const getStatusBadge = (status: string) => {
     const statusConfig = {
       'agendada': { variant: 'secondary' as const, label: 'Agendada' },
       'em-andamento': { variant: 'default' as const, label: 'Em Andamento' },
@@ -71,7 +24,7 @@ export default function Aulas() {
       'cancelada': { variant: 'destructive' as const, label: 'Cancelada' }
     };
     
-    const config = statusConfig[status];
+    const config = statusConfig[status as keyof typeof statusConfig] || { variant: 'secondary' as const, label: status };
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -79,12 +32,13 @@ export default function Aulas() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
-  const getPresenceColor = (presentes: number, total: number) => {
-    const percentage = (presentes / total) * 100;
-    if (percentage >= 80) return "text-green-600";
-    if (percentage >= 60) return "text-yellow-600";
-    return "text-red-600";
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -208,12 +162,12 @@ export default function Aulas() {
               <div className="flex items-center gap-3 mb-4">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback>
-                    {aula.professor.nome.split(' ').map(n => n[0]).join('')}
+                    {(aula as any).professores?.nome ? (aula as any).professores.nome.split(' ').map((n: string) => n[0]).join('') : 'PR'}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">{aula.professor.nome}</p>
-                  <p className="text-xs text-muted-foreground">{aula.turma}</p>
+                  <p className="text-sm font-medium">{(aula as any).professores?.nome || "Professor não informado"}</p>
+                  <p className="text-xs text-muted-foreground">{(aula as any).turmas?.nome || "Turma não informada"}</p>
                 </div>
               </div>
 
@@ -225,23 +179,15 @@ export default function Aulas() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>{aula.horario} ({aula.duracao}min)</span>
+                  <span>{aula.horario_inicio} - {aula.horario_fim}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{aula.local}</span>
+                  <span>{aula.local || "Local não informado"}</span>
                 </div>
               </div>
 
-              {/* Presence */}
-              {aula.status === "concluida" && (
-                <div className="flex items-center justify-between pt-3 border-t">
-                  <span className="text-sm text-muted-foreground">Presença:</span>
-                  <span className={`text-sm font-medium ${getPresenceColor(aula.presentes, aula.totalAlunos)}`}>
-                    {aula.presentes}/{aula.totalAlunos} alunos
-                  </span>
-                </div>
-              )}
+              {/* Presence - Only show for completed classes if we have presence data */}
             </CardContent>
           </Card>
         ))}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, Calendar, Users, Clock, MapPin, MoreHorizontal } from "lucide-react";
+import { Plus, Search, Calendar, Users, Clock, MapPin, MoreHorizontal, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,89 +12,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
-
-interface Turma {
-  id: string;
-  name: string;
-  course: string;
-  professor: {
-    name: string;
-    avatar?: string;
-  };
-  startDate: string;
-  endDate: string;
-  schedule: string;
-  location: string;
-  students: number;
-  maxStudents: number;
-  status: "ativa" | "concluída" | "planejada" | "cancelada";
-  progress: number;
-  client: string;
-}
-
-const mockTurmas: Turma[] = [
-  {
-    id: "1",
-    name: "Comunicação Empresarial - Turma A",
-    course: "Comunicação Empresarial",
-    professor: {
-      name: "Ana Silva Santos",
-    },
-    startDate: "2024-01-15",
-    endDate: "2024-03-15",
-    schedule: "Seg/Qua/Sex - 19h às 21h",
-    location: "Sala 101 - Unidade Centro",
-    students: 18,
-    maxStudents: 20,
-    status: "ativa",
-    progress: 65,
-    client: "Empresa XYZ",
-  },
-  {
-    id: "2",
-    name: "Oratória Avançada - Turma B",
-    course: "Oratória Avançada", 
-    professor: {
-      name: "Carlos Roberto Lima",
-    },
-    startDate: "2024-02-01",
-    endDate: "2024-04-01",
-    schedule: "Ter/Qui - 14h às 17h",
-    location: "Online - Zoom",
-    students: 12,
-    maxStudents: 15,
-    status: "ativa",
-    progress: 40,
-    client: "Universidade ABC",
-  },
-  {
-    id: "3",
-    name: "Técnicas de Apresentação",
-    course: "Técnicas de Apresentação",
-    professor: {
-      name: "Mariana Costa Oliveira",
-    },
-    startDate: "2024-03-01",
-    endDate: "2024-05-01", 
-    schedule: "Sáb - 9h às 12h",
-    location: "Sala 205 - Unidade Norte",
-    students: 8,
-    maxStudents: 12,
-    status: "planejada",
-    progress: 0,
-    client: "Instituto DEF",
-  },
-];
+import { useTurmas } from "@/hooks/useTurmas";
 
 export default function Turmas() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [turmas] = useState<Turma[]>(mockTurmas);
+  const { turmas, loading, deleteTurma } = useTurmas();
 
   const filteredTurmas = turmas.filter(turma =>
-    turma.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    turma.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    turma.professor.name.toLowerCase().includes(searchTerm.toLowerCase())
+    turma.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (turma.descricao && turma.descricao.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      'ativa': { variant: 'default' as const, label: 'Ativa' },
+      'planejada': { variant: 'secondary' as const, label: 'Planejada' },
+      'concluida': { variant: 'outline' as const, label: 'Concluída' },
+      'cancelada': { variant: 'destructive' as const, label: 'Cancelada' }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || { variant: 'secondary' as const, label: status };
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Não definido";
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   const getStatusBadge = (status: Turma['status']) => {
     switch (status) {
