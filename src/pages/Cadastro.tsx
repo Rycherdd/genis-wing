@@ -54,6 +54,7 @@ const especialidadesDisponiveis = [
 ];
 
 export default function Cadastro() {
+  console.log("Cadastro component initializing");
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

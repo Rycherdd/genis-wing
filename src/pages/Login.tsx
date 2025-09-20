@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  console.log("Login component loaded");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,11 +18,13 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Login attempt:", { email, password: "***" });
     setIsLoading(true);
     
     // Simulate login process
     setTimeout(() => {
       setIsLoading(false);
+      console.log("Navigating to dashboard");
       navigate("/");
     }, 1500);
   };
