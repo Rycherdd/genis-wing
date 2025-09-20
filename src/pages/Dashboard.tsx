@@ -1,8 +1,14 @@
+import { useState } from "react";
 import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ProfessorForm } from "@/components/forms/ProfessorForm";
+import { TurmaForm } from "@/components/forms/TurmaForm";
+import { useProfessores } from "@/hooks/useProfessores";
+import { useTurmas } from "@/hooks/useTurmas";
+import { useAulas } from "@/hooks/useAulas";
 
 const quickActions = [
   { label: "Cadastrar Professor", href: "/professores/novo" },
@@ -60,35 +66,52 @@ const upcomingClasses = [
 ];
 
 export default function Dashboard() {
+  const [professorFormOpen, setProfessorFormOpen] = useState(false);
+  const [turmaFormOpen, setTurmaFormOpen] = useState(false);
+  
+  const { professores } = useProfessores();
+  const { turmas } = useTurmas();
+  const { aulas } = useAulas();
+
+  // Calculate real metrics
+  const professorAtivos = professores.filter(p => p.status === 'ativo').length;
+  const turmasAtivas = turmas.filter(t => t.status === 'ativa').length;
+  const aulasHoje = aulas.filter(a => {
+    const hoje = new Date().toDateString();
+    const aulaData = new Date(a.data).toDateString();
+    return hoje === aulaData;
+  }).length;
   return (
     <div className="space-y-6">
       {/* Metrics Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Professores Ativos"
-          value="127"
-          change="+8 este mês"
+          value={professorAtivos.toString()}
+          change={`+${professores.filter(p => 
+            new Date(p.created_at).getMonth() === new Date().getMonth()
+          ).length} este mês`}
           changeType="positive"
           icon={Users}
         />
         <MetricCard
           title="Turmas em Andamento"
-          value="45"
-          change="+3 novas turmas"
+          value={turmasAtivas.toString()}
+          change={`${turmas.filter(t => t.status === 'planejada').length} planejadas`}
           changeType="positive"
           icon={GraduationCap}
         />
         <MetricCard
           title="Aulas Hoje"
-          value="18"
-          change="3 pendentes de confirmação"
+          value={aulasHoje.toString()}
+          change={`${aulas.filter(a => a.status === 'agendada').length} agendadas`}
           changeType="neutral"
           icon={Calendar}
         />
         <MetricCard
-          title="Receita do Mês"
-          value="R$ 89.4K"
-          change="+12% vs mês anterior"
+          title="Total de Dados"
+          value={(professores.length + turmas.length + aulas.length).toString()}
+          change="Sistema funcionando"
           changeType="positive"
           icon={DollarSign}
         />
@@ -104,11 +127,26 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {quickActions.map((action, index) => (
-              <Button key={index} variant="outline" className="w-full justify-start">
-                {action.label}
-              </Button>
-            ))}
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => setProfessorFormOpen(true)}
+            >
+              Cadastrar Professor
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => setTurmaFormOpen(true)}
+            >
+              Nova Turma
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              Agendar Aula
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              Lançar Presença
+            </Button>
           </CardContent>
         </Card>
 
@@ -149,40 +187,53 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Próximas Aulas - Hoje
+            {aulas.length > 0 ? "Próximas Aulas" : "Nenhuma Aula Cadastrada"}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {upcomingClasses.map((classItem, index) => (
-              <div key={index} className="flex items-center justify-between p-4 rounded-lg border bg-card shadow-soft">
-                <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <p className="font-semibold text-lg">{classItem.time}</p>
+          {aulas.length > 0 ? (
+            <div className="space-y-4">
+              {aulas.slice(0, 3).map((aula) => (
+                <div key={aula.id} className="flex items-center justify-between p-4 rounded-lg border bg-card shadow-soft">
+                  <div className="flex items-center gap-4">
+                    <div className="text-center">
+                      <p className="font-semibold text-lg">{aula.horario_inicio}</p>
+                    </div>
+                    <div className="h-8 w-px bg-border" />
+                    <div>
+                      <h4 className="font-semibold">{aula.titulo}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {(aula as any).professores?.nome || "Professor não atribuído"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {aula.local || "Local não informado"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="h-8 w-px bg-border" />
-                  <div>
-                    <h4 className="font-semibold">{classItem.course}</h4>
-                    <p className="text-sm text-muted-foreground">{classItem.professor}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{classItem.location}</p>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={aula.status === 'concluida' ? 'default' : 'secondary'}>
+                      {aula.status === 'concluida' && <CheckCircle className="h-3 w-3 mr-1" />}
+                      {aula.status === 'agendada' ? 'Agendada' : 
+                       aula.status === 'em-andamento' ? 'Em Andamento' :
+                       aula.status === 'concluida' ? 'Concluída' : 'Cancelada'}
+                    </Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={
-                    classItem.status === 'confirmed' ? 'default' :
-                    classItem.status === 'pending' ? 'secondary' : 'destructive'
-                  }>
-                    {classItem.status === 'confirmed' && <CheckCircle className="h-3 w-3 mr-1" />}
-                    {classItem.status === 'substitution' && <AlertTriangle className="h-3 w-3 mr-1" />}
-                    {classItem.status === 'confirmed' ? 'Confirmada' :
-                     classItem.status === 'pending' ? 'Pendente' : 'Substituição'}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhuma aula cadastrada ainda.</p>
+              <p className="text-sm">Comece criando professores e turmas!</p>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Forms */}
+      <ProfessorForm open={professorFormOpen} onOpenChange={setProfessorFormOpen} />
+      <TurmaForm open={turmaFormOpen} onOpenChange={setTurmaFormOpen} />
     </div>
   );
 }

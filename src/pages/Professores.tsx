@@ -12,9 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useProfessores } from "@/hooks/useProfessores";
+import { ProfessorForm } from "@/components/forms/ProfessorForm";
 
 export default function Professores() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [professorFormOpen, setProfessorFormOpen] = useState(false);
   const { professores, loading, deleteProfessor } = useProfessores();
 
   const filteredProfessores = professores.filter(professor =>
@@ -55,7 +57,10 @@ export default function Professores() {
             Gerencie todos os professores da plataforma
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-medium">
+        <Button 
+          className="bg-gradient-primary shadow-medium"
+          onClick={() => setProfessorFormOpen(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Novo Professor
         </Button>
@@ -198,6 +203,9 @@ export default function Professores() {
           </p>
         </div>
       )}
+
+      {/* Professor Form */}
+      <ProfessorForm open={professorFormOpen} onOpenChange={setProfessorFormOpen} />
     </div>
   );
 }

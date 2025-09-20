@@ -12,9 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTurmas } from "@/hooks/useTurmas";
+import { TurmaForm } from "@/components/forms/TurmaForm";
 
 export default function Turmas() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [turmaFormOpen, setTurmaFormOpen] = useState(false);
   const { turmas, loading, deleteTurma } = useTurmas();
 
   const filteredTurmas = turmas.filter(turma =>
@@ -57,7 +59,10 @@ export default function Turmas() {
             Gerencie todas as turmas e seus alunos
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-medium">
+        <Button 
+          className="bg-gradient-primary shadow-medium"
+          onClick={() => setTurmaFormOpen(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nova Turma
         </Button>
@@ -220,6 +225,9 @@ export default function Turmas() {
           </p>
         </div>
       )}
+
+      {/* Turma Form */}
+      <TurmaForm open={turmaFormOpen} onOpenChange={setTurmaFormOpen} />
     </div>
   );
 }
