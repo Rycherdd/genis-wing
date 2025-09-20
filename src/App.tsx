@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Professores from "./pages/Professores";
 import Turmas from "./pages/Turmas";
-import Agenda from "./pages/Agenda";
+import Aulas from "./pages/Aulas";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -29,7 +29,7 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Layout><Index /></Layout></ProtectedRoute>} />
             <Route path="/professores" element={<ProtectedRoute><Layout><Professores /></Layout></ProtectedRoute>} />
             <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
-            <Route path="/agenda" element={<ProtectedRoute><Layout><Agenda /></Layout></ProtectedRoute>} />
+            <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -9,14 +9,7 @@ const pageNames: Record<string, string> = {
   "/": "Dashboard",
   "/professores": "Professores", 
   "/turmas": "Turmas",
-  "/cursos": "Cursos",
-  "/agenda": "Agenda",
-  "/contratos": "Contratos",
-  "/pagamentos": "Pagamentos",
-  "/qualidade": "Qualidade",
-  "/clientes": "Clientes",
-  "/relatorios": "Relatórios",
-  "/configuracoes": "Configurações",
+  "/aulas": "Aulas",
 };
 
 export function Header() {

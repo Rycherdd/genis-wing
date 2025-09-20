@@ -15,14 +15,7 @@ export const sidebarItems: SidebarItem[] = [
   { label: "Dashboard", icon: Home, href: "/" },
   { label: "Professores", icon: Users, href: "/professores" },
   { label: "Turmas", icon: GraduationCap, href: "/turmas" },
-  { label: "Cursos", icon: BookOpen, href: "/cursos" },
-  { label: "Agenda", icon: Calendar, href: "/agenda" },
-  { label: "Contratos", icon: FileText, href: "/contratos" },
-  { label: "Pagamentos", icon: CreditCard, href: "/pagamentos" },
-  { label: "Qualidade", icon: CheckCircle, href: "/qualidade" },
-  { label: "Clientes", icon: Building, href: "/clientes" },
-  { label: "Relatórios", icon: BarChart3, href: "/relatorios" },
-  { label: "Configurações", icon: Settings, href: "/configuracoes" },
+  { label: "Aulas", icon: BookOpen, href: "/aulas" },
 ];
 
 export function Sidebar() {
