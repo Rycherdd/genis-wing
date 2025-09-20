@@ -14,6 +14,228 @@ export type Database = {
   }
   public: {
     Tables: {
+      alunos: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          nome: string
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aulas: {
+        Row: {
+          created_at: string
+          data: string
+          descricao: string | null
+          horario_fim: string
+          horario_inicio: string
+          id: string
+          local: string | null
+          professor_id: string
+          status: string
+          titulo: string
+          turma_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          descricao?: string | null
+          horario_fim: string
+          horario_inicio: string
+          id?: string
+          local?: string | null
+          professor_id: string
+          status?: string
+          titulo: string
+          turma_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          horario_fim?: string
+          horario_inicio?: string
+          id?: string
+          local?: string | null
+          professor_id?: string
+          status?: string
+          titulo?: string
+          turma_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aulas_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "professores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aulas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matriculas: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          data_matricula: string
+          id: string
+          status: string
+          turma_id: string
+          user_id: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          data_matricula?: string
+          id?: string
+          status?: string
+          turma_id: string
+          user_id: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          data_matricula?: string
+          id?: string
+          status?: string
+          turma_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matriculas_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matriculas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presenca: {
+        Row: {
+          aluno_id: string
+          aula_id: string
+          created_at: string
+          id: string
+          observacoes: string | null
+          presente: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aluno_id: string
+          aula_id: string
+          created_at?: string
+          id?: string
+          observacoes?: string | null
+          presente?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aluno_id?: string
+          aula_id?: string
+          created_at?: string
+          id?: string
+          observacoes?: string | null
+          presente?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presenca_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presenca_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professores: {
+        Row: {
+          created_at: string
+          email: string
+          especializacao: string[] | null
+          id: string
+          nome: string
+          status: string
+          telefone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          especializacao?: string[] | null
+          id?: string
+          nome: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          especializacao?: string[] | null
+          id?: string
+          nome?: string
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -43,6 +265,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      turmas: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string | null
+          descricao: string | null
+          id: string
+          max_alunos: number
+          nome: string
+          professor_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          id?: string
+          max_alunos?: number
+          nome: string
+          professor_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          id?: string
+          max_alunos?: number
+          nome?: string
+          professor_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turmas_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "professores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
