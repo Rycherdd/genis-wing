@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Progress } from "@/components/ui/progress";
 import { useTurmas } from "@/hooks/useTurmas";
 
 export default function Turmas() {
@@ -48,27 +47,6 @@ export default function Turmas() {
     );
   }
 
-  const getStatusBadge = (status: Turma['status']) => {
-    switch (status) {
-      case "ativa":
-        return <Badge className="bg-accent text-accent-foreground">Ativa</Badge>;
-      case "concluída":
-        return <Badge className="bg-primary text-primary-foreground">Concluída</Badge>;
-      case "planejada":
-        return <Badge variant="outline">Planejada</Badge>;
-      case "cancelada":
-        return <Badge variant="destructive">Cancelada</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
-  const getProgressColor = (progress: number) => {
-    if (progress >= 80) return "bg-accent";
-    if (progress >= 50) return "bg-primary"; 
-    return "bg-muted-foreground";
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -76,7 +54,7 @@ export default function Turmas() {
         <div>
           <h1 className="text-3xl font-bold">Turmas</h1>
           <p className="text-muted-foreground">
-            Gerencie todas as turmas e cronogramas
+            Gerencie todas as turmas e seus alunos
           </p>
         </div>
         <Button className="bg-gradient-primary shadow-medium">
@@ -99,71 +77,76 @@ export default function Turmas() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-accent">45</p>
-              <p className="text-sm text-muted-foreground">Turmas Ativas</p>
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-blue-500" />
+              <div>
+                <p className="text-2xl font-bold">
+                  {turmas.filter(t => t.status === 'ativa').length}
+                </p>
+                <p className="text-sm text-muted-foreground">Ativas</p>
+              </div>
             </div>
           </CardContent>
         </Card>
+        
         <Card>
           <CardContent className="p-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">12</p>
-              <p className="text-sm text-muted-foreground">Planejadas</p>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-green-500" />
+              <div>
+                <p className="text-2xl font-bold">
+                  {turmas.filter(t => t.status === 'planejada').length}
+                </p>
+                <p className="text-sm text-muted-foreground">Planejadas</p>
+              </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-muted-foreground">128</p>
-              <p className="text-sm text-muted-foreground">Concluídas</p>
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-orange-500" />
+              <div>
+                <p className="text-2xl font-bold">
+                  {turmas.filter(t => t.status === 'concluida').length}
+                </p>
+                <p className="text-sm text-muted-foreground">Concluídas</p>
+              </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold">456</p>
-              <p className="text-sm text-muted-foreground">Total Alunos</p>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-purple-500" />
+              <div>
+                <p className="text-2xl font-bold">{turmas.length}</p>
+                <p className="text-sm text-muted-foreground">Total</p>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Turmas List */}
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTurmas.map((turma) => (
-          <Card key={turma.id} className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <CardTitle className="text-xl">{turma.name}</CardTitle>
-                      {getStatusBadge(turma.status)}
-                    </div>
-                    <p className="text-muted-foreground">{turma.course}</p>
-                    <p className="text-sm text-muted-foreground">Cliente: {turma.client}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={turma.professor.avatar} />
-                      <AvatarFallback>
-                        {turma.professor.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{turma.professor.name}</p>
-                      <p className="text-sm text-muted-foreground">Professor</p>
-                    </div>
-                  </div>
+          <Card key={turma.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="font-semibold mb-2">{turma.nome}</h3>
+                  {getStatusBadge(turma.status)}
+                  {turma.descricao && (
+                    <p className="text-xs text-muted-foreground mt-1">{turma.descricao}</p>
+                  )}
                 </div>
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -173,82 +156,70 @@ export default function Turmas() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
                     <DropdownMenuItem>Editar</DropdownMenuItem>
-                    <DropdownMenuItem>Ver Agenda</DropdownMenuItem>
+                    <DropdownMenuItem>Ver Aulas</DropdownMenuItem>
                     <DropdownMenuItem>Lista de Alunos</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
-                      Cancelar Turma
+                    <DropdownMenuItem 
+                      className="text-destructive"
+                      onClick={() => deleteTurma(turma.id)}
+                    >
+                      Excluir Turma
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              {/* Info Grid */}
-              <div className="grid gap-4 md:grid-cols-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Período</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(turma.startDate).toLocaleDateString()} - {new Date(turma.endDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Horário</p>
-                    <p className="text-xs text-muted-foreground">{turma.schedule}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Local</p>
-                    <p className="text-xs text-muted-foreground">{turma.location}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Alunos</p>
-                    <p className="text-xs text-muted-foreground">
-                      {turma.students}/{turma.maxStudents} matriculados
-                    </p>
-                  </div>
+              {/* Professor */}
+              <div className="flex items-center gap-3 mb-4">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>
+                    {(turma as any).professores?.nome 
+                      ? (turma as any).professores.nome.split(' ').map((n: string) => n[0]).join('') 
+                      : 'PR'
+                    }
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium">
+                    {(turma as any).professores?.nome || "Professor não atribuído"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Professor</p>
                 </div>
               </div>
 
-              {/* Progress */}
-              {turma.status === "ativa" && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Progresso do Curso</span>
-                    <span>{turma.progress}%</span>
-                  </div>
-                  <Progress value={turma.progress} className="h-2" />
+              {/* Dates */}
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    {formatDate(turma.data_inicio)} - {formatDate(turma.data_fim)}
+                  </span>
                 </div>
-              )}
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span>Máximo: {turma.max_alunos} alunos</span>
+                </div>
+              </div>
 
-              {/* Occupancy */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Ocupação</span>
-                  <span>{Math.round((turma.students / turma.maxStudents) * 100)}%</span>
-                </div>
-                <Progress 
-                  value={(turma.students / turma.maxStudents) * 100} 
-                  className="h-2"
-                />
+              {/* Students Progress */}
+              <div className="flex items-center justify-between pt-3 border-t">
+                <span className="text-sm text-muted-foreground">Vagas:</span>
+                <span className="text-sm font-medium">0/{turma.max_alunos}</span>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {filteredTurmas.length === 0 && !loading && (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">
+            {turmas.length === 0 
+              ? "Nenhuma turma cadastrada. Clique em 'Nova Turma' para começar."
+              : "Nenhuma turma encontrada com os critérios de busca."
+            }
+          </p>
+        </div>
+      )}
     </div>
   );
 }
