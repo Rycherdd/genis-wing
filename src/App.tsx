@@ -9,6 +9,7 @@ import Professores from "./pages/Professores";
 import Turmas from "./pages/Turmas";
 import Agenda from "./pages/Agenda";
 import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/" element={<Layout><Index /></Layout>} />
           <Route path="/professores" element={<Layout><Professores /></Layout>} />
           <Route path="/turmas" element={<Layout><Turmas /></Layout>} />

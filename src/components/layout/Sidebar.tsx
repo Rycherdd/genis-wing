@@ -48,7 +48,7 @@ export function Sidebar() {
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold">Do Genis</h1>
+            <h1 className="text-lg font-semibold">Genis</h1>
             <p className="text-xs text-muted-foreground">Sistema de Professores</p>
           </div>
         </div>
@@ -88,7 +88,7 @@ export function Sidebar() {
           <div className="h-8 w-8 rounded-full bg-gradient-primary"></div>
           <div className="flex-1">
             <p className="text-sm font-medium">Admin User</p>
-            <p className="text-xs text-muted-foreground">admin@dogenis.com</p>
+            <p className="text-xs text-muted-foreground">admin@genis.com</p>
           </div>
         </div>
         <Button
