@@ -38,7 +38,7 @@ export function Sidebar() {
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold">Genis</h1>
+            <h1 className="text-lg font-semibold">Ae?</h1>
             <p className="text-xs text-muted-foreground">Sistema de Professores</p>
           </div>
         </div>
