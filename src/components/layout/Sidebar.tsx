@@ -1,19 +1,8 @@
-import { 
-  Users, 
-  Calendar, 
-  BookOpen, 
-  FileText, 
-  BarChart3, 
-  Settings, 
-  Home,
-  GraduationCap,
-  CreditCard,
-  CheckCircle,
-  Building
-} from "lucide-react";
-import { useLocation, Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarItem {
   label: string;
@@ -38,6 +27,7 @@ export const sidebarItems: SidebarItem[] = [
 
 export function Sidebar() {
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-card shadow-soft">
@@ -83,24 +73,30 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t p-4">
-        <div className="flex items-center gap-3 rounded-lg bg-muted p-3">
-          <div className="h-8 w-8 rounded-full bg-gradient-primary"></div>
-          <div className="flex-1">
-            <p className="text-sm font-medium">Admin User</p>
-            <p className="text-xs text-muted-foreground">admin@genis.com</p>
+      <div className="border-t">
+        {/* User Info */}
+        <div className="flex items-center gap-3 p-3 border-b">
+          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <UserCircle className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{user?.user_metadata?.full_name || 'Usuário'}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full mt-3"
-          asChild
-        >
-          <Link to="/login">
-            Sair do Sistema
-          </Link>
-        </Button>
+
+        {/* Logout Button */}
+        <div className="p-3 pt-0">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-muted-foreground hover:text-foreground" 
+            size="sm"
+            onClick={signOut}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sair
+          </Button>
+        </div>
       </div>
     </div>
   );

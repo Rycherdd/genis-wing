@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, GraduationCap, ArrowLeft, Building, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FormData {
   // Dados Pessoais
@@ -54,13 +54,19 @@ const especialidadesDisponiveis = [
 ];
 
 export default function Cadastro() {
-  console.log("Cadastro component initializing");
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { user, signUp } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   const [formData, setFormData] = useState<FormData>({
     nomeCompleto: "",
@@ -125,47 +131,29 @@ export default function Cadastro() {
     if (validateStep(step)) {
       setStep(step + 1);
     } else {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
-      });
+      // Show validation message without toast for now
+      console.log("Please fill all required fields");
     }
   };
 
   const handleSubmit = async () => {
     if (!validateStep(4)) {
-      toast({
-        title: "Erro no cadastro",
-        description: "Verifique se todos os campos estão preenchidos corretamente.",
-        variant: "destructive",
-      });
       return;
     }
 
     if (formData.senha !== formData.confirmarSenha) {
-      toast({
-        title: "Senhas não coincidem",
-        description: "As senhas digitadas não são iguais.",
-        variant: "destructive",
-      });
       return;
     }
 
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Cadastro realizado com sucesso!",
-        description: "Sua conta foi criada. Você será redirecionado para o login.",
-      });
-      
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    }, 2000);
+    const { error } = await signUp(formData.email, formData.senha, formData.nomeCompleto);
+    
+    if (!error) {
+      navigate("/login", { replace: true });
+    }
+    
+    setIsLoading(false);
   };
 
   const renderStep = () => {
