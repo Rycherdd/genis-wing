@@ -12,12 +12,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTurmas } from "@/hooks/useTurmas";
+import { useMatriculas } from "@/hooks/useMatriculas";
 import { TurmaForm } from "@/components/forms/TurmaForm";
+import { GerenciarAlunosForm } from "@/components/forms/GerenciarAlunosForm";
 
 export default function Turmas() {
   const [searchTerm, setSearchTerm] = useState("");
   const [turmaFormOpen, setTurmaFormOpen] = useState(false);
+  const [gerenciarAlunosOpen, setGerenciarAlunosOpen] = useState(false);
+  const [selectedTurma, setSelectedTurma] = useState<{ id: string; nome: string } | null>(null);
   const { turmas, loading, deleteTurma } = useTurmas();
+  const { getMatriculasByTurma } = useMatriculas();
 
   const filteredTurmas = turmas.filter(turma =>
     turma.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,7 +167,14 @@ export default function Turmas() {
                     <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
                     <DropdownMenuItem>Editar</DropdownMenuItem>
                     <DropdownMenuItem>Ver Aulas</DropdownMenuItem>
-                    <DropdownMenuItem>Lista de Alunos</DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedTurma({ id: turma.id, nome: turma.nome });
+                        setGerenciarAlunosOpen(true);
+                      }}
+                    >
+                      Gerenciar Alunos
+                    </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-destructive"
                       onClick={() => deleteTurma(turma.id)}
@@ -208,7 +220,9 @@ export default function Turmas() {
               {/* Students Progress */}
               <div className="flex items-center justify-between pt-3 border-t">
                 <span className="text-sm text-muted-foreground">Vagas:</span>
-                <span className="text-sm font-medium">0/{turma.max_alunos}</span>
+                <span className="text-sm font-medium">
+                  {getMatriculasByTurma(turma.id).length}/{turma.max_alunos}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -228,6 +242,16 @@ export default function Turmas() {
 
       {/* Turma Form */}
       <TurmaForm open={turmaFormOpen} onOpenChange={setTurmaFormOpen} />
+      
+      {/* Gerenciar Alunos Form */}
+      {selectedTurma && (
+        <GerenciarAlunosForm 
+          open={gerenciarAlunosOpen}
+          onOpenChange={setGerenciarAlunosOpen}
+          turmaId={selectedTurma.id}
+          turmaNome={selectedTurma.nome}
+        />
+      )}
     </div>
   );
 }
