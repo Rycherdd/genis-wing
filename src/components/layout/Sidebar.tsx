@@ -14,8 +14,9 @@ interface SidebarItem {
 export const sidebarItems: SidebarItem[] = [
   { label: "Dashboard", icon: Home, href: "/" },
   { label: "Professores", icon: Users, href: "/professores" },
-  { label: "Turmas", icon: GraduationCap, href: "/turmas" },
-  { label: "Aulas", icon: BookOpen, href: "/aulas" },
+  { label: "Alunos", icon: GraduationCap, href: "/alunos" },
+  { label: "Turmas", icon: BookOpen, href: "/turmas" },
+  { label: "Aulas", icon: Calendar, href: "/aulas" },
 ];
 
 export function Sidebar() {

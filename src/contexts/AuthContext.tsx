@@ -7,7 +7,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  userRole: string | null;
+  signUp: (email: string, password: string, fullName: string, role?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -18,14 +19,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Fetch user role from profiles
+        if (session?.user) {
+          setTimeout(async () => {
+            try {
+              const { data } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('user_id', session.user.id)
+                .single();
+              setUserRole(data?.role || 'professor');
+            } catch (error) {
+              setUserRole('professor');
+            }
+          }, 0);
+        } else {
+          setUserRole(null);
+        }
+        
         setLoading(false);
       }
     );
@@ -40,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, role: string = 'professor') => {
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -49,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: fullName,
+            role: role,
           },
         },
       });
@@ -127,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       session,
       loading,
+      userRole,
       signUp,
       signIn,
       signOut,

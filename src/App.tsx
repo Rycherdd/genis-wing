@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Professores from "./pages/Professores";
 import Turmas from "./pages/Turmas";
 import Aulas from "./pages/Aulas";
+import Alunos from "./pages/Alunos";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/professores" element={<ProtectedRoute><Layout><Professores /></Layout></ProtectedRoute>} />
             <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
             <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
+            <Route path="/alunos" element={<ProtectedRoute><Layout><Alunos /></Layout></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

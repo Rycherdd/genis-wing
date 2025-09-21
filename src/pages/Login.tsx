@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff, Mail, Lock, GraduationCap } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, GraduationCap, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,10 +13,14 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [role, setRole] = useState("professor");
   const navigate = useNavigate();
-  const { user, signIn } = useAuth();
+  const { user, signIn, signUp } = useAuth();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -30,13 +35,27 @@ export default function Login() {
     if (!email || !password) {
       return;
     }
+
+    if (!isLogin && (!fullName || password !== confirmPassword)) {
+      return;
+    }
     
     setIsLoading(true);
     
-    const { error } = await signIn(email, password);
-    
-    if (!error) {
-      navigate("/", { replace: true });
+    if (isLogin) {
+      const { error } = await signIn(email, password);
+      if (!error) {
+        navigate("/", { replace: true });
+      }
+    } else {
+      const { error } = await signUp(email, password, fullName, role);
+      if (!error) {
+        setIsLogin(true);
+        setEmail("");
+        setPassword("");
+        setFullName("");
+        setConfirmPassword("");
+      }
     }
     
     setIsLoading(false);
@@ -91,14 +110,53 @@ export default function Login() {
           <Card className="bg-gradient-card shadow-large border-0">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold text-center">
-                Fazer Login
+                {isLogin ? "Fazer Login" : "Criar Conta"}
               </CardTitle>
               <p className="text-center text-muted-foreground">
-                Entre com suas credenciais para acessar o sistema
+                {isLogin 
+                  ? "Entre com suas credenciais para acessar o sistema"
+                  : "Cadastre-se para começar a usar o sistema"
+                }
               </p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-6">
+                {/* Role Selection - Only for Signup */}
+                {!isLogin && (
+                  <div className="space-y-3">
+                    <Label>Tipo de Conta</Label>
+                    <RadioGroup value={role} onValueChange={setRole} className="flex gap-6">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="professor" id="professor" />
+                        <Label htmlFor="professor" className="cursor-pointer">Professor</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="aluno" id="aluno" />
+                        <Label htmlFor="aluno" className="cursor-pointer">Aluno</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                )}
+
+                {/* Full Name - Only for Signup */}
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Nome Completo</Label>
+                    <div className="relative">
+                      <UserCheck className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="fullName"
+                        type="text"
+                        placeholder="Seu nome completo"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="pl-10"
+                        required={!isLogin}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Email Field */}
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
@@ -144,7 +202,27 @@ export default function Login() {
                   </div>
                 </div>
 
-                {/* Remember Me & Forgot Password */}
+                {/* Confirm Password - Only for Signup */}
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Confirme sua senha"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pl-10 pr-10"
+                        required={!isLogin}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Remember Me & Forgot Password - Only for Login */}
+                {isLogin && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -167,8 +245,9 @@ export default function Login() {
                     Esqueceu a senha?
                   </Button>
                 </div>
+                )}
 
-                {/* Login Button */}
+                {/* Submit Button */}
                 <Button
                   type="submit"
                   className="w-full bg-gradient-primary shadow-medium hover:shadow-large transition-all duration-300"
@@ -177,10 +256,10 @@ export default function Login() {
                   {isLoading ? (
                     <div className="flex items-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                      Entrando...
+                      {isLogin ? "Entrando..." : "Criando conta..."}
                     </div>
                   ) : (
-                    "Entrar no Sistema"
+                    isLogin ? "Entrar no Sistema" : "Criar Conta"
                   )}
                 </Button>
 
@@ -229,14 +308,16 @@ export default function Login() {
               </form>
 
               <div className="text-center text-xs text-muted-foreground">
-                <span className="text-muted-foreground">Não tem uma conta? </span>
+                <span className="text-muted-foreground">
+                  {isLogin ? "Não tem uma conta? " : "Já tem uma conta? "}
+                </span>
                 <Button
                   type="button"
                   variant="link"
                   className="p-0 text-primary hover:text-primary-hover font-medium"
-                  onClick={() => navigate("/cadastro")}
+                  onClick={() => setIsLogin(!isLogin)}
                 >
-                  Criar Conta
+                  {isLogin ? "Criar Conta" : "Fazer Login"}
                 </Button>
               </div>
             </CardContent>

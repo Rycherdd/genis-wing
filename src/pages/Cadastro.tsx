@@ -147,7 +147,7 @@ export default function Cadastro() {
 
     setIsLoading(true);
     
-    const { error } = await signUp(formData.email, formData.senha, formData.nomeCompleto);
+    const { error } = await signUp(formData.email, formData.senha, formData.nomeCompleto, 'professor');
     
     if (!error) {
       navigate("/login", { replace: true });

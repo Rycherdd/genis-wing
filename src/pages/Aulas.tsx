@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAulas } from "@/hooks/useAulas";
+import { AulaForm } from "@/components/forms/AulaForm";
 
 export default function Aulas() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAulaForm, setShowAulaForm] = useState(false);
   const { aulas, loading, deleteAula } = useAulas();
 
   const filteredAulas = aulas.filter(aula =>
@@ -50,7 +52,7 @@ export default function Aulas() {
             Gerencie as aulas e controle a presença dos alunos
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setShowAulaForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Aula
         </Button>
@@ -198,6 +200,8 @@ export default function Aulas() {
           <p className="text-muted-foreground">Nenhuma aula encontrada.</p>
         </div>
       )}
+
+      <AulaForm open={showAulaForm} onOpenChange={setShowAulaForm} />
     </div>
   );
 }
