@@ -4,24 +4,37 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface SidebarItem {
+interface NavigationItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   href: string;
-  badge?: string;
 }
-
-export const sidebarItems: SidebarItem[] = [
-  { label: "Dashboard", icon: Home, href: "/" },
-  { label: "Professores", icon: Users, href: "/professores" },
-  { label: "Alunos", icon: GraduationCap, href: "/alunos" },
-  { label: "Turmas", icon: BookOpen, href: "/turmas" },
-  { label: "Aulas", icon: Calendar, href: "/aulas" },
-];
 
 export function Sidebar() {
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, signOut, userRole } = useAuth();
+
+  // Define different sidebar items based on user role
+  const getNavigationItems = (): NavigationItem[] => {
+    if (userRole === 'aluno') {
+      return [
+        { label: "Dashboard", icon: Home, href: "/" },
+        { label: "Minhas Turmas", icon: BookOpen, href: "/turmas" },
+        { label: "Aulas", icon: Calendar, href: "/aulas" },
+      ];
+    }
+    
+    // Professor view (default)
+    return [
+      { label: "Dashboard", icon: Home, href: "/" },
+      { label: "Professores", icon: Users, href: "/professores" },
+      { label: "Alunos", icon: GraduationCap, href: "/alunos" },
+      { label: "Turmas", icon: BookOpen, href: "/turmas" },
+      { label: "Aulas", icon: Calendar, href: "/aulas" },
+    ];
+  };
+
+  const navigationItems = getNavigationItems();
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-card shadow-soft">
@@ -32,15 +45,15 @@ export function Sidebar() {
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold">Ae?</h1>
-            <p className="text-xs text-muted-foreground">Sistema de Professores</p>
+            <h1 className="text-lg font-semibold">Genis</h1>
+            <p className="text-xs text-muted-foreground">Sistema Educacional</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
-        {sidebarItems.map((item, index) => {
+        {navigationItems.map((item, index) => {
           const isActive = location.pathname === item.href;
           return (
             <Button
@@ -55,11 +68,6 @@ export function Sidebar() {
               <Link to={item.href}>
                 <item.icon className="h-5 w-5" />
                 <span className="font-medium">{item.label}</span>
-                {item.badge && (
-                  <span className="ml-auto rounded-full bg-accent px-2 py-1 text-xs text-accent-foreground">
-                    {item.badge}
-                  </span>
-                )}
               </Link>
             </Button>
           );
@@ -76,6 +84,9 @@ export function Sidebar() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{user?.user_metadata?.full_name || 'Usuário'}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <p className="text-xs text-primary font-medium">
+              {userRole === 'aluno' ? 'Aluno' : userRole === 'professor' ? 'Professor' : 'Usuário'}
+            </p>
           </div>
         </div>
 
