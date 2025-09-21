@@ -9,6 +9,7 @@ const pageNames: Record<string, string> = {
   "/turmas": "Turmas",
   "/aulas": "Aulas",
   "/alunos": "Alunos",
+  "/presenca": "Controle de Presença",
 };
 
 export function Header() {

@@ -141,10 +141,11 @@ export default function Dashboard() {
             >
               Nova Turma
             </Button>
-            <Button variant="outline" className="w-full justify-start">
-              Agendar Aula
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => window.location.href = '/presenca'}
+            >
               Lançar Presença
             </Button>
           </CardContent>

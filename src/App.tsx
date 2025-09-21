@@ -14,6 +14,7 @@ import TurmasAluno from "./pages/TurmasAluno";
 import Aulas from "./pages/Aulas";
 import AulasAluno from "./pages/AulasAluno";
 import Alunos from "./pages/Alunos";
+import Presenca from "./pages/Presenca";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -33,7 +34,8 @@ function AppRoutes() {
           <Route path="/professores" element={<ProtectedRoute><Layout><Professores /></Layout></ProtectedRoute>} />
           <Route path="/alunos" element={<ProtectedRoute><Layout><Alunos /></Layout></ProtectedRoute>} />
           <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
-          <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
+            <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
+            <Route path="/presenca" element={<ProtectedRoute><Layout><Presenca /></Layout></ProtectedRoute>} />
         </>
       ) : (
         <>

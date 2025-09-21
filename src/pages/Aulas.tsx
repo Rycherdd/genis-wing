@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Calendar, Clock, Users, MapPin, MoreVertical, Edit, Eye, Trash2, Loader2 } from "lucide-react";
+import { Search, Plus, Calendar, Clock, Users, MapPin, MoreVertical, Edit, Eye, Trash2, Loader2, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,10 +8,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAulas } from "@/hooks/useAulas";
 import { AulaForm } from "@/components/forms/AulaForm";
+import { PresencaForm } from "@/components/forms/PresencaForm";
 
 export default function Aulas() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAulaForm, setShowAulaForm] = useState(false);
+  const [selectedAulaForPresenca, setSelectedAulaForPresenca] = useState<any>(null);
   const { aulas, loading, deleteAula } = useAulas();
 
   const filteredAulas = aulas.filter(aula =>
@@ -148,11 +150,14 @@ export default function Aulas() {
                       <Edit className="mr-2 h-4 w-4" />
                       Editar
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Users className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => setSelectedAulaForPresenca(aula)}>
+                      <UserCheck className="mr-2 h-4 w-4" />
                       Controlar Presença
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem 
+                      className="text-destructive"
+                      onClick={() => deleteAula(aula.id)}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Cancelar Aula
                     </DropdownMenuItem>
@@ -202,6 +207,14 @@ export default function Aulas() {
       )}
 
       <AulaForm open={showAulaForm} onOpenChange={setShowAulaForm} />
+      
+      {selectedAulaForPresenca && (
+        <PresencaForm
+          open={!!selectedAulaForPresenca}
+          onOpenChange={(open) => !open && setSelectedAulaForPresenca(null)}
+          aula={selectedAulaForPresenca}
+        />
+      )}
     </div>
   );
 }
