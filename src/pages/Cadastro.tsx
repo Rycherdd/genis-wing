@@ -472,7 +472,7 @@ export default function Cadastro() {
                 <Button variant="link" className="p-0 h-auto text-primary">
                   Política de Privacidade
                 </Button>{" "}
-                da plataforma Ae? *
+                da plataforma Genis - Gestão de Professores *
               </Label>
             </div>
 
@@ -516,7 +516,7 @@ export default function Cadastro() {
                 <GraduationCap className="h-8 w-8" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold mb-2">Ae?</h1>
+            <h1 className="text-3xl font-bold mb-2">Genis - Gestão de Professores</h1>
             <p className="text-lg text-white/90">Cadastro de Professor</p>
           </div>
 
@@ -555,7 +555,7 @@ export default function Cadastro() {
                 <GraduationCap className="h-6 w-6" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold">Ae?</h1>
+            <h1 className="text-2xl font-bold">Genis - Gestão de Professores</h1>
             <p className="text-muted-foreground">Cadastro de Professor</p>
           </div>
 
@@ -628,7 +628,7 @@ export default function Cadastro() {
 
           {/* Footer */}
           <div className="text-center text-xs text-muted-foreground">
-            <p>© 2024 Ae?. Todos os direitos reservados.</p>
+            <p>© 2024 Genis - Gestão de Professores. Todos os direitos reservados.</p>
           </div>
         </div>
       </div>
