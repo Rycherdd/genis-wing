@@ -94,7 +94,7 @@ export default function Login() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background via-background to-muted/30">
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Header */}
           <div className="text-center lg:hidden">
@@ -107,7 +107,7 @@ export default function Login() {
             <p className="text-muted-foreground">Sistema de Gestão de Professores</p>
           </div>
 
-          <Card className="bg-gradient-card shadow-large border-0">
+          <Card className="bg-gradient-to-br from-card to-card/50 shadow-large border border-primary/10 backdrop-blur-sm">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold text-center">
                 {isLogin ? "Fazer Login" : "Criar Conta"}
@@ -250,7 +250,7 @@ export default function Login() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-primary shadow-medium hover:shadow-large transition-all duration-300"
+                  className="w-full bg-gradient-to-r from-primary via-primary to-primary-hover text-primary-foreground shadow-medium hover:shadow-large hover:from-primary-hover hover:to-primary transition-all duration-300 font-semibold"
                   disabled={isLoading}
                 >
                   {isLoading ? (
