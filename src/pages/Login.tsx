@@ -81,17 +81,6 @@ export default function Login() {
                 "Ninguém educa ninguém, ninguém educa a si mesmo, os homens se educam em comunhão."
               </p>
             </div>
-            <div className="space-y-4 text-white/80">
-              <div className="flex items-center gap-3">
-                <span>Gerencie professores e turmas</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span>Controle de agenda e presença</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span>Relatórios e análises detalhadas</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
