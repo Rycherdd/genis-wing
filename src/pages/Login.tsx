@@ -64,7 +64,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-primary relative">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary via-secondary/90 to-primary relative">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative flex items-center justify-center w-full p-12">
           <div className="text-center text-white">
@@ -83,15 +83,12 @@ export default function Login() {
             </div>
             <div className="space-y-4 text-white/80">
               <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-white/60"></div>
                 <span>Gerencie professores e turmas</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-white/60"></div>
                 <span>Controle de agenda e presença</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-white/60"></div>
                 <span>Relatórios e análises detalhadas</span>
               </div>
             </div>
