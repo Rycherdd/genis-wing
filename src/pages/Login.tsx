@@ -78,7 +78,7 @@ export default function Login() {
             <p className="text-lg mb-6 text-white/80 font-medium">Para uso interno exclusivo</p>
             <div className="mb-6 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
               <p className="text-white font-semibold text-center">
-                "Transformando a educação através da tecnologia"
+                "Ninguém educa ninguém, ninguém educa a si mesmo, os homens se educam em comunhão."
               </p>
             </div>
             <div className="space-y-4 text-white/80">
