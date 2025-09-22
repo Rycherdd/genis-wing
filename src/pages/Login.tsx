@@ -74,7 +74,13 @@ export default function Login() {
               </div>
             </div>
             <h1 className="text-4xl font-bold mb-4">Genis - Gestão de Professores</h1>
-            <p className="text-xl mb-6 text-white/90">Sistema de Gestão de Professores</p>
+            <p className="text-xl mb-2 text-white/90">Sistema de Gestão de Professores</p>
+            <p className="text-lg mb-6 text-white/80 font-medium">Para uso interno exclusivo</p>
+            <div className="mb-6 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+              <p className="text-white font-semibold text-center">
+                "Transformando a educação através da tecnologia"
+              </p>
+            </div>
             <div className="space-y-4 text-white/80">
               <div className="flex items-center gap-3">
                 <div className="h-2 w-2 rounded-full bg-white/60"></div>
@@ -105,6 +111,7 @@ export default function Login() {
             </div>
             <h1 className="text-2xl font-bold">Genis - Gestão de Professores</h1>
             <p className="text-muted-foreground">Sistema de Gestão de Professores</p>
+            <p className="text-sm text-muted-foreground/80 mt-1">Para uso interno exclusivo</p>
           </div>
 
           <Card className="bg-gradient-to-br from-card to-card/50 shadow-large border border-primary/10 backdrop-blur-sm">
