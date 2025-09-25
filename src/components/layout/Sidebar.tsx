@@ -21,6 +21,7 @@ export function Sidebar() {
         { label: "Dashboard", icon: Home, href: "/" },
         { label: "Minhas Turmas", icon: BookOpen, href: "/turmas" },
         { label: "Aulas", icon: Calendar, href: "/aulas" },
+        { label: "Presenças", icon: CheckCircle, href: "/presencas" },
       ];
     }
     
