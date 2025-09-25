@@ -107,6 +107,48 @@ export type Database = {
           },
         ]
       }
+      convites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by_name: string | null
+          role: string
+          status: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by_name?: string | null
+          role: string
+          status?: string
+          token?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by_name?: string | null
+          role?: string
+          status?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       matriculas: {
         Row: {
           aluno_id: string
@@ -245,6 +287,7 @@ export type Database = {
           role: string | null
           updated_at: string
           user_id: string
+          user_role: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -254,6 +297,7 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id: string
+          user_role?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -263,6 +307,7 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id?: string
+          user_role?: string | null
         }
         Relationships: []
       }

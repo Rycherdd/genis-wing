@@ -7,10 +7,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAlunos } from "@/hooks/useAlunos";
 import { AlunoForm } from "@/components/forms/AlunoForm";
+import { ConviteForm } from "@/components/forms/ConviteForm";
 
 export default function Alunos() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAlunoForm, setShowAlunoForm] = useState(false);
+  const [showConviteForm, setShowConviteForm] = useState(false);
   const { alunos, loading, deleteAluno } = useAlunos();
 
   const filteredAlunos = alunos.filter(aluno =>
@@ -36,10 +38,16 @@ export default function Alunos() {
             Gerencie todos os alunos cadastrados
           </p>
         </div>
-        <Button onClick={() => setShowAlunoForm(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Aluno
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAlunoForm(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Aluno
+          </Button>
+          <Button variant="outline" onClick={() => setShowConviteForm(true)}>
+            <Mail className="mr-2 h-4 w-4" />
+            Convidar Aluno
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -169,6 +177,11 @@ export default function Alunos() {
       )}
 
       <AlunoForm open={showAlunoForm} onOpenChange={setShowAlunoForm} />
+      <ConviteForm 
+        open={showConviteForm} 
+        onOpenChange={setShowConviteForm} 
+        defaultRole="aluno"
+      />
     </div>
   );
 }
