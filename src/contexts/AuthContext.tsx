@@ -35,12 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
               const { data } = await supabase
                 .from('profiles')
-                .select('role')
+                .select('user_role')
                 .eq('user_id', session.user.id)
                 .single();
-              setUserRole(data?.role || 'professor');
+              setUserRole(data?.user_role || 'user');
             } catch (error) {
-              setUserRole('professor');
+              setUserRole('user');
             }
           }, 0);
         } else {

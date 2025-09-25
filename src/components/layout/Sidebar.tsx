@@ -1,4 +1,4 @@
-import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,7 @@ export function Sidebar() {
       { label: "Alunos", icon: GraduationCap, href: "/alunos" },
       { label: "Turmas", icon: BookOpen, href: "/turmas" },
       { label: "Aulas", icon: Calendar, href: "/aulas" },
+      { label: "Convites", icon: Mail, href: "/convites" },
     ];
   };
 
