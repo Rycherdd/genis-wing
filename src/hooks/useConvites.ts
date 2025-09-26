@@ -38,9 +38,30 @@ export function useConvites() {
   };
 
   const sendInvite = async (email: string, role: 'aluno' | 'professor', invitedByName: string) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para enviar convites.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
+      // Verificar se a sessão ainda é válida
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        toast({
+          title: "Sessão Expirada",
+          description: "Sua sessão expirou. Faça login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Sending invite with session:', session.user.id);
+      
       const { data, error } = await supabase.functions.invoke('send-invite', {
         body: {
           email,
@@ -49,7 +70,10 @@ export function useConvites() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
 
       toast({
         title: "Sucesso",
@@ -60,11 +84,20 @@ export function useConvites() {
       await fetchConvites();
       
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao enviar convite:', error);
+      
+      let errorMessage = "Não foi possível enviar o convite.";
+      
+      if (error.message?.includes('Token inválido') || error.message?.includes('expired')) {
+        errorMessage = "Sua sessão expirou. Faça login novamente.";
+      } else if (error.message?.includes('Unauthorized')) {
+        errorMessage = "Erro de autorização. Tente fazer login novamente.";
+      }
+      
       toast({
         title: "Erro",
-        description: "Não foi possível enviar o convite.",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;

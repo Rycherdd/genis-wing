@@ -26,15 +26,26 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Create client with service role for database operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+
+    // Create client for auth verification
+    const supabaseAnon = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!);
 
     const { email, role, invitedByName }: InviteRequest = await req.json();
+    console.log("Processing invite for:", email, "role:", role);
 
     // Get the Authorization header to identify the user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      console.error("No authorization header");
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Authorization header required" }),
         {
           status: 401,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -42,19 +53,35 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify the JWT token
+    // Verify the JWT token using anon client
     const jwt = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+    console.log("Attempting to verify JWT token");
     
-    if (authError || !user) {
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(jwt);
+    
+    if (authError) {
+      console.error("JWT verification error:", authError);
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Token inválido ou expirado. Tente fazer login novamente.", details: authError.message }),
         {
           status: 401,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
     }
+
+    if (!user) {
+      console.error("No user found from JWT");
+      return new Response(
+        JSON.stringify({ error: "Usuário não encontrado. Tente fazer login novamente." }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    console.log("User authenticated successfully:", user.id);
 
     // Check if invite already exists
     const { data: existingInvite } = await supabase
