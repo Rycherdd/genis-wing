@@ -112,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     // Send email
     const emailResponse = await resend.emails.send({
-      from: "Genis Sistema <noreply@diocode.com.br>",
+      from: "Genis Sistema <noreply@genisai.com.br>",
       to: [email],
       subject: `Convite para ser ${roleText} no Genis`,
       html: `
