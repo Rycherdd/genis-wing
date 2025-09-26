@@ -18,7 +18,7 @@ export default function Cadastro() {
   });
   const [loading, setLoading] = useState(false);
   const [inviteData, setInviteData] = useState<any>(null);
-  const [loadingInvite, setLoadingInvite] = useState(false);
+  const [loadingInvite, setLoadingInvite] = useState(true); // Changed to true by default
   const { signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -31,13 +31,21 @@ export default function Cadastro() {
     }
   }, [user, navigate]);
 
-  // Check for invite token on component mount
+  // Check for invite token on component mount - REQUIRED
   useEffect(() => {
     const token = searchParams.get('token');
     if (token) {
       loadInviteData(token);
+    } else {
+      // No token provided, redirect to login with message
+      toast({
+        title: "Acesso Negado",
+        description: "Para criar uma conta, você precisa de um convite válido.",
+        variant: "destructive",
+      });
+      navigate("/login", { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const loadInviteData = async (token: string) => {
     setLoadingInvite(true);
@@ -126,7 +134,7 @@ export default function Cadastro() {
           });
         }
       } else {
-        // Mark invite as accepted if it exists
+        // Mark invite as accepted - REQUIRED since we only allow invited users
         if (inviteData) {
           await supabase
             .from('convites')
@@ -177,25 +185,20 @@ export default function Cadastro() {
             </div>
           </div>
           <CardTitle className="text-2xl text-center">
-            {inviteData ? `Convite para ${inviteData.role === 'aluno' ? 'Aluno' : 'Professor'}` : 'Criar Conta'}
+            Convite para ${inviteData.role === 'aluno' ? 'Aluno' : 'Professor'}
           </CardTitle>
           <CardDescription className="text-center">
-            {inviteData 
-              ? `Você foi convidado por ${inviteData.invited_by_name}. Complete o cadastro para acessar o sistema.`
-              : 'Preencha os dados abaixo para criar sua conta'
-            }
+            Você foi convidado por {inviteData.invited_by_name}. Complete o cadastro para acessar o sistema.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {inviteData && (
-            <div className="mb-4 p-3 rounded-lg bg-accent/20 border border-accent/30 flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-accent" />
-              <div className="text-sm">
-                <p className="font-medium">Convite válido para {inviteData.role}</p>
-                <p className="text-muted-foreground">Email: {inviteData.email}</p>
-              </div>
+          <div className="mb-4 p-3 rounded-lg bg-accent/20 border border-accent/30 flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-accent" />
+            <div className="text-sm">
+              <p className="font-medium">Convite válido para {inviteData.role}</p>
+              <p className="text-muted-foreground">Email: {inviteData.email}</p>
             </div>
-          )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -219,7 +222,7 @@ export default function Cadastro() {
                 placeholder="seu@email.com"
                 value={formData.email}
                 onChange={handleInputChange}
-                disabled={!!inviteData} // Disable if invite exists
+                disabled={true} // Always disabled since invite provides email
                 required
               />
             </div>
