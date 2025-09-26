@@ -42,15 +42,12 @@ export default function Cadastro() {
   const loadInviteData = async (token: string) => {
     setLoadingInvite(true);
     try {
-      const { data, error } = await supabase
-        .from('convites')
-        .select('*')
-        .eq('token', token)
-        .eq('status', 'pendente')
-        .gt('expires_at', new Date().toISOString())
-        .single();
+      // Use secure edge function instead of direct database query
+      const { data, error } = await supabase.functions.invoke('validate-invite', {
+        body: { token }
+      });
 
-      if (error || !data) {
+      if (error || !data.valid) {
         toast({
           title: "Convite Inválido",
           description: "Este convite não é válido ou já expirou.",
@@ -59,15 +56,16 @@ export default function Cadastro() {
         return;
       }
 
-      setInviteData(data);
+      const inviteInfo = data.invite;
+      setInviteData({ ...inviteInfo, token }); // Add token back for form submission
       setFormData(prev => ({
         ...prev,
-        email: data.email
+        email: inviteInfo.email
       }));
       
       toast({
         title: "Convite Encontrado",
-        description: `Você foi convidado para ser ${data.role} por ${data.invited_by_name || 'Sistema'}.`,
+        description: `Você foi convidado para ser ${inviteInfo.role} por ${inviteInfo.invited_by_name || 'Sistema'}.`,
       });
     } catch (error) {
       console.error("Error loading invite:", error);
