@@ -26,16 +26,13 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    // Create client with service role for database operations
+    // Create client with service role for all operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
     });
-
-    // Create client for auth verification
-    const supabaseAnon = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!);
 
     const { email, role, invitedByName }: InviteRequest = await req.json();
     console.log("Processing invite for:", email, "role:", role);
@@ -53,16 +50,17 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify the JWT token using anon client
+    // Extract JWT token
     const jwt = authHeader.replace("Bearer ", "");
     console.log("Attempting to verify JWT token");
     
-    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(jwt);
+    // Verify JWT token using service role
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
     
     if (authError) {
       console.error("JWT verification error:", authError);
       return new Response(
-        JSON.stringify({ error: "Token inválido ou expirado. Tente fazer login novamente.", details: authError.message }),
+        JSON.stringify({ error: "Token inválido ou expirado. Faça login novamente." }),
         {
           status: 401,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -73,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (!user) {
       console.error("No user found from JWT");
       return new Response(
-        JSON.stringify({ error: "Usuário não encontrado. Tente fazer login novamente." }),
+        JSON.stringify({ error: "Usuário não encontrado. Faça login novamente." }),
         {
           status: 401,
           headers: { "Content-Type": "application/json", ...corsHeaders },
