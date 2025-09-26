@@ -54,6 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
     
     if (authError || !user) {
+      console.log("Auth error:", authError?.message || "No user found");
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         {

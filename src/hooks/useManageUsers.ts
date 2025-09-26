@@ -9,6 +9,7 @@ interface User {
   full_name: string;
   user_role: string;
   created_at: string;
+  status?: 'active' | 'inactive';
 }
 
 interface CreateUserData {
@@ -31,14 +32,25 @@ export function useManageUsers() {
     try {
       setLoading(true);
       
-      // Use the edge function to get users with emails
-      const { data, error } = await supabase.functions.invoke('manage-users', {
-        body: { action: 'list' }
-      });
+      // Fetch users directly from profiles table since we have proper RLS policies
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, user_role, created_at')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setUsers(data.users || []);
+      // Format the data to match our User interface
+      const formattedUsers = data.map(profile => ({
+        id: profile.user_id,
+        email: 'N/A', // We can't access auth.users directly from frontend
+        full_name: profile.full_name || 'N/A',
+        user_role: profile.user_role || 'user',
+        created_at: profile.created_at,
+        status: 'active' as const // Default to active
+      }));
+
+      setUsers(formattedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -57,29 +69,64 @@ export function useManageUsers() {
     try {
       setActionLoading(userId);
       
-      const { data, error } = await supabase.functions.invoke('manage-users', {
-        body: {
-          action: 'delete',
-          userId: userId
-        },
-      });
+      // For now, we'll update the profile status instead of deleting from auth
+      // since frontend can't delete auth users directly
+      const { error } = await supabase
+        .from('profiles')
+        .update({ user_role: 'inactive' })
+        .eq('user_id', userId);
 
       if (error) throw error;
 
       toast({
         title: "Sucesso",
-        description: "Usuário excluído com sucesso!",
+        description: "Usuário desativado com sucesso!",
       });
 
       // Refresh the users list
       await fetchUsers();
       
-      return data;
+      return { success: true };
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deactivating user:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível excluir o usuário.",
+        description: "Não foi possível desativar o usuário.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const activateUser = async (userId: string, newRole: string = 'user') => {
+    if (!user) return;
+
+    try {
+      setActionLoading(userId);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ user_role: newRole })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Usuário ativado com sucesso!",
+      });
+
+      // Refresh the users list
+      await fetchUsers();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error activating user:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível ativar o usuário.",
         variant: "destructive",
       });
       throw error;
@@ -125,6 +172,7 @@ export function useManageUsers() {
     }
   };
 
+  // Add useEffect to fetch users when component mounts
   useEffect(() => {
     fetchUsers();
   }, [user]);
@@ -134,6 +182,7 @@ export function useManageUsers() {
     loading,
     actionLoading,
     deleteUser,
+    activateUser,
     createUser,
     refetch: fetchUsers,
   };

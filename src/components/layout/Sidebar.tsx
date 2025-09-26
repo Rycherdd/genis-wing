@@ -32,6 +32,7 @@ export function Sidebar() {
       { label: "Alunos", icon: GraduationCap, href: "/alunos" },
       { label: "Turmas", icon: BookOpen, href: "/turmas" },
       { label: "Aulas", icon: Calendar, href: "/aulas" },
+      { label: "Agenda", icon: Calendar, href: "/agenda" },
       { label: "Convites", icon: Mail, href: "/convites" },
       { label: "Usuários", icon: UserCog, href: "/usuarios" },
     ];

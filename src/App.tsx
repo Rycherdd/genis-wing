@@ -18,6 +18,7 @@ import Presenca from "./pages/Presenca";
 import MinhasPresencas from "./pages/MinhasPresencas";
 import GerenciarConvites from "./pages/GerenciarConvites";
 import GerenciarUsuarios from "./pages/GerenciarUsuarios";
+import Agenda from "./pages/Agenda";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -41,6 +42,7 @@ function AppRoutes() {
             <Route path="/presenca" element={<ProtectedRoute><Layout><Presenca /></Layout></ProtectedRoute>} />
             <Route path="/convites" element={<ProtectedRoute><Layout><GerenciarConvites /></Layout></ProtectedRoute>} />
             <Route path="/usuarios" element={<ProtectedRoute><Layout><GerenciarUsuarios /></Layout></ProtectedRoute>} />
+            <Route path="/agenda" element={<ProtectedRoute><Layout><Agenda /></Layout></ProtectedRoute>} />
         </>
       ) : (
         <>
