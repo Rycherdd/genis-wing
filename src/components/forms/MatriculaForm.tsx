@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAlunos } from "@/hooks/useAlunos";
+import { useAlunosUnificado } from "@/hooks/useAlunosUnificado";
 import { useMatriculas } from "@/hooks/useMatriculas";
 
 interface MatriculaFormProps {
@@ -27,7 +27,7 @@ interface MatriculaFormProps {
 }
 
 export function MatriculaForm({ open, onOpenChange, turmaId, turmaNome }: MatriculaFormProps) {
-  const { alunos } = useAlunos();
+  const { alunos } = useAlunosUnificado();
   const { createMatricula, matriculas } = useMatriculas();
   const [loading, setLoading] = useState(false);
   const [selectedAlunoId, setSelectedAlunoId] = useState("");
@@ -75,13 +75,18 @@ export function MatriculaForm({ open, onOpenChange, turmaId, turmaNome }: Matric
               value={selectedAlunoId} 
               onValueChange={setSelectedAlunoId}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-background">
                 <SelectValue placeholder="Escolha um aluno" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border shadow-lg z-50">
                 {alunosDisponiveis.map((aluno) => (
-                  <SelectItem key={aluno.id} value={aluno.id}>
-                    {aluno.nome} - {aluno.email}
+                  <SelectItem key={aluno.id} value={aluno.id} className="hover:bg-muted">
+                    <div className="flex flex-col">
+                      <span>{aluno.nome}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {aluno.email} • {aluno.tipo === 'convite' ? 'Via Convite' : 'Cadastrado'}
+                      </span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>

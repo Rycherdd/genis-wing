@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Trash2, UserPlus } from "lucide-react";
-import { useAlunos } from "@/hooks/useAlunos";
+import { useAlunosUnificado } from "@/hooks/useAlunosUnificado";
 import { useMatriculas } from "@/hooks/useMatriculas";
 import { MatriculaForm } from "./MatriculaForm";
 
@@ -22,7 +22,7 @@ interface GerenciarAlunosFormProps {
 }
 
 export function GerenciarAlunosForm({ open, onOpenChange, turmaId, turmaNome }: GerenciarAlunosFormProps) {
-  const { alunos } = useAlunos();
+  const { alunos } = useAlunosUnificado();
   const { matriculas, deleteMatricula } = useMatriculas();
   const [matriculaFormOpen, setMatriculaFormOpen] = useState(false);
 
@@ -87,6 +87,9 @@ export function GerenciarAlunosForm({ open, onOpenChange, turmaId, turmaNome }: 
                         {aluno.telefone && (
                           <p className="text-xs text-muted-foreground">{aluno.telefone}</p>
                         )}
+                        <Badge variant="outline" className="text-xs mt-1">
+                          {aluno.tipo === 'convite' ? 'Via Convite' : 'Cadastrado'}
+                        </Badge>
                       </div>
                     </div>
                     <Button
