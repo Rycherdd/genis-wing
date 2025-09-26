@@ -41,21 +41,17 @@ export function useAlunosUnificado() {
 
       if (errorConvites) throw errorConvites;
 
-      // Para cada convite aceito, buscar o profile correspondente
+      // Buscar todos os profiles com user_role = 'aluno'
+      // Como não podemos fazer join com auth.users devido às limitações de RLS,
+      // vamos mostrar todos os profiles de aluno como uma solução temporária
       let alunosConvite: any[] = [];
-      if (convitesAceitos && convitesAceitos.length > 0) {
-        // Buscar todos os profiles com role aluno
-        const { data: allProfiles, error: errorProfiles } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_role', 'aluno');
+      const { data: allProfiles, error: errorProfiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_role', 'aluno');
 
-        if (!errorProfiles && allProfiles) {
-          // Filtrar apenas os profiles que correspondem aos emails dos convites aceitos
-          // Como não podemos fazer join com auth.users, vamos mostrar todos os profiles de aluno
-          // Isso pode incluir alunos de outros usuários, mas é uma limitação da RLS
-          alunosConvite = allProfiles;
-        }
+      if (!errorProfiles && allProfiles) {
+        alunosConvite = allProfiles;
       }
 
       // Unificar os dados
@@ -72,7 +68,7 @@ export function useAlunosUnificado() {
         ...(alunosConvite || []).map(aluno => ({
           id: aluno.user_id, // Usar user_id como identificador
           nome: aluno.full_name || 'Usuário via Convite',
-          email: convitesAceitos?.find(c => c.status === 'aceito')?.email || 'Email não disponível',
+          email: 'Email não disponível', // Não podemos acessar o email diretamente
           telefone: undefined,
           tipo: 'convite' as const,
           user_id: aluno.user_id,
