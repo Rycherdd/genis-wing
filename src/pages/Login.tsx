@@ -58,7 +58,7 @@ export default function Login() {
             <p className="text-lg mb-6 text-white/80 font-medium">Para uso interno exclusivo</p>
             <div className="mb-6 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
               <p className="text-white font-semibold text-center">
-                "Ninguém educa ninguém, ninguém educa a si mesmo, os homens se educam em comunhão."
+                "Uma nova frase"
               </p>
             </div>
           </div>
