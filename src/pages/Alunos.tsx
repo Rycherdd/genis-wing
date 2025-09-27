@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAlunos } from "@/hooks/useAlunos";
+import { useAuth } from "@/contexts/AuthContext";
 import { AlunoForm } from "@/components/forms/AlunoForm";
 import { ConviteForm } from "@/components/forms/ConviteForm";
 
@@ -14,6 +15,7 @@ export default function Alunos() {
   const [showAlunoForm, setShowAlunoForm] = useState(false);
   const [showConviteForm, setShowConviteForm] = useState(false);
   const { alunos, loading, deleteAluno } = useAlunos();
+  const { isAdmin } = useAuth();
 
   const filteredAlunos = alunos.filter(aluno =>
     aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,19 +37,21 @@ export default function Alunos() {
         <div>
           <h1 className="text-3xl font-bold">Alunos</h1>
           <p className="text-muted-foreground">
-            Gerencie todos os alunos cadastrados
+            {isAdmin ? "Gerencie todos os alunos cadastrados" : "Visualize todos os alunos cadastrados"}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowAlunoForm(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Aluno
-          </Button>
-          <Button variant="outline" onClick={() => setShowConviteForm(true)}>
-            <Mail className="mr-2 h-4 w-4" />
-            Convidar Aluno
-          </Button>
-        </div>
+        {isAdmin && (
+          <div className="flex gap-2">
+            <Button onClick={() => setShowAlunoForm(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Aluno
+            </Button>
+            <Button variant="outline" onClick={() => setShowConviteForm(true)}>
+              <Mail className="mr-2 h-4 w-4" />
+              Convidar Aluno
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Search */}
@@ -120,30 +124,32 @@ export default function Alunos() {
                     <p className="text-sm text-muted-foreground">Aluno</p>
                   </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <GraduationCap className="mr-2 h-4 w-4" />
-                      Ver Turmas
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-destructive"
-                      onClick={() => deleteAluno(aluno.id)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {isAdmin && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <GraduationCap className="mr-2 h-4 w-4" />
+                        Ver Turmas
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-destructive"
+                        onClick={() => deleteAluno(aluno.id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
 
               {/* Contact Info */}
@@ -176,12 +182,16 @@ export default function Alunos() {
         </div>
       )}
 
-      <AlunoForm open={showAlunoForm} onOpenChange={setShowAlunoForm} />
-      <ConviteForm 
-        open={showConviteForm} 
-        onOpenChange={setShowConviteForm} 
-        defaultRole="aluno"
-      />
+      {isAdmin && (
+        <>
+          <AlunoForm open={showAlunoForm} onOpenChange={setShowAlunoForm} />
+          <ConviteForm 
+            open={showConviteForm} 
+            onOpenChange={setShowConviteForm} 
+            defaultRole="aluno"
+          />
+        </>
+      )}
     </div>
   );
 }
