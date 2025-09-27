@@ -32,32 +32,48 @@ export function useManageUsers() {
     try {
       setLoading(true);
       
-      // Fetch users from profiles table with their roles from user_roles table
-      const { data, error } = await supabase
+      // Fetch users from profiles table and their roles from user_roles table separately
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          user_id, 
-          full_name, 
-          created_at,
-          user_roles!inner (
-            role
-          )
-        `)
+        .select('user_id, full_name, created_at')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
 
-      // Format the data to match our User interface
-      const formattedUsers = data.map(profile => ({
-        id: profile.user_id,
-        email: 'N/A', // We can't access auth.users directly from frontend
-        full_name: profile.full_name || 'N/A',
-        user_role: (profile.user_roles as any)[0]?.role || 'aluno',
-        created_at: profile.created_at,
-        status: 'active' as const // Default to active
-      }));
+      // Fetch roles for all users
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
 
-      setUsers(formattedUsers);
+      if (rolesError) throw rolesError;
+
+      // Combine profiles with roles data
+      const usersWithRoles = profilesData.map(profile => {
+        const userRole = rolesData.find(role => role.user_id === profile.user_id);
+        return {
+          id: profile.user_id,
+          user_id: profile.user_id,
+          full_name: profile.full_name || 'Usuário sem nome',
+          email: '', // We'll need to get this from auth.users if needed
+          user_role: userRole?.role || 'inactive',
+          created_at: profile.created_at,
+        };
+      });
+
+      // Also include users who have roles but no profiles
+      const usersWithoutProfiles = rolesData
+        .filter(role => !profilesData.find(profile => profile.user_id === role.user_id))
+        .map(role => ({
+          id: role.user_id,
+          user_id: role.user_id,
+          full_name: 'Usuário sem perfil',
+          email: '',
+          user_role: role.role,
+          created_at: new Date().toISOString(),
+        }));
+
+      const allUsers = [...usersWithRoles, ...usersWithoutProfiles];
+      setUsers(allUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
