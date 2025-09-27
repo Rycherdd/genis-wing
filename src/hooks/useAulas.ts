@@ -19,13 +19,8 @@ export function useAulas() {
       setLoading(true);
       const { data, error } = await supabase
         .from('aulas')
-        .select(`
-          *,
-          professores (nome),
-          turmas (nome)
-        `)
-        .eq('user_id', user.id)
-        .order('data', { ascending: false });
+        .select('*')
+        .order('criadoEm', { ascending: false });
 
       if (error) throw error;
       setAulas(data || []);
@@ -41,16 +36,11 @@ export function useAulas() {
     }
   };
 
-  const createAula = async (aula: Omit<Aula, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
-    if (!user) return;
-
+  const createAula = async (aula: Omit<Aula, 'id' | 'criadoEm' | 'atualizadoEm'>) => {
     try {
       const { data, error } = await supabase
         .from('aulas')
-        .insert({
-          ...aula,
-          user_id: user.id,
-        })
+        .insert(aula)
         .select()
         .single();
 
@@ -74,14 +64,11 @@ export function useAulas() {
   };
 
   const updateAula = async (id: string, updates: Partial<Aula>) => {
-    if (!user) return;
-
     try {
       const { data, error } = await supabase
         .from('aulas')
         .update(updates)
         .eq('id', id)
-        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -107,14 +94,11 @@ export function useAulas() {
   };
 
   const deleteAula = async (id: string) => {
-    if (!user) return;
-
     try {
       const { error } = await supabase
         .from('aulas')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('id', id);
 
       if (error) throw error;
 
