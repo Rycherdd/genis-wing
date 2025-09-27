@@ -34,10 +34,12 @@ export default function Cadastro() {
   // Check for invite token on component mount - REQUIRED
   useEffect(() => {
     const token = searchParams.get('token');
+    console.log("Token from URL:", token);
     if (token) {
       loadInviteData(token);
     } else {
       // No token provided, redirect to login with message
+      console.log("No token in URL, redirecting to login");
       toast({
         title: "Acesso Negado",
         description: "Para criar uma conta, você precisa de um convite válido.",
@@ -48,6 +50,7 @@ export default function Cadastro() {
   }, [searchParams, navigate]);
 
   const loadInviteData = async (token: string) => {
+    console.log("Loading invite data for token:", token);
     setLoadingInvite(true);
     try {
       // Use secure edge function instead of direct database query
@@ -55,7 +58,10 @@ export default function Cadastro() {
         body: { token }
       });
 
-      if (error || !data.valid) {
+      console.log("Validate invite response:", { data, error });
+
+      if (error || !data?.valid) {
+        console.log("Invite validation failed:", error || "Invalid response");
         toast({
           title: "Convite Inválido",
           description: "Este convite não é válido ou já expirou.",
@@ -65,6 +71,7 @@ export default function Cadastro() {
       }
 
       const inviteInfo = data.invite;
+      console.log("Invite info received:", inviteInfo);
       setInviteData({ ...inviteInfo, token }); // Add token back for form submission
       setFormData(prev => ({
         ...prev,

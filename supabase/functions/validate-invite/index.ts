@@ -3,7 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 interface ValidateInviteRequest {
@@ -11,6 +12,8 @@ interface ValidateInviteRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("validate-invite function called with method:", req.method);
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -39,9 +42,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { token }: ValidateInviteRequest = await req.json();
+    console.log("Received token:", token);
 
     // Validate input
     if (!token || typeof token !== 'string') {
+      console.log("Invalid token provided:", token);
       return new Response(
         JSON.stringify({ error: "Invalid token provided" }),
         {
@@ -54,6 +59,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Validate token format (should be a UUID)
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(token)) {
+      console.log("Invalid token format:", token);
       return new Response(
         JSON.stringify({ error: "Invalid token format" }),
         {
@@ -63,6 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    console.log("Querying database for token:", token);
     // Query for the specific invite by token
     const { data: invite, error } = await supabase
       .from('convites')
@@ -73,7 +80,9 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (error || !invite) {
-      console.log("Invite validation failed:", error?.message || "No valid invite found");
+      console.log("Invite validation failed. Error:", error?.message || "No error");
+      console.log("Invite data:", invite);
+      console.log("Query parameters - token:", token, "current time:", new Date().toISOString());
       return new Response(
         JSON.stringify({ 
           error: "Invalid or expired invitation",
@@ -86,6 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    console.log("Invite found successfully:", invite);
     // Return only necessary invite information (no sensitive data like token)
     return new Response(
       JSON.stringify({
