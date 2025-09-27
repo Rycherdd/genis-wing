@@ -46,6 +46,62 @@ export type Database = {
       }
       aulas: {
         Row: {
+          arquivoPath: string | null
+          atualizadoEm: string | null
+          conceitoCentral: string | null
+          conteudo: string | null
+          criadoEm: string | null
+          descricao: string | null
+          duracaoMinutos: number | null
+          id: string
+          moduloId: string
+          numero: number
+          objetivo: string | null
+          ordem: number
+          titulo: string
+        }
+        Insert: {
+          arquivoPath?: string | null
+          atualizadoEm?: string | null
+          conceitoCentral?: string | null
+          conteudo?: string | null
+          criadoEm?: string | null
+          descricao?: string | null
+          duracaoMinutos?: number | null
+          id?: string
+          moduloId: string
+          numero: number
+          objetivo?: string | null
+          ordem: number
+          titulo: string
+        }
+        Update: {
+          arquivoPath?: string | null
+          atualizadoEm?: string | null
+          conceitoCentral?: string | null
+          conteudo?: string | null
+          criadoEm?: string | null
+          descricao?: string | null
+          duracaoMinutos?: number | null
+          id?: string
+          moduloId?: string
+          numero?: number
+          objetivo?: string | null
+          ordem?: number
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aulas_moduloId_fkey"
+            columns: ["moduloId"]
+            isOneToOne: false
+            referencedRelation: "modulos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aulas_agendadas: {
+        Row: {
           created_at: string
           data: string
           descricao: string | null
@@ -90,22 +146,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "aulas_professor_id_fkey"
-            columns: ["professor_id"]
-            isOneToOne: false
-            referencedRelation: "professores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "aulas_turma_id_fkey"
-            columns: ["turma_id"]
-            isOneToOne: false
-            referencedRelation: "turmas"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       convites: {
         Row: {
@@ -194,6 +235,42 @@ export type Database = {
           },
         ]
       }
+      modulos: {
+        Row: {
+          atualizadoEm: string | null
+          criadoEm: string | null
+          descricao: string | null
+          duracaoHoras: number | null
+          id: string
+          nome: string
+          objetivo: string | null
+          ordem: number
+          titulo: string
+        }
+        Insert: {
+          atualizadoEm?: string | null
+          criadoEm?: string | null
+          descricao?: string | null
+          duracaoHoras?: number | null
+          id?: string
+          nome: string
+          objetivo?: string | null
+          ordem: number
+          titulo: string
+        }
+        Update: {
+          atualizadoEm?: string | null
+          criadoEm?: string | null
+          descricao?: string | null
+          duracaoHoras?: number | null
+          id?: string
+          nome?: string
+          objetivo?: string | null
+          ordem?: number
+          titulo?: string
+        }
+        Relationships: []
+      }
       presenca: {
         Row: {
           aluno_id: string
@@ -231,13 +308,6 @@ export type Database = {
             columns: ["aluno_id"]
             isOneToOne: false
             referencedRelation: "alunos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "presenca_aula_id_fkey"
-            columns: ["aula_id"]
-            isOneToOne: false
-            referencedRelation: "aulas"
             referencedColumns: ["id"]
           },
         ]
@@ -308,6 +378,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_role?: string | null
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          atualizadoEm: string | null
+          cor: string | null
+          criadoEm: string | null
+          descricao: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          atualizadoEm?: string | null
+          cor?: string | null
+          criadoEm?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          atualizadoEm?: string | null
+          cor?: string | null
+          criadoEm?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
         }
         Relationships: []
       }

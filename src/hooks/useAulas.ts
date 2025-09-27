@@ -4,10 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from '@/integrations/supabase/types';
 
-type Aula = Database['public']['Tables']['aulas']['Row'];
+type AulaAgendada = Database['public']['Tables']['aulas_agendadas']['Row'];
 
 export function useAulas() {
-  const [aulas, setAulas] = useState<Aula[]>([]);
+  const [aulas, setAulas] = useState<AulaAgendada[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -18,9 +18,10 @@ export function useAulas() {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('aulas')
+        .from('aulas_agendadas')
         .select('*')
-        .order('criadoEm', { ascending: false });
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setAulas(data || []);
@@ -36,11 +37,16 @@ export function useAulas() {
     }
   };
 
-  const createAula = async (aula: Omit<Aula, 'id' | 'criadoEm' | 'atualizadoEm'>) => {
+  const createAula = async (aula: Omit<AulaAgendada, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
+    if (!user) return;
+
     try {
       const { data, error } = await supabase
-        .from('aulas')
-        .insert(aula)
+        .from('aulas_agendadas')
+        .insert({
+          ...aula,
+          user_id: user.id,
+        })
         .select()
         .single();
 
@@ -63,12 +69,15 @@ export function useAulas() {
     }
   };
 
-  const updateAula = async (id: string, updates: Partial<Aula>) => {
+  const updateAula = async (id: string, updates: Partial<AulaAgendada>) => {
+    if (!user) return;
+
     try {
       const { data, error } = await supabase
-        .from('aulas')
+        .from('aulas_agendadas')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -94,11 +103,14 @@ export function useAulas() {
   };
 
   const deleteAula = async (id: string) => {
+    if (!user) return;
+
     try {
       const { error } = await supabase
-        .from('aulas')
+        .from('aulas_agendadas')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 

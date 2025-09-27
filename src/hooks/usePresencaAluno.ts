@@ -5,11 +5,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Database } from '@/integrations/supabase/types';
 
 type Presenca = Database['public']['Tables']['presenca']['Row'];
-type Aula = Database['public']['Tables']['aulas']['Row'];
+type AulaAgendada = Database['public']['Tables']['aulas_agendadas']['Row'];
 type Aluno = Database['public']['Tables']['alunos']['Row'];
 
 interface PresencaWithDetails extends Presenca {
-  aulas: Aula & {
+  aulas_agendadas: AulaAgendada & {
     turmas: { nome: string; };
   };
 }
@@ -46,7 +46,7 @@ export function usePresencaAluno() {
         .from('presenca')
         .select(`
           *,
-          aulas (
+          aulas_agendadas (
             *,
             turmas (nome)
           )
@@ -98,7 +98,7 @@ export function usePresencaAluno() {
       // Get all past classes for these turmas
       const today = new Date().toISOString().split('T')[0];
       const { data: aulasPassadas } = await supabase
-        .from('aulas')
+        .from('aulas_agendadas')
         .select(`
           *,
           turmas (nome)
