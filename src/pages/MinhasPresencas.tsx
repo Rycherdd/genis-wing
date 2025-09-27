@@ -46,14 +46,14 @@ export default function MinhasPresencas() {
   const faltas = getPresencasByStatus(false);
 
   const filteredPresentes = presentes.filter(presenca =>
-    presenca.aulas?.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    presenca.aulas?.turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    presenca.aulas_agendadas?.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    presenca.aulas_agendadas?.turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     presenca.observacoes?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredFaltas = faltas.filter(presenca =>
-    presenca.aulas?.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    presenca.aulas?.turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    presenca.aulas_agendadas?.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    presenca.aulas_agendadas?.turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     presenca.observacoes?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -73,9 +73,9 @@ export default function MinhasPresencas() {
               ) : (
                 <XCircle className="h-5 w-5 text-red-600" />
               )}
-              {presenca.aulas?.titulo}
+              {presenca.aulas_agendadas?.titulo}
             </CardTitle>
-            <CardDescription>Turma: {presenca.aulas?.turmas?.nome}</CardDescription>
+            <CardDescription>Turma: {presenca.aulas_agendadas?.turmas?.nome}</CardDescription>
           </div>
           <Badge variant={isPresente ? "default" : "destructive"}>
             {isPresente ? "Presente" : "Falta"}
@@ -86,16 +86,16 @@ export default function MinhasPresencas() {
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
-            {format(parseISO(presenca.aulas?.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+            {format(parseISO(presenca.aulas_agendadas?.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
-            {presenca.aulas?.horario_inicio} - {presenca.aulas?.horario_fim}
+            {presenca.aulas_agendadas?.horario_inicio} - {presenca.aulas_agendadas?.horario_fim}
           </div>
-          {presenca.aulas?.local && (
+          {presenca.aulas_agendadas?.local && (
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4" />
-              {presenca.aulas?.local}
+              {presenca.aulas_agendadas?.local}
             </div>
           )}
         </div>

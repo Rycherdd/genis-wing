@@ -304,6 +304,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_presenca_aula_agendada"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas_agendadas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "presenca_aluno_id_fkey"
             columns: ["aluno_id"]
             isOneToOne: false
