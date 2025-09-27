@@ -40,8 +40,8 @@ function AppRoutes() {
           <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
             <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
             <Route path="/presenca" element={<ProtectedRoute><Layout><Presenca /></Layout></ProtectedRoute>} />
-            <Route path="/convites" element={<ProtectedRoute><Layout><GerenciarConvites /></Layout></ProtectedRoute>} />
-            <Route path="/usuarios" element={<ProtectedRoute><Layout><GerenciarUsuarios /></Layout></ProtectedRoute>} />
+            <Route path="/gerenciar-convites" element={<ProtectedRoute><Layout><GerenciarConvites /></Layout></ProtectedRoute>} />
+            <Route path="/gerenciar-usuarios" element={<ProtectedRoute><Layout><GerenciarUsuarios /></Layout></ProtectedRoute>} />
             <Route path="/agenda" element={<ProtectedRoute><Layout><Agenda /></Layout></ProtectedRoute>} />
         </>
       ) : (
