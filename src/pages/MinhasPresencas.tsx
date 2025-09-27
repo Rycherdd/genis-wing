@@ -47,19 +47,16 @@ export default function MinhasPresencas() {
 
   const filteredPresentes = presentes.filter(presenca =>
     presenca.aulas_agendadas?.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    presenca.aulas_agendadas?.turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     presenca.observacoes?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredFaltas = faltas.filter(presenca =>
     presenca.aulas_agendadas?.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    presenca.aulas_agendadas?.turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     presenca.observacoes?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredAulasFaltadas = aulasFaltadas.filter(aula =>
-    aula.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    aula.turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    aula.titulo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const renderPresencaCard = (presenca: any, isPresente: boolean) => (
@@ -75,7 +72,7 @@ export default function MinhasPresencas() {
               )}
               {presenca.aulas_agendadas?.titulo}
             </CardTitle>
-            <CardDescription>Turma: {presenca.aulas_agendadas?.turmas?.nome}</CardDescription>
+            <CardDescription>Aula Agendada</CardDescription>
           </div>
           <Badge variant={isPresente ? "default" : "destructive"}>
             {isPresente ? "Presente" : "Falta"}
@@ -117,7 +114,7 @@ export default function MinhasPresencas() {
               <AlertCircle className="h-5 w-5 text-orange-600" />
               {aula.titulo}
             </CardTitle>
-            <CardDescription>Turma: {aula.turmas?.nome}</CardDescription>
+            <CardDescription>Aula Agendada</CardDescription>
           </div>
           <Badge variant="outline" className="border-orange-500 text-orange-600">
             Ausência

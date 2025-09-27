@@ -9,9 +9,7 @@ type AulaAgendada = Database['public']['Tables']['aulas_agendadas']['Row'];
 type Aluno = Database['public']['Tables']['alunos']['Row'];
 
 interface PresencaWithDetails extends Presenca {
-  aulas_agendadas: AulaAgendada & {
-    turmas: { nome: string; };
-  };
+  aulas_agendadas: AulaAgendada;
 }
 
 export function usePresencaAluno() {
@@ -46,10 +44,7 @@ export function usePresencaAluno() {
         .from('presenca')
         .select(`
           *,
-          aulas_agendadas (
-            *,
-            turmas (nome)
-          )
+          aulas_agendadas (*)
         `)
         .eq('aluno_id', aluno.id)
         .order('created_at', { ascending: false });
@@ -99,10 +94,7 @@ export function usePresencaAluno() {
       const today = new Date().toISOString().split('T')[0];
       const { data: aulasPassadas } = await supabase
         .from('aulas_agendadas')
-        .select(`
-          *,
-          turmas (nome)
-        `)
+        .select('*')
         .in('turma_id', turmaIds)
         .lt('data', today)
         .order('data', { ascending: false });
