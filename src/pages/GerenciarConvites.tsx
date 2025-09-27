@@ -16,8 +16,8 @@ export default function GerenciarConvites() {
   const { convites, loading, deleteConvite, resendInvite } = useConvites();
 
   const filteredConvites = convites.filter(convite =>
-    convite.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    convite.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    convite.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (convite.role && convite.role.toLowerCase().includes(searchTerm.toLowerCase())) ||
     convite.invited_by_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -34,7 +34,9 @@ export default function GerenciarConvites() {
     }
   };
 
-  const getRoleBadge = (role: string) => {
+  const getRoleBadge = (role: string | null) => {
+    if (!role) return <Badge variant="secondary">-</Badge>;
+    
     switch (role) {
       case 'aluno':
         return <Badge variant="secondary" className="text-blue-600 bg-blue-50">Aluno</Badge>;
