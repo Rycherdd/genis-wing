@@ -175,6 +175,19 @@ export default function Cadastro() {
     );
   }
 
+  if (!inviteData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <AlertCircle className="h-8 w-8 text-destructive mb-4" />
+            <p>Convite não encontrado</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md">
@@ -185,18 +198,18 @@ export default function Cadastro() {
             </div>
           </div>
           <CardTitle className="text-2xl text-center">
-            Convite para ${inviteData.role === 'aluno' ? 'Aluno' : 'Professor'}
+            Convite para {inviteData?.role === 'aluno' ? 'Aluno' : 'Professor'}
           </CardTitle>
           <CardDescription className="text-center">
-            Você foi convidado por {inviteData.invited_by_name}. Complete o cadastro para acessar o sistema.
+            Você foi convidado por {inviteData?.invited_by_name || 'Sistema'}. Complete o cadastro para acessar o sistema.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 p-3 rounded-lg bg-accent/20 border border-accent/30 flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-accent" />
             <div className="text-sm">
-              <p className="font-medium">Convite válido para {inviteData.role}</p>
-              <p className="text-muted-foreground">Email: {inviteData.email}</p>
+              <p className="font-medium">Convite válido para {inviteData?.role || 'usuário'}</p>
+              <p className="text-muted-foreground">Email: {inviteData?.email || ''}</p>
             </div>
           </div>
 
