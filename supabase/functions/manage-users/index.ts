@@ -64,21 +64,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Check if user has admin permissions (for now, any authenticated user can manage)
-    // In production, you should check user role from profiles table
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('user_role')
+    // Check if user has admin permissions
+    const { data: userRole } = await supabase
+      .from('user_roles')
+      .select('role')
       .eq('user_id', user.id)
       .single();
 
-    // For now, allowing all users to manage. In production, add proper role check:
-    // if (userProfile?.user_role !== 'admin') {
-    //   return new Response(
-    //     JSON.stringify({ error: "Forbidden: Admin access required" }),
-    //     { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    //   );
-    // }
+    // Verify admin access
+    if (!userRole || userRole.role !== 'admin') {
+      return new Response(
+        JSON.stringify({ error: "Access denied: Admin role required" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     if (action === 'list') {
       // Get all users with their profiles
@@ -95,12 +94,18 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      // Get profile data for each user
+      // Get profile data and roles for each user
       const usersWithProfiles = await Promise.all(
         users.map(async (authUser) => {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name, user_role')
+            .select('full_name')
+            .eq('user_id', authUser.id)
+            .single();
+
+          const { data: userRole } = await supabase
+            .from('user_roles')
+            .select('role')
             .eq('user_id', authUser.id)
             .single();
 
@@ -108,7 +113,7 @@ const handler = async (req: Request): Promise<Response> => {
             id: authUser.id,
             email: authUser.email || '',
             full_name: profile?.full_name || 'N/A',
-            user_role: profile?.user_role || 'user',
+            user_role: userRole?.role || 'aluno',
             created_at: authUser.created_at
           };
         })
@@ -163,8 +168,7 @@ const handler = async (req: Request): Promise<Response> => {
         email: userData.email,
         password: userData.password,
         user_metadata: {
-          full_name: userData.fullName,
-          role: userData.userRole
+          full_name: userData.fullName
         },
         email_confirm: true // Auto-confirm email
       });
@@ -178,6 +182,34 @@ const handler = async (req: Request): Promise<Response> => {
             headers: { "Content-Type": "application/json", ...corsHeaders },
           }
         );
+      }
+
+      // Create user role in user_roles table
+      if (newUser.user) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert([
+            { 
+              user_id: newUser.user.id, 
+              role: userData.userRole as 'admin' | 'professor' | 'aluno',
+              assigned_by: user.id
+            }
+          ]);
+
+        if (roleError) {
+          console.error("Error creating user role:", roleError);
+          // Note: User is created but role assignment failed
+          return new Response(
+            JSON.stringify({ 
+              error: "User created but role assignment failed",
+              user: newUser.user 
+            }),
+            {
+              status: 207, // Partial success
+              headers: { "Content-Type": "application/json", ...corsHeaders },
+            }
+          );
+        }
       }
 
       return new Response(

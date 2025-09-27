@@ -41,14 +41,18 @@ export function useAlunosUnificado() {
 
       if (errorConvites) throw errorConvites;
 
-      // Buscar todos os profiles com user_role = 'aluno'
-      // Como não podemos fazer join com auth.users devido às limitações de RLS,
-      // vamos mostrar todos os profiles de aluno como uma solução temporária
+      // Buscar todos os profiles que têm role 'aluno' na tabela user_roles
       let alunosConvite: any[] = [];
       const { data: allProfiles, error: errorProfiles } = await supabase
         .from('profiles')
-        .select('*')
-        .eq('user_role', 'aluno');
+        .select(`
+          user_id,
+          full_name,
+          user_roles!inner (
+            role
+          )
+        `)
+        .eq('user_roles.role', 'aluno');
 
       if (!errorProfiles && allProfiles) {
         alunosConvite = allProfiles;

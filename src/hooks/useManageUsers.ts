@@ -32,10 +32,17 @@ export function useManageUsers() {
     try {
       setLoading(true);
       
-      // Fetch users directly from profiles table since we have proper RLS policies
+      // Fetch users from profiles table with their roles from user_roles table
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, full_name, user_role, created_at')
+        .select(`
+          user_id, 
+          full_name, 
+          created_at,
+          user_roles!inner (
+            role
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -45,7 +52,7 @@ export function useManageUsers() {
         id: profile.user_id,
         email: 'N/A', // We can't access auth.users directly from frontend
         full_name: profile.full_name || 'N/A',
-        user_role: profile.user_role || 'user',
+        user_role: (profile.user_roles as any)[0]?.role || 'aluno',
         created_at: profile.created_at,
         status: 'active' as const // Default to active
       }));
@@ -69,11 +76,11 @@ export function useManageUsers() {
     try {
       setActionLoading(userId);
       
-      // For now, we'll update the profile status instead of deleting from auth
+      // For now, we'll remove the user's role instead of deleting from auth
       // since frontend can't delete auth users directly
       const { error } = await supabase
-        .from('profiles')
-        .update({ user_role: 'inactive' })
+        .from('user_roles')
+        .delete()
         .eq('user_id', userId);
 
       if (error) throw error;
@@ -107,9 +114,10 @@ export function useManageUsers() {
       setActionLoading(userId);
       
       const { error } = await supabase
-        .from('profiles')
-        .update({ user_role: newRole })
-        .eq('user_id', userId);
+        .from('user_roles')
+        .insert([
+          { user_id: userId, role: newRole as 'admin' | 'professor' | 'aluno' }
+        ]);
 
       if (error) throw error;
 

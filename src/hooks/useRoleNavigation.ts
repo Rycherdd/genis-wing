@@ -1,0 +1,50 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+export function useRoleNavigation() {
+  const { userRole, loading } = useAuth();
+
+  const getNavigationItems = () => {
+    if (userRole === 'aluno') {
+      return [
+        { label: 'Próximas Aulas', icon: 'BookOpen', url: '/aulas-aluno' },
+        { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
+        { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },
+      ];
+    }
+    
+    if (userRole === 'professor') {
+      return [
+        { label: 'Dashboard', icon: 'Home', url: '/' },
+        { label: 'Alunos', icon: 'Users', url: '/alunos' },
+        { label: 'Turmas', icon: 'BookOpen', url: '/turmas' },
+        { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
+        { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
+        { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
+      ];
+    }
+    
+    if (userRole === 'admin') {
+      return [
+        { label: 'Dashboard', icon: 'Home', url: '/' },
+        { label: 'Gerenciar Usuários', icon: 'Settings', url: '/gerenciar-usuarios' },
+        { label: 'Gerenciar Convites', icon: 'Mail', url: '/gerenciar-convites' },
+        { label: 'Professores', icon: 'Users', url: '/professores' },
+        { label: 'Alunos', icon: 'Users', url: '/alunos' },
+        { label: 'Turmas', icon: 'BookOpen', url: '/turmas' },
+        { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
+        { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
+        { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
+      ];
+    }
+    
+    return [];
+  };
+
+  return {
+    navigationItems: getNavigationItems(),
+    userRole,
+    loading
+  };
+}

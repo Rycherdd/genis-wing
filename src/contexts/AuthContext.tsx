@@ -7,7 +7,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userRole: string | null;
+  userRole: 'admin' | 'professor' | 'aluno' | null;
+  isAdmin: boolean;
+  isProfessor: boolean;
+  isAluno: boolean;
   signUp: (email: string, password: string, fullName: string, role?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -19,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'professor' | 'aluno' | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -29,18 +32,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Fetch user role from profiles
+        // Fetch user role from user_roles table
         if (session?.user) {
           setTimeout(async () => {
             try {
               const { data } = await supabase
-                .from('profiles')
-                .select('user_role')
+                .from('user_roles')
+                .select('role')
                 .eq('user_id', session.user.id)
                 .single();
-              setUserRole(data?.user_role || 'user');
+              setUserRole(data?.role || null);
             } catch (error) {
-              setUserRole('user');
+              console.error('Error fetching user role:', error);
+              setUserRole(null);
             }
           }, 0);
         } else {
@@ -144,12 +148,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const isAdmin = userRole === 'admin';
+  const isProfessor = userRole === 'professor';
+  const isAluno = userRole === 'aluno';
+
   return (
     <AuthContext.Provider value={{
       user,
       session,
       loading,
       userRole,
+      isAdmin,
+      isProfessor,
+      isAluno,
       signUp,
       signIn,
       signOut,

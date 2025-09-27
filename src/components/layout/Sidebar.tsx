@@ -1,8 +1,23 @@
-import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail, UserCog } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail, UserCog, CalendarDays, CheckSquare } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRoleNavigation } from "@/hooks/useRoleNavigation";
+
+const iconMap = {
+  Home,
+  Users,
+  BookOpen,
+  Calendar,
+  CalendarDays,
+  CheckSquare,
+  CheckCircle,
+  Settings,
+  Mail,
+  UserCog,
+  GraduationCap,
+};
 
 interface NavigationItem {
   label: string;
@@ -13,32 +28,7 @@ interface NavigationItem {
 export function Sidebar() {
   const location = useLocation();
   const { user, signOut, userRole } = useAuth();
-
-  // Define different sidebar items based on user role
-  const getNavigationItems = (): NavigationItem[] => {
-    if (userRole === 'aluno') {
-      return [
-        { label: "Dashboard", icon: Home, href: "/" },
-        { label: "Minhas Turmas", icon: BookOpen, href: "/turmas" },
-        { label: "Aulas", icon: Calendar, href: "/aulas" },
-        { label: "Presenças", icon: CheckCircle, href: "/presencas" },
-      ];
-    }
-    
-    // Professor view (default)
-    return [
-      { label: "Dashboard", icon: Home, href: "/" },
-      { label: "Professores", icon: Users, href: "/professores" },
-      { label: "Alunos", icon: GraduationCap, href: "/alunos" },
-      { label: "Turmas", icon: BookOpen, href: "/turmas" },
-      { label: "Aulas", icon: Calendar, href: "/aulas" },
-      { label: "Agenda", icon: Calendar, href: "/agenda" },
-      { label: "Convites", icon: Mail, href: "/convites" },
-      { label: "Usuários", icon: UserCog, href: "/usuarios" },
-    ];
-  };
-
-  const navigationItems = getNavigationItems();
+  const { navigationItems } = useRoleNavigation();
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-card shadow-soft">
@@ -58,7 +48,8 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
         {navigationItems.map((item, index) => {
-          const isActive = location.pathname === item.href;
+          const IconComponent = iconMap[item.icon as keyof typeof iconMap];
+          const isActive = location.pathname === item.url;
           return (
             <Button
               key={index}
@@ -69,8 +60,8 @@ export function Sidebar() {
               )}
               asChild
             >
-              <Link to={item.href}>
-                <item.icon className="h-5 w-5" />
+              <Link to={item.url}>
+                {IconComponent && <IconComponent className="h-5 w-5" />}
                 <span className="font-medium">{item.label}</span>
               </Link>
             </Button>
@@ -88,8 +79,8 @@ export function Sidebar() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{user?.user_metadata?.full_name || 'Usuário'}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-            <p className="text-xs text-primary font-medium">
-              {userRole === 'aluno' ? 'Aluno' : userRole === 'professor' ? 'Professor' : 'Usuário'}
+            <p className="text-xs text-primary font-medium capitalize">
+              {userRole || 'Carregando...'}
             </p>
           </div>
         </div>
