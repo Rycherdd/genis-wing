@@ -24,15 +24,8 @@ export function useAlunosUnificado() {
     try {
       setLoading(true);
       
-      // Buscar alunos da tabela alunos (cadastrados diretamente)
-      const { data: alunosCadastrados, error: errorAlunos } = await supabase
-        .from('alunos')
-        .select('*');
-
-      if (errorAlunos) throw errorAlunos;
-
-      // Buscar todos os profiles que têm role 'aluno' e obter também o email do auth.users
-      const { data: alunosConvite, error: errorConvites } = await supabase
+      // Buscar todos os usuários com role 'aluno' primeiro
+      const { data: usuariosAlunos, error: errorUsuarios } = await supabase
         .from('profiles')
         .select(`
           user_id,
@@ -43,45 +36,45 @@ export function useAlunosUnificado() {
         `)
         .eq('user_roles.role', 'aluno');
 
-      if (errorConvites) throw errorConvites;
+      if (errorUsuarios) throw errorUsuarios;
 
-      // Buscar emails dos usuários alunos
-      const userIds = alunosConvite?.map(aluno => aluno.user_id) || [];
-      let userEmails: { [key: string]: string } = {};
-      
-      if (userIds.length > 0) {
-        const { data: usersData } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .in('user_id', userIds);
+      // Buscar alunos da tabela alunos
+      const { data: alunosCadastrados, error: errorAlunos } = await supabase
+        .from('alunos')
+        .select('*');
+
+      if (errorAlunos) throw errorAlunos;
+
+      const alunosUnificados: AlunoUnificado[] = [];
+
+      // Processar usuários com role aluno
+      if (usuariosAlunos) {
+        for (const usuario of usuariosAlunos) {
+          // Verificar se já existe na tabela alunos
+          const alunoExistente = alunosCadastrados?.find(aluno => aluno.user_id === usuario.user_id);
           
-        // Para obter emails, vamos usar uma abordagem diferente
-        // Como não podemos acessar auth.users diretamente, vamos usar o que está disponível
-        for (const userId of userIds) {
-          userEmails[userId] = 'Email não disponível';
+          if (alunoExistente) {
+            // Se existe na tabela alunos, usar esses dados
+            alunosUnificados.push({
+              id: alunoExistente.id,
+              nome: alunoExistente.nome,
+              email: alunoExistente.email,
+              telefone: alunoExistente.telefone,
+              tipo: 'cadastrado',
+              user_id: alunoExistente.user_id,
+            });
+          } else {
+            // Se não existe, criar entrada baseada no profile
+            alunosUnificados.push({
+              id: usuario.user_id,
+              nome: usuario.full_name || 'Usuário sem nome',
+              email: 'Email não disponível',
+              tipo: 'convite',
+              user_id: usuario.user_id,
+            });
+          }
         }
       }
-
-      // Unificar os dados
-      const alunosUnificados: AlunoUnificado[] = [
-        // Alunos cadastrados diretamente
-        ...(alunosCadastrados || []).map(aluno => ({
-          id: aluno.id,
-          nome: aluno.nome,
-          email: aluno.email,
-          telefone: aluno.telefone,
-          tipo: 'cadastrado' as const,
-        })),
-        // Alunos criados via convite (usuários com role 'aluno')
-        ...(alunosConvite || []).map(aluno => ({
-          id: aluno.user_id, // Usar user_id como identificador
-          nome: aluno.full_name || 'Usuário via Convite',
-          email: userEmails[aluno.user_id] || 'Email não disponível',
-          telefone: undefined,
-          tipo: 'convite' as const,
-          user_id: aluno.user_id,
-        })),
-      ];
 
       setAlunos(alunosUnificados);
     } catch (error) {
