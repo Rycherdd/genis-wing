@@ -39,6 +39,7 @@ function AppRoutes() {
           <Route path="/professores" element={<ProtectedRoute><Layout><Professores /></Layout></ProtectedRoute>} />
           <Route path="/alunos" element={<ProtectedRoute><Layout><Alunos /></Layout></ProtectedRoute>} />
           <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
+          <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
           <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
           <Route path="/presenca" element={<ProtectedRoute><Layout><Presenca /></Layout></ProtectedRoute>} />
           <Route path="/gerenciar-convites" element={<ProtectedRoute><Layout><GerenciarConvites /></Layout></ProtectedRoute>} />
@@ -51,6 +52,7 @@ function AppRoutes() {
         <>
           <Route path="/alunos" element={<ProtectedRoute><Layout><Alunos /></Layout></ProtectedRoute>} />
           <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
+          <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
           <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
           <Route path="/presenca" element={<ProtectedRoute><Layout><Presenca /></Layout></ProtectedRoute>} />
           <Route path="/agenda" element={<ProtectedRoute><Layout><Agenda /></Layout></ProtectedRoute>} />
