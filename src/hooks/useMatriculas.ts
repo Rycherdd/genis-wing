@@ -82,6 +82,24 @@ export function useMatriculas() {
     console.log('createMatricula: Iniciando criação', { aluno_id, turma_id, user_id: user.id });
 
     try {
+      // Verificar se a matrícula já existe para evitar duplicação
+      const { data: existingMatricula } = await supabase
+        .from('matriculas')
+        .select('id')
+        .eq('aluno_id', aluno_id)
+        .eq('turma_id', turma_id)
+        .maybeSingle();
+
+      if (existingMatricula) {
+        console.log('createMatricula: Matrícula já existe');
+        toast({
+          title: "Aviso",
+          description: "Este aluno já está matriculado nesta turma.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase
         .from('matriculas')
         .insert({

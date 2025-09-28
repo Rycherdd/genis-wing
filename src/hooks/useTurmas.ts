@@ -17,15 +17,30 @@ export function useTurmas() {
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Verificar se é admin ou professor - eles devem ver todas as turmas
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      let query = supabase
         .from('turmas')
         .select(`
           *,
           professores (nome)
-        `)
-        .eq('user_id', user.id);
+        `);
+
+      // Se não é admin, filtrar por user_id
+      if (userRole?.role !== 'admin') {
+        query = query.eq('user_id', user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
+      console.log('Turmas carregadas:', data?.length || 0);
       setTurmas(data || []);
     } catch (error) {
       console.error('Erro ao buscar turmas:', error);
@@ -75,13 +90,24 @@ export function useTurmas() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      // Verificar se é admin
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      let query = supabase
         .from('turmas')
         .update(updates)
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .select()
-        .single();
+        .eq('id', id);
+
+      // Se não é admin, filtrar por user_id
+      if (userRole?.role !== 'admin') {
+        query = query.eq('user_id', user.id);
+      }
+
+      const { data, error } = await query.select().single();
 
       if (error) throw error;
 
@@ -108,11 +134,24 @@ export function useTurmas() {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      // Verificar se é admin
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      let query = supabase
         .from('turmas')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('id', id);
+
+      // Se não é admin, filtrar por user_id
+      if (userRole?.role !== 'admin') {
+        query = query.eq('user_id', user.id);
+      }
+
+      const { error } = await query;
 
       if (error) throw error;
 
