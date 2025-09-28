@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, Clock, CheckCircle, AlertTriangle, ArrowRight, BookOpen } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { TurmaForm } from "@/components/forms/TurmaForm";
 import { useProfessores } from "@/hooks/useProfessores";
 import { useTurmas } from "@/hooks/useTurmas";
 import { useAulas } from "@/hooks/useAulas";
+import { Link } from "react-router-dom";
 
 const quickActions = [
   { label: "Cadastrar Professor", href: "/professores/novo" },
@@ -122,16 +123,27 @@ export default function Dashboard() {
         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Ações Rápidas
+              <ArrowRight className="h-5 w-5 text-primary" />
+              Acesso Rápido
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            <Button 
+              asChild
+              variant="outline" 
+              className="w-full justify-start"
+            >
+              <Link to="/turmas-aluno">
+                <GraduationCap className="mr-2 h-4 w-4" />
+                Ver Turmas com Alunos
+              </Link>
+            </Button>
             <Button 
               variant="outline" 
               className="w-full justify-start"
               onClick={() => setProfessorFormOpen(true)}
             >
+              <Users className="mr-2 h-4 w-4" />
               Cadastrar Professor
             </Button>
             <Button 
@@ -139,14 +151,18 @@ export default function Dashboard() {
               className="w-full justify-start"
               onClick={() => setTurmaFormOpen(true)}
             >
+              <BookOpen className="mr-2 h-4 w-4" />
               Nova Turma
             </Button>
             <Button 
+              asChild
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => window.location.href = '/presenca'}
             >
-              Lançar Presença
+              <Link to="/presenca">
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Lançar Presença
+              </Link>
             </Button>
           </CardContent>
         </Card>
