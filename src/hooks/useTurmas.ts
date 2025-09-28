@@ -27,10 +27,14 @@ export function useTurmas() {
 
       let query = supabase
         .from('turmas')
-        .select('*');
+        .select(`
+          *,
+          professores (nome)
+        `);
 
-      // Se não é admin, filtrar por user_id
-      if (userRole?.role !== 'admin') {
+      // Apenas professores (não admins) filtram por user_id, pois são donos das turmas
+      // Alunos dependem apenas das políticas RLS para ver turmas onde estão matriculados
+      if (userRole?.role === 'professor') {
         query = query.eq('user_id', user.id);
       }
 
@@ -38,9 +42,6 @@ export function useTurmas() {
 
       if (error) throw error;
       console.log('Turmas carregadas:', data?.length || 0);
-      console.log('User ID:', user.id);
-      console.log('User Role:', userRole?.role);
-      console.log('Query data:', data);
       setTurmas(data || []);
     } catch (error) {
       console.error('Erro ao buscar turmas:', error);
