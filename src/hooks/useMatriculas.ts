@@ -18,29 +18,48 @@ export function useMatriculas() {
     try {
       setLoading(true);
       
-      // Para alunos, buscar matrículas baseadas no aluno_id
-      const { data: aluno, error: alunoError } = await supabase
-        .from('alunos')
-        .select('id')
+      // Verificar se é admin ou professor - eles devem ver todas as matrículas
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
         .eq('user_id', user.id)
         .single();
 
-      if (alunoError && alunoError.code !== 'PGRST116') {
-        throw alunoError;
-      }
-
       let data = [];
-      if (aluno) {
-        const { data: matriculasData, error } = await supabase
+      
+      if (userRole?.role === 'admin' || userRole?.role === 'professor') {
+        // Admin e professor veem todas as matrículas
+        const { data: allMatriculas, error } = await supabase
           .from('matriculas')
-          .select('*')
-          .eq('aluno_id', aluno.id);
-
+          .select('*');
+        
         if (error) throw error;
-        data = matriculasData || [];
+        data = allMatriculas || [];
+        console.log('Matrículas (admin/professor):', data);
+      } else {
+        // Para alunos, buscar matrículas baseadas no aluno_id
+        const { data: aluno, error: alunoError } = await supabase
+          .from('alunos')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+
+        if (alunoError && alunoError.code !== 'PGRST116') {
+          throw alunoError;
+        }
+
+        if (aluno) {
+          const { data: matriculasData, error } = await supabase
+            .from('matriculas')
+            .select('*')
+            .eq('aluno_id', aluno.id);
+
+          if (error) throw error;
+          data = matriculasData || [];
+        }
+        console.log('Matrículas (aluno):', data);
       }
 
-      console.log('Matrículas carregadas:', data);
       setMatriculas(data);
     } catch (error) {
       console.error('Erro ao buscar matrículas:', error);
@@ -55,7 +74,12 @@ export function useMatriculas() {
   };
 
   const createMatricula = async (aluno_id: string, turma_id: string) => {
-    if (!user) return;
+    if (!user) {
+      console.log('createMatricula: Usuário não encontrado');
+      return;
+    }
+
+    console.log('createMatricula: Iniciando criação', { aluno_id, turma_id, user_id: user.id });
 
     try {
       const { data, error } = await supabase
@@ -69,8 +93,12 @@ export function useMatriculas() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('createMatricula: Erro do Supabase', error);
+        throw error;
+      }
 
+      console.log('createMatricula: Matrícula criada com sucesso', data);
       setMatriculas(prev => [...prev, data]);
       toast({
         title: "Sucesso",
