@@ -24,58 +24,27 @@ export function useAlunosUnificado() {
     try {
       setLoading(true);
       
-      // Buscar todos os usuários com role 'aluno' primeiro
-      const { data: usuariosAlunos, error: errorUsuarios } = await supabase
-        .from('profiles')
-        .select(`
-          user_id,
-          full_name,
-          user_roles!inner (
-            role
-          )
-        `)
-        .eq('user_roles.role', 'aluno');
-
-      if (errorUsuarios) throw errorUsuarios;
-
-      // Buscar alunos da tabela alunos
+      // Buscar apenas da tabela alunos por simplicidade
       const { data: alunosCadastrados, error: errorAlunos } = await supabase
         .from('alunos')
         .select('*');
 
-      if (errorAlunos) throw errorAlunos;
-
-      const alunosUnificados: AlunoUnificado[] = [];
-
-      // Processar usuários com role aluno
-      if (usuariosAlunos) {
-        for (const usuario of usuariosAlunos) {
-          // Verificar se já existe na tabela alunos
-          const alunoExistente = alunosCadastrados?.find(aluno => aluno.user_id === usuario.user_id);
-          
-          if (alunoExistente) {
-            // Se existe na tabela alunos, usar esses dados
-            alunosUnificados.push({
-              id: alunoExistente.id,
-              nome: alunoExistente.nome,
-              email: alunoExistente.email,
-              telefone: alunoExistente.telefone,
-              tipo: 'cadastrado',
-              user_id: alunoExistente.user_id,
-            });
-          } else {
-            // Se não existe, criar entrada baseada no profile
-            alunosUnificados.push({
-              id: usuario.user_id,
-              nome: usuario.full_name || 'Usuário sem nome',
-              email: 'Email não disponível',
-              tipo: 'convite',
-              user_id: usuario.user_id,
-            });
-          }
-        }
+      if (errorAlunos) {
+        console.error('Erro ao buscar alunos:', errorAlunos);
+        throw errorAlunos;
       }
 
+      // Converter para formato unificado
+      const alunosUnificados: AlunoUnificado[] = (alunosCadastrados || []).map(aluno => ({
+        id: aluno.id,
+        nome: aluno.nome,
+        email: aluno.email,
+        telefone: aluno.telefone,
+        tipo: 'cadastrado' as const,
+        user_id: aluno.user_id,
+      }));
+
+      console.log('Alunos carregados:', alunosUnificados);
       setAlunos(alunosUnificados);
     } catch (error) {
       console.error('Erro ao buscar alunos:', error);
