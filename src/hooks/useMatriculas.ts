@@ -17,13 +17,31 @@ export function useMatriculas() {
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('matriculas')
-        .select('*')
-        .eq('user_id', user.id);
+      
+      // Para alunos, buscar matrículas baseadas no aluno_id
+      const { data: aluno, error: alunoError } = await supabase
+        .from('alunos')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
 
-      if (error) throw error;
-      setMatriculas(data || []);
+      if (alunoError && alunoError.code !== 'PGRST116') {
+        throw alunoError;
+      }
+
+      let data = [];
+      if (aluno) {
+        const { data: matriculasData, error } = await supabase
+          .from('matriculas')
+          .select('*')
+          .eq('aluno_id', aluno.id);
+
+        if (error) throw error;
+        data = matriculasData || [];
+      }
+
+      console.log('Matrículas carregadas:', data);
+      setMatriculas(data);
     } catch (error) {
       console.error('Erro ao buscar matrículas:', error);
       toast({
