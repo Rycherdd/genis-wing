@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAlunos } from "@/hooks/useAlunos";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMatriculas } from "@/hooks/useMatriculas";
+import { useTurmas } from "@/hooks/useTurmas";
 import { AlunoForm } from "@/components/forms/AlunoForm";
 import { ConviteForm } from "@/components/forms/ConviteForm";
 
@@ -15,7 +17,15 @@ export default function Alunos() {
   const [showAlunoForm, setShowAlunoForm] = useState(false);
   const [showConviteForm, setShowConviteForm] = useState(false);
   const { alunos, loading, deleteAluno } = useAlunos();
+  const { matriculas } = useMatriculas();
+  const { turmas } = useTurmas();
   const { isAdmin } = useAuth();
+
+  // Função para buscar as turmas de um aluno específico
+  const getAlunoTurmas = (alunoId: string) => {
+    const alunoMatriculas = matriculas.filter(m => m.aluno_id === alunoId);
+    return turmas.filter(turma => alunoMatriculas.some(m => m.turma_id === turma.id));
+  };
 
   const filteredAlunos = alunos.filter(aluno =>
     aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,7 +96,9 @@ export default function Alunos() {
             <div className="flex items-center gap-2">
               <GraduationCap className="h-5 w-5 text-green-500" />
               <div>
-                <p className="text-2xl font-bold">0</p>
+                <p className="text-2xl font-bold">
+                  {alunos.filter(aluno => getAlunoTurmas(aluno.id).length > 0).length}
+                </p>
                 <p className="text-sm text-muted-foreground">Matriculados</p>
               </div>
             </div>
@@ -98,7 +110,9 @@ export default function Alunos() {
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-orange-500" />
               <div>
-                <p className="text-2xl font-bold">{alunos.length}</p>
+                <p className="text-2xl font-bold">
+                  {alunos.filter(aluno => getAlunoTurmas(aluno.id).length === 0).length}
+                </p>
                 <p className="text-sm text-muted-foreground">Disponíveis</p>
               </div>
             </div>
@@ -166,8 +180,30 @@ export default function Alunos() {
                 )}
               </div>
 
+              {/* Turmas */}
+              <div className="space-y-2 pt-3 border-t mt-4">
+                <span className="text-sm font-medium">Turmas:</span>
+                {(() => {
+                  const alunoTurmas = getAlunoTurmas(aluno.id);
+                  return alunoTurmas.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {alunoTurmas.map((turma) => (
+                        <span
+                          key={turma.id}
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary/10 text-primary"
+                        >
+                          {turma.nome}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Não matriculado em nenhuma turma</p>
+                  );
+                })()}
+              </div>
+
               {/* Stats */}
-              <div className="flex items-center justify-between pt-3 border-t mt-4">
+              <div className="flex items-center justify-between pt-3 border-t mt-2">
                 <span className="text-sm text-muted-foreground">Status:</span>
                 <span className="text-sm font-medium text-green-600">Ativo</span>
               </div>
