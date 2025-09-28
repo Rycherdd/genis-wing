@@ -27,10 +27,7 @@ export function useTurmas() {
 
       let query = supabase
         .from('turmas')
-        .select(`
-          *,
-          professores (nome)
-        `);
+        .select('*');
 
       // Se não é admin, filtrar por user_id
       if (userRole?.role !== 'admin') {
@@ -41,6 +38,9 @@ export function useTurmas() {
 
       if (error) throw error;
       console.log('Turmas carregadas:', data?.length || 0);
+      console.log('User ID:', user.id);
+      console.log('User Role:', userRole?.role);
+      console.log('Query data:', data);
       setTurmas(data || []);
     } catch (error) {
       console.error('Erro ao buscar turmas:', error);
