@@ -59,9 +59,9 @@ function AppRoutes() {
       {/* Aluno Routes */}
       {userRole === 'aluno' && (
         <>
-          <Route path="/turmas" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
-          <Route path="/aulas" element={<ProtectedRoute><Layout><AulasAluno /></Layout></ProtectedRoute>} />
-          <Route path="/presencas" element={<ProtectedRoute><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
+          <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
+          <Route path="/aulas-aluno" element={<ProtectedRoute><Layout><AulasAluno /></Layout></ProtectedRoute>} />
+          <Route path="/minhas-presencas" element={<ProtectedRoute><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
         </>
       )}
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
