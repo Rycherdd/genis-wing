@@ -24,10 +24,11 @@ export function useAlunosUnificado() {
     try {
       setLoading(true);
       
-      // Buscar apenas da tabela alunos por simplicidade
+      // Buscar alunos da tabela alunos com ordenação
       const { data: alunosCadastrados, error: errorAlunos } = await supabase
         .from('alunos')
-        .select('*');
+        .select('*')
+        .order('nome');
 
       if (errorAlunos) {
         console.error('Erro ao buscar alunos:', errorAlunos);
@@ -39,7 +40,7 @@ export function useAlunosUnificado() {
         id: aluno.id,
         nome: aluno.nome,
         email: aluno.email,
-        telefone: aluno.telefone,
+        telefone: aluno.telefone || undefined,
         tipo: 'cadastrado' as const,
         user_id: aluno.user_id,
       }));

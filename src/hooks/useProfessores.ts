@@ -17,10 +17,11 @@ export function useProfessores() {
     
     try {
       setLoading(true);
+      // Buscar todos os professores, não apenas do usuário atual
       const { data, error } = await supabase
         .from('professores')
         .select('*')
-        .eq('user_id', user.id);
+        .order('nome');
 
       if (error) throw error;
       setProfessores(data || []);
