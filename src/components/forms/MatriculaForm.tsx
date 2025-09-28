@@ -32,6 +32,13 @@ export function MatriculaForm({ open, onOpenChange, turmaId, turmaNome }: Matric
   const [loading, setLoading] = useState(false);
   const [selectedAlunoId, setSelectedAlunoId] = useState("");
 
+  console.log('MatriculaForm: Dados carregados', { 
+    alunos: alunos.length, 
+    matriculas: matriculas.length, 
+    turmaId, 
+    turmaNome 
+  });
+
   // Filtrar alunos que já estão matriculados nesta turma
   const alunosMatriculados = matriculas
     .filter(m => m.turma_id === turmaId)
@@ -41,18 +48,31 @@ export function MatriculaForm({ open, onOpenChange, turmaId, turmaNome }: Matric
     !alunosMatriculados.includes(aluno.id)
   );
 
+  console.log('MatriculaForm: Filtros aplicados', { 
+    alunosMatriculados, 
+    alunosDisponiveis: alunosDisponiveis.length 
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAlunoId) return;
+    console.log('handleSubmit: Iniciado', { selectedAlunoId, turmaId });
+    
+    if (!selectedAlunoId) {
+      console.log('handleSubmit: Nenhum aluno selecionado');
+      return;
+    }
     
     setLoading(true);
 
     try {
+      console.log('handleSubmit: Chamando createMatricula');
       await createMatricula(selectedAlunoId, turmaId);
+      console.log('handleSubmit: Matrícula criada com sucesso');
       setSelectedAlunoId("");
       onOpenChange(false);
     } catch (error) {
-      console.error('Erro ao matricular aluno:', error);
+      console.error('handleSubmit: Erro ao matricular aluno:', error);
+      alert('Erro ao matricular aluno: ' + error.message);
     } finally {
       setLoading(false);
     }
