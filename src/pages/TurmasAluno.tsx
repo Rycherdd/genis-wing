@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTurmas } from "@/hooks/useTurmas";
 import { useMatriculas } from "@/hooks/useMatriculas";
 import { useAulas } from "@/hooks/useAulas";
+import { useAuth } from "@/contexts/AuthContext";
 import { format, parseISO, isSameDay, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -15,6 +16,7 @@ export default function TurmasAluno() {
   const { turmas, loading: turmasLoading } = useTurmas();
   const { matriculas, loading: matriculasLoading } = useMatriculas();
   const { aulas, loading: aulasLoading } = useAulas();
+  const { isAdmin, isProfessor } = useAuth();
 
   if (turmasLoading || matriculasLoading || aulasLoading) {
     return (
@@ -33,8 +35,11 @@ export default function TurmasAluno() {
   }
 
   // Get enrolled classes for the current user
+  // Admins and professors see all classes, students see only enrolled classes
   const enrolledTurmaIds = matriculas.map(m => m.turma_id);
-  const myTurmas = turmas.filter(turma => enrolledTurmaIds.includes(turma.id));
+  const myTurmas = (isAdmin || isProfessor) 
+    ? turmas 
+    : turmas.filter(turma => enrolledTurmaIds.includes(turma.id));
 
   const filteredTurmas = myTurmas.filter(turma =>
     turma.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -87,9 +92,13 @@ export default function TurmasAluno() {
     <div className="space-y-6">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Minhas Turmas</h1>
+        <h1 className="text-3xl font-bold">
+          {(isAdmin || isProfessor) ? "Todas as Turmas" : "Minhas Turmas"}
+        </h1>
         <p className="text-muted-foreground">
-          Turmas em que você está matriculado
+          {(isAdmin || isProfessor) 
+            ? "Todas as turmas do sistema" 
+            : "Turmas em que você está matriculado"}
         </p>
       </div>
 
@@ -112,7 +121,9 @@ export default function TurmasAluno() {
               <Users className="h-12 w-12 text-muted-foreground mx-auto" />
               <p className="text-muted-foreground">
                 {myTurmas.length === 0 
-                  ? "Você não está matriculado em nenhuma turma ainda."
+                  ? (isAdmin || isProfessor) 
+                    ? "Nenhuma turma cadastrada no sistema."
+                    : "Você não está matriculado em nenhuma turma ainda."
                   : "Nenhuma turma encontrada com os termos de busca."}
               </p>
             </div>
