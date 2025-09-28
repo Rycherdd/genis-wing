@@ -1,0 +1,1 @@
+INSERT INTO user_roles (user_id, role) VALUES ('07f8b559-32fd-40f2-a505-ba26d4dca040', 'aluno'::app_role);
