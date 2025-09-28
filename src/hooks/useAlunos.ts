@@ -17,13 +17,14 @@ export function useAlunos() {
     
     try {
       setLoading(true);
+      // Buscar todos os alunos (sem filtrar por user_id) para admins e professores
       const { data, error } = await supabase
         .from('alunos')
         .select('*')
-        .eq('user_id', user.id)
         .order('nome', { ascending: true });
 
       if (error) throw error;
+      console.log('Alunos carregados:', data);
       setAlunos(data || []);
     } catch (error) {
       console.error('Erro ao buscar alunos:', error);
