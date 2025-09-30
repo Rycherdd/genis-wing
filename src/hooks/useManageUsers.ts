@@ -32,48 +32,16 @@ export function useManageUsers() {
     try {
       setLoading(true);
       
-      // Fetch users from profiles table and their roles from user_roles table separately
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, created_at')
-        .order('created_at', { ascending: false });
-
-      if (profilesError) throw profilesError;
-
-      // Fetch roles for all users
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) throw rolesError;
-
-      // Combine profiles with roles data
-      const usersWithRoles = profilesData.map(profile => {
-        const userRole = rolesData.find(role => role.user_id === profile.user_id);
-        return {
-          id: profile.user_id,
-          user_id: profile.user_id,
-          full_name: profile.full_name || 'Usuário sem nome',
-          email: '', // We'll need to get this from auth.users if needed
-          user_role: userRole?.role || 'inactive',
-          created_at: profile.created_at,
-        };
+      // Use edge function to get users with emails
+      const { data, error } = await supabase.functions.invoke('manage-users', {
+        body: { action: 'list' },
       });
 
-      // Also include users who have roles but no profiles
-      const usersWithoutProfiles = rolesData
-        .filter(role => !profilesData.find(profile => profile.user_id === role.user_id))
-        .map(role => ({
-          id: role.user_id,
-          user_id: role.user_id,
-          full_name: 'Usuário sem perfil',
-          email: '',
-          user_role: role.role,
-          created_at: new Date().toISOString(),
-        }));
+      if (error) throw error;
 
-      const allUsers = [...usersWithRoles, ...usersWithoutProfiles];
-      setUsers(allUsers);
+      if (data?.users) {
+        setUsers(data.users);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({

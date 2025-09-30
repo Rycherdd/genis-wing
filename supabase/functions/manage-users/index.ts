@@ -111,8 +111,8 @@ const handler = async (req: Request): Promise<Response> => {
 
           return {
             id: authUser.id,
-            email: authUser.email || '',
-            full_name: profile?.full_name || 'N/A',
+            email: authUser.email || 'Sem email',
+            full_name: profile?.full_name || 'Usuário sem nome',
             user_role: userRole?.role || 'aluno',
             created_at: authUser.created_at
           };
