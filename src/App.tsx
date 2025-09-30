@@ -26,46 +26,31 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const { userRole } = useAuth();
-  
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/" element={<ProtectedRoute><Layout><Index /></Layout></ProtectedRoute>} />
+      
       {/* Admin Routes */}
-      {userRole === 'admin' && (
-        <>
-          <Route path="/professores" element={<ProtectedRoute><Layout><Professores /></Layout></ProtectedRoute>} />
-          <Route path="/alunos" element={<ProtectedRoute><Layout><Alunos /></Layout></ProtectedRoute>} />
-          <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
-          <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
-          <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
-          <Route path="/presenca" element={<ProtectedRoute><Layout><Presenca /></Layout></ProtectedRoute>} />
-          <Route path="/gerenciar-convites" element={<ProtectedRoute><Layout><GerenciarConvites /></Layout></ProtectedRoute>} />
-          <Route path="/gerenciar-usuarios" element={<ProtectedRoute><Layout><GerenciarUsuarios /></Layout></ProtectedRoute>} />
-          <Route path="/agenda" element={<ProtectedRoute><Layout><Agenda /></Layout></ProtectedRoute>} />
-        </>
-      )}
-      {/* Professor Routes */}
-      {userRole === 'professor' && (
-        <>
-          <Route path="/alunos" element={<ProtectedRoute><Layout><Alunos /></Layout></ProtectedRoute>} />
-          <Route path="/turmas" element={<ProtectedRoute><Layout><Turmas /></Layout></ProtectedRoute>} />
-          <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
-          <Route path="/aulas" element={<ProtectedRoute><Layout><Aulas /></Layout></ProtectedRoute>} />
-          <Route path="/presenca" element={<ProtectedRoute><Layout><Presenca /></Layout></ProtectedRoute>} />
-          <Route path="/agenda" element={<ProtectedRoute><Layout><Agenda /></Layout></ProtectedRoute>} />
-        </>
-      )}
-      {/* Aluno Routes */}
-      {userRole === 'aluno' && (
-        <>
-          <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
-          <Route path="/aulas-aluno" element={<ProtectedRoute><Layout><AulasAluno /></Layout></ProtectedRoute>} />
-          <Route path="/minhas-presencas" element={<ProtectedRoute><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
-        </>
-      )}
+      <Route path="/professores" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Professores /></Layout></ProtectedRoute>} />
+      <Route path="/gerenciar-convites" element={<ProtectedRoute allowedRoles={['admin']}><Layout><GerenciarConvites /></Layout></ProtectedRoute>} />
+      <Route path="/gerenciar-usuarios" element={<ProtectedRoute allowedRoles={['admin']}><Layout><GerenciarUsuarios /></Layout></ProtectedRoute>} />
+      
+      {/* Admin & Professor Routes */}
+      <Route path="/alunos" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Alunos /></Layout></ProtectedRoute>} />
+      <Route path="/turmas" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Turmas /></Layout></ProtectedRoute>} />
+      <Route path="/aulas" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Aulas /></Layout></ProtectedRoute>} />
+      <Route path="/presenca" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Presenca /></Layout></ProtectedRoute>} />
+      <Route path="/agenda" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Agenda /></Layout></ProtectedRoute>} />
+      
+      {/* All authenticated users */}
+      <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
+      
+      {/* Student Routes */}
+      <Route path="/aulas-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><AulasAluno /></Layout></ProtectedRoute>} />
+      <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
+      
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

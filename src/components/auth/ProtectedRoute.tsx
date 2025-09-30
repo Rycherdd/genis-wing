@@ -4,17 +4,20 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  allowedRoles?: string[];
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+  const { user, loading, userRole } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/login', { replace: true });
+    } else if (!loading && user && allowedRoles && userRole && !allowedRoles.includes(userRole)) {
+      navigate('/', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, allowedRoles, userRole]);
 
   if (loading) {
     return (
@@ -24,5 +27,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  return user ? <>{children}</> : null;
+  if (!user) return null;
+  
+  if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
