@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Linkedin, Github, Twitter, Phone, Save, X } from "lucide-react";
+import { Camera, Linkedin, Instagram, Phone, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,8 +29,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
     full_name: profile?.full_name || "",
     bio: profile?.bio || "",
     linkedin_url: profile?.linkedin_url || "",
-    github_url: profile?.github_url || "",
-    twitter_url: profile?.twitter_url || "",
+    instagram_url: profile?.instagram_url || "",
     phone: profile?.phone || "",
   });
 
@@ -184,30 +183,16 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="github_url">
-                <Github className="inline h-4 w-4 mr-2" />
-                GitHub
+              <Label htmlFor="instagram_url">
+                <Instagram className="inline h-4 w-4 mr-2" />
+                Instagram
               </Label>
               <Input
-                id="github_url"
+                id="instagram_url"
                 type="url"
-                value={formData.github_url}
-                onChange={(e) => handleChange('github_url', e.target.value)}
-                placeholder="https://github.com/seu-usuario"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="twitter_url">
-                <Twitter className="inline h-4 w-4 mr-2" />
-                Twitter/X
-              </Label>
-              <Input
-                id="twitter_url"
-                type="url"
-                value={formData.twitter_url}
-                onChange={(e) => handleChange('twitter_url', e.target.value)}
-                placeholder="https://twitter.com/seu-usuario"
+                value={formData.instagram_url}
+                onChange={(e) => handleChange('instagram_url', e.target.value)}
+                placeholder="https://instagram.com/seu-usuario"
               />
             </div>
           </div>
