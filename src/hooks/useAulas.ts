@@ -17,13 +17,34 @@ export function useAulas() {
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('aulas_agendadas')
-        .select('*')
+      
+      // Verificar se é admin ou professor
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .single();
+
+      let query = supabase
+        .from('aulas_agendadas')
+        .select(`
+          *,
+          professores (nome),
+          turmas (nome)
+        `)
+        .order('data', { ascending: true })
+        .order('horario_inicio', { ascending: true });
+
+      // Apenas professores (não admins) filtram por user_id
+      // Alunos dependem apenas das políticas RLS
+      if (userRole?.role === 'professor') {
+        query = query.eq('user_id', user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
+      console.log('Aulas carregadas:', data?.length || 0);
       setAulas(data || []);
     } catch (error) {
       console.error('Erro ao buscar aulas:', error);
