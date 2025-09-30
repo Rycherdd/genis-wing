@@ -7,9 +7,17 @@ const pageNames: Record<string, string> = {
   "/": "Dashboard",
   "/professores": "Professores", 
   "/turmas": "Turmas",
+  "/turmas-aluno": "Minhas Turmas",
   "/aulas": "Aulas",
+  "/aulas-aluno": "Minhas Aulas",
   "/alunos": "Alunos",
   "/presenca": "Controle de Presença",
+  "/minhas-presencas": "Minhas Presenças",
+  "/gerenciar-convites": "Gerenciar Convites",
+  "/gerenciar-usuarios": "Gerenciar Usuários",
+  "/agenda": "Agenda",
+  "/login": "Login",
+  "/cadastro": "Cadastro",
 };
 
 export function Header() {
