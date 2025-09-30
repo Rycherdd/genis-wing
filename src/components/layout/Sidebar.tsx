@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail, UserCog, CalendarDays, CheckSquare } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoleNavigation } from "@/hooks/useRoleNavigation";
+import { ProfileDialog } from "@/components/profile/ProfileDialog";
+import { useProfile } from "@/hooks/useProfile";
 
 const iconMap = {
   Home,
@@ -29,6 +33,13 @@ export function Sidebar() {
   const location = useLocation();
   const { user, signOut, userRole } = useAuth();
   const { navigationItems } = useRoleNavigation();
+  const { profile } = useProfile();
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+
+  const getInitials = () => {
+    const name = profile?.full_name || user?.email || "U";
+    return name.substring(0, 2).toUpperCase();
+  };
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-card shadow-soft">
@@ -71,19 +82,26 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="border-t">
-        {/* User Info */}
-        <div className="flex items-center gap-3 p-3 border-b">
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <UserCircle className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.user_metadata?.full_name || 'Usuário'}</p>
+        {/* User Info - Clicável */}
+        <button
+          onClick={() => setProfileDialogOpen(true)}
+          className="flex items-center gap-3 p-3 border-b w-full hover:bg-muted/50 transition-colors"
+        >
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={profile?.avatar_url || ""} />
+            <AvatarFallback>{getInitials()}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-sm font-medium truncate">
+              {profile?.full_name || user?.user_metadata?.full_name || 'Usuário'}
+            </p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             <p className="text-xs text-primary font-medium capitalize">
               {userRole || 'Carregando...'}
             </p>
           </div>
-        </div>
+          <Settings className="h-4 w-4 text-muted-foreground" />
+        </button>
 
         {/* Logout Button */}
         <div className="p-3 pt-0">
@@ -98,6 +116,9 @@ export function Sidebar() {
           </Button>
         </div>
       </div>
+
+      {/* Profile Dialog */}
+      <ProfileDialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen} />
     </div>
   );
 }
