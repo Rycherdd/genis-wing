@@ -32,8 +32,8 @@ export default function AulasAluno() {
   const filteredAulas = aulas.filter(aula =>
     aula.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     aula.local?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (aula as any).professores?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (aula as any).turmas?.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    aula.professores?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    aula.turmas?.nome?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const today = new Date();
@@ -121,7 +121,7 @@ export default function AulasAluno() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <User className="h-4 w-4" />
-                      {(aula as any).professores?.nome}
+                      {aula.professores?.nome || 'Professor não informado'}
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
@@ -136,7 +136,7 @@ export default function AulasAluno() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      Turma: {(aula as any).turmas?.nome}
+                      Turma: {aula.turmas?.nome || 'Turma não informada'}
                     </span>
                   </div>
                 </CardContent>
@@ -191,7 +191,7 @@ export default function AulasAluno() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <User className="h-4 w-4" />
-                      {(aula as any).professores?.nome}
+                      {aula.professores?.nome || 'Professor não informado'}
                     </div>
                     {aula.local && (
                       <div className="flex items-center gap-1">
@@ -202,7 +202,7 @@ export default function AulasAluno() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      Turma: {(aula as any).turmas?.nome}
+                      Turma: {aula.turmas?.nome || 'Turma não informada'}
                     </span>
                   </div>
                 </CardContent>

@@ -4,7 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from '@/integrations/supabase/types';
 
-type AulaAgendada = Database['public']['Tables']['aulas_agendadas']['Row'];
+type AulaAgendadaRow = Database['public']['Tables']['aulas_agendadas']['Row'];
+
+type AulaAgendada = AulaAgendadaRow & {
+  professores: { nome: string } | null;
+  turmas: { nome: string } | null;
+};
 
 export function useAulas() {
   const [aulas, setAulas] = useState<AulaAgendada[]>([]);
@@ -45,7 +50,7 @@ export function useAulas() {
 
       if (error) throw error;
       console.log('Aulas carregadas:', data?.length || 0);
-      setAulas(data || []);
+      setAulas((data || []) as AulaAgendada[]);
     } catch (error) {
       console.error('Erro ao buscar aulas:', error);
       toast({
@@ -58,7 +63,7 @@ export function useAulas() {
     }
   };
 
-  const createAula = async (aula: Omit<AulaAgendada, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
+  const createAula = async (aula: Omit<AulaAgendadaRow, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
     if (!user) return;
 
     try {
@@ -68,12 +73,16 @@ export function useAulas() {
           ...aula,
           user_id: user.id,
         })
-        .select()
+        .select(`
+          *,
+          professores (nome),
+          turmas (nome)
+        `)
         .single();
 
       if (error) throw error;
 
-      setAulas(prev => [...prev, data]);
+      setAulas(prev => [...prev, data as AulaAgendada]);
       toast({
         title: "Sucesso",
         description: "Aula criada com sucesso!",
@@ -90,7 +99,7 @@ export function useAulas() {
     }
   };
 
-  const updateAula = async (id: string, updates: Partial<AulaAgendada>) => {
+  const updateAula = async (id: string, updates: Partial<AulaAgendadaRow>) => {
     if (!user) return;
 
     try {
@@ -99,13 +108,17 @@ export function useAulas() {
         .update(updates)
         .eq('id', id)
         .eq('user_id', user.id)
-        .select()
+        .select(`
+          *,
+          professores (nome),
+          turmas (nome)
+        `)
         .single();
 
       if (error) throw error;
 
       setAulas(prev => 
-        prev.map(aula => aula.id === id ? { ...aula, ...data } : aula)
+        prev.map(aula => aula.id === id ? data as AulaAgendada : aula)
       );
       toast({
         title: "Sucesso",
