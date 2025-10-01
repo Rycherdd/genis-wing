@@ -84,7 +84,7 @@ export function Sidebar({ onClose }: SidebarProps) {
               )}
               asChild
             >
-              <Link to={item.url}>
+              <Link to={item.url} onClick={onClose}>
                 {IconComponent && <IconComponent className="h-5 w-5" />}
                 <span className="font-medium">{item.label}</span>
               </Link>
