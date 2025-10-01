@@ -40,6 +40,13 @@ export function Sidebar({ onClose }: SidebarProps) {
   const { profile } = useProfile();
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
+  const handleLinkClick = () => {
+    // Fechar sidebar em mobile quando clicar em um link
+    if (onClose) {
+      onClose();
+    }
+  };
+
   const getInitials = () => {
     const name = profile?.full_name || user?.email || "U";
     return name.substring(0, 2).toUpperCase();
@@ -84,7 +91,7 @@ export function Sidebar({ onClose }: SidebarProps) {
               )}
               asChild
             >
-              <Link to={item.url} onClick={onClose}>
+              <Link to={item.url} onClick={handleLinkClick}>
                 {IconComponent && <IconComponent className="h-5 w-5" />}
                 <span className="font-medium">{item.label}</span>
               </Link>
