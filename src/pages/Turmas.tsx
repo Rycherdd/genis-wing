@@ -55,17 +55,17 @@ export default function Turmas() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Turmas</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Turmas</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Gerencie todas as turmas e seus alunos
           </p>
         </div>
         <Button 
-          className="bg-gradient-primary shadow-medium"
+          className="bg-gradient-primary shadow-medium w-full sm:w-auto"
           onClick={() => setTurmaFormOpen(true)}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -87,7 +87,7 @@ export default function Turmas() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">

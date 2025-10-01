@@ -41,22 +41,22 @@ export default function Alunos() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Alunos</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Alunos</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             {isAdmin ? "Gerencie todos os alunos cadastrados" : "Visualize todos os alunos cadastrados"}
           </p>
         </div>
         {isAdmin && (
-          <div className="flex gap-2">
-            <Button onClick={() => setShowAlunoForm(true)}>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button onClick={() => setShowAlunoForm(true)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Novo Aluno
             </Button>
-            <Button variant="outline" onClick={() => setShowConviteForm(true)}>
+            <Button variant="outline" onClick={() => setShowConviteForm(true)} className="w-full sm:w-auto">
               <Mail className="mr-2 h-4 w-4" />
               Convidar Aluno
             </Button>
@@ -121,7 +121,7 @@ export default function Alunos() {
       </div>
 
       {/* Alunos List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredAlunos.map((aluno) => (
           <Card key={aluno.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">

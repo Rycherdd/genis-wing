@@ -100,8 +100,9 @@ export default function GerenciarUsuarios() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
@@ -203,6 +204,7 @@ export default function GerenciarUsuarios() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </div>
 
           {users.length === 0 && (

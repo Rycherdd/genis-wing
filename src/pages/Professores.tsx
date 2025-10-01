@@ -50,24 +50,24 @@ export default function Professores() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Professores</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Professores</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Gerencie todos os professores da plataforma
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button 
-            className="bg-gradient-primary shadow-medium"
+            className="bg-gradient-primary shadow-medium w-full sm:w-auto"
             onClick={() => setProfessorFormOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
             Novo Professor
           </Button>
-          <Button variant="outline" onClick={() => setShowConviteForm(true)}>
+          <Button variant="outline" onClick={() => setShowConviteForm(true)} className="w-full sm:w-auto">
             <Mail className="mr-2 h-4 w-4" />
             Convidar Professor
           </Button>
@@ -92,7 +92,7 @@ export default function Professores() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
@@ -136,25 +136,25 @@ export default function Professores() {
       </div>
 
       {/* Professors Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filteredProfessores.map((professor) => (
           <Card key={professor.id} className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarFallback>
                       {professor.nome.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <CardTitle className="text-lg">{professor.nome}</CardTitle>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-base md:text-lg truncate">{professor.nome}</CardTitle>
                     {getStatusBadge(professor.status)}
                   </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="flex-shrink-0">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -175,13 +175,13 @@ export default function Professores() {
             <CardContent className="space-y-4">
               {/* Contact Info */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Mail className="h-4 w-4" />
-                  {professor.email}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground break-all">
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{professor.email}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Phone className="h-4 w-4" />
-                  {professor.telefone || "Não informado"}
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <span>{professor.telefone || "Não informado"}</span>
                 </div>
               </div>
 
