@@ -29,14 +29,14 @@ export function Header() {
 
   return (
     <>
-      <header className="flex h-16 items-center justify-between border-b bg-card px-6 shadow-soft">
+      <header className="hidden lg:flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shadow-soft">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-semibold">{currentPageName}</h2>
+          <h2 className="text-lg md:text-xl font-semibold truncate">{currentPageName}</h2>
         </div>
         
-        <div className="flex items-center gap-4">
-          {/* Search */}
-          <div className="relative w-80">
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Search - hidden on mobile */}
+          <div className="hidden md:block relative w-64 lg:w-80">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
               placeholder="Buscar professores, turmas, cursos..." 

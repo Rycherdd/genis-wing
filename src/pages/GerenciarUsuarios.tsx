@@ -74,17 +74,18 @@ export default function GerenciarUsuarios() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Gerenciar Usuários</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Gerenciar Usuários</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Visualize, crie e exclua usuários do sistema
           </p>
         </div>
         <Button 
           onClick={() => setShowCreateForm(true)}
           disabled={actionLoading !== null}
+          className="w-full sm:w-auto"
         >
           <UserPlus className="mr-2 h-4 w-4" />
           Criar Usuário
