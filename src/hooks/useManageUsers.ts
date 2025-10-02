@@ -60,12 +60,13 @@ export function useManageUsers() {
     try {
       setActionLoading(userId);
       
-      // For now, we'll remove the user's role instead of deleting from auth
-      // since frontend can't delete auth users directly
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
+      // Use edge function to deactivate user and sign them out
+      const { data, error } = await supabase.functions.invoke('manage-users', {
+        body: {
+          action: 'deactivate',
+          userId: userId
+        },
+      });
 
       if (error) throw error;
 

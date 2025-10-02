@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 interface ManageUserRequest {
-  action: 'delete' | 'create' | 'list';
+  action: 'delete' | 'create' | 'list' | 'deactivate';
   userId?: string;
   userData?: {
     email: string;
@@ -152,6 +152,45 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ 
           success: true, 
           message: "User deleted successfully"
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            ...corsHeaders,
+          },
+        }
+      );
+
+    } else if (action === 'deactivate' && userId) {
+      // Remove user role and sign out all sessions
+      const { error: deleteRoleError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+      
+      if (deleteRoleError) {
+        console.error("Error removing user role:", deleteRoleError);
+        return new Response(
+          JSON.stringify({ error: "Failed to deactivate user" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+
+      // Sign out all sessions for this user
+      const { error: signOutError } = await supabase.auth.admin.signOut(userId);
+      
+      if (signOutError) {
+        console.error("Error signing out user:", signOutError);
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "User deactivated and logged out successfully"
         }),
         {
           status: 200,
