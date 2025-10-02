@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Search, Filter, MoreHorizontal, Mail, Phone, MapPin, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,14 +12,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useProfessores } from "@/hooks/useProfessores";
 import { ProfessorForm } from "@/components/forms/ProfessorForm";
 import { ConviteForm } from "@/components/forms/ConviteForm";
 
 export default function Professores() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [professorFormOpen, setProfessorFormOpen] = useState(false);
   const [showConviteForm, setShowConviteForm] = useState(false);
+  const [selectedProfessor, setSelectedProfessor] = useState<any>(null);
+  const [editingProfessor, setEditingProfessor] = useState<any>(null);
+  const [viewProfileOpen, setViewProfileOpen] = useState(false);
   const { professores, loading, deleteProfessor } = useProfessores();
 
   const filteredProfessores = professores.filter(professor =>
@@ -159,9 +170,21 @@ export default function Professores() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Ver Perfil</DropdownMenuItem>
-                    <DropdownMenuItem>Editar</DropdownMenuItem>
-                    <DropdownMenuItem>Ver Agenda</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      setSelectedProfessor(professor);
+                      setViewProfileOpen(true);
+                    }}>
+                      Ver Perfil
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      setEditingProfessor(professor);
+                      setProfessorFormOpen(true);
+                    }}>
+                      Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/agenda')}>
+                      Ver Agenda
+                    </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-destructive"
                       onClick={() => deleteProfessor(professor.id)}
@@ -213,12 +236,65 @@ export default function Professores() {
       )}
 
       {/* Professor Form */}
-      <ProfessorForm open={professorFormOpen} onOpenChange={setProfessorFormOpen} />
+      <ProfessorForm 
+        open={professorFormOpen} 
+        onOpenChange={(open) => {
+          setProfessorFormOpen(open);
+          if (!open) setEditingProfessor(null);
+        }}
+      />
       <ConviteForm 
         open={showConviteForm} 
         onOpenChange={setShowConviteForm} 
         defaultRole="professor"
       />
+
+      {/* View Profile Dialog */}
+      <Dialog open={viewProfileOpen} onOpenChange={setViewProfileOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Perfil do Professor</DialogTitle>
+          </DialogHeader>
+          {selectedProfessor && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback className="text-lg">
+                    {selectedProfessor.nome.split(' ').map((n: string) => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-xl font-bold">{selectedProfessor.nome}</h3>
+                  {getStatusBadge(selectedProfessor.status)}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Email</p>
+                  <p className="text-sm">{selectedProfessor.email}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Telefone</p>
+                  <p className="text-sm">{selectedProfessor.telefone || "Não informado"}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Especialidades</p>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedProfessor.especializacao?.map((specialty: string, index: number) => (
+                      <Badge key={index} variant="secondary">
+                        {specialty}
+                      </Badge>
+                    )) || <p className="text-sm text-muted-foreground">Nenhuma especialização</p>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
