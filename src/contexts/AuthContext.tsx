@@ -41,12 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', session.user.id)
-                .single();
+                .maybeSingle();
               
               console.log('Role check result:', { data, error, userId: session.user.id });
               
               // Se não encontrou role, usuário foi desativado - fazer logout
-              if (error || !data) {
+              if (!data) {
                 console.log('❌ Usuário sem role ativa, fazendo logout...');
                 await supabase.auth.signOut();
                 setUserRole(null);
@@ -86,16 +86,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Verificar role na inicialização
       if (session?.user) {
         try {
-          const { data, error } = await supabase
+          const { data } = await supabase
             .from('user_roles')
             .select('role')
             .eq('user_id', session.user.id)
-            .single();
+            .maybeSingle();
           
-          console.log('Initial role check:', { data, error, userId: session.user.id });
+          console.log('Initial role check:', { data, userId: session.user.id });
           
           // Se não encontrou role, usuário foi desativado - fazer logout
-          if (error || !data) {
+          if (!data) {
             console.log('❌ Usuário sem role ativa na inicialização, fazendo logout...');
             await supabase.auth.signOut();
             setUserRole(null);
