@@ -40,7 +40,9 @@ export function useManageUsers() {
       if (error) throw error;
 
       if (data?.users) {
-        setUsers(data.users);
+        // Filtrar apenas usuários ativos (com role)
+        const activeUsers = data.users.filter((user: User) => user.status === 'active');
+        setUsers(activeUsers);
       }
     } catch (error) {
       console.error('Error fetching users:', error);

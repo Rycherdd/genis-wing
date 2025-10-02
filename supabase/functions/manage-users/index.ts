@@ -113,8 +113,9 @@ const handler = async (req: Request): Promise<Response> => {
             id: authUser.id,
             email: authUser.email || 'Sem email',
             full_name: profile?.full_name || 'Usuário sem nome',
-            user_role: userRole?.role || 'aluno',
-            created_at: authUser.created_at
+            user_role: userRole?.role || null,
+            created_at: authUser.created_at,
+            status: userRole?.role ? 'active' : 'inactive'
           };
         })
       );
