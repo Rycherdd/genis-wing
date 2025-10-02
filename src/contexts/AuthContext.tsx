@@ -36,14 +36,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           setTimeout(async () => {
             try {
-              const { data } = await supabase
+              const { data, error } = await supabase
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', session.user.id)
                 .single();
-              setUserRole(data?.role || null);
+              
+              // Se não encontrou role, usuário foi desativado - fazer logout
+              if (error || !data) {
+                console.log('Usuário sem role ativa, fazendo logout...');
+                await supabase.auth.signOut();
+                setUserRole(null);
+                toast({
+                  title: "Acesso revogado",
+                  description: "Sua conta foi desativada.",
+                  variant: "destructive",
+                });
+              } else {
+                setUserRole(data.role);
+              }
             } catch (error) {
               console.error('Error fetching user role:', error);
+              await supabase.auth.signOut();
               setUserRole(null);
             }
           }, 0);
@@ -55,15 +69,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Get initial session and check role
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Verificar role na inicialização
+      if (session?.user) {
+        try {
+          const { data, error } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          // Se não encontrou role, usuário foi desativado - fazer logout
+          if (error || !data) {
+            console.log('Usuário sem role ativa na inicialização, fazendo logout...');
+            await supabase.auth.signOut();
+            setUserRole(null);
+            setUser(null);
+            setSession(null);
+          } else {
+            setUserRole(data.role);
+          }
+        } catch (error) {
+          console.error('Error fetching user role on init:', error);
+          await supabase.auth.signOut();
+          setUserRole(null);
+          setUser(null);
+          setSession(null);
+        }
+      }
+      
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
   const signUp = async (email: string, password: string, fullName: string, role: string = 'professor') => {
     try {
