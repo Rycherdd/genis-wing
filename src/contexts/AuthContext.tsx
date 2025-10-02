@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -42,23 +43,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .eq('user_id', session.user.id)
                 .single();
               
+              console.log('Role check result:', { data, error, userId: session.user.id });
+              
               // Se não encontrou role, usuário foi desativado - fazer logout
               if (error || !data) {
-                console.log('Usuário sem role ativa, fazendo logout...');
+                console.log('❌ Usuário sem role ativa, fazendo logout...');
                 await supabase.auth.signOut();
                 setUserRole(null);
+                setUser(null);
+                setSession(null);
                 toast({
                   title: "Acesso revogado",
                   description: "Sua conta foi desativada.",
                   variant: "destructive",
                 });
               } else {
+                console.log('✅ Usuário com role:', data.role);
                 setUserRole(data.role);
               }
             } catch (error) {
               console.error('Error fetching user role:', error);
               await supabase.auth.signOut();
               setUserRole(null);
+              setUser(null);
+              setSession(null);
             }
           }, 0);
         } else {
@@ -71,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Get initial session and check role
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -83,14 +92,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .eq('user_id', session.user.id)
             .single();
           
+          console.log('Initial role check:', { data, error, userId: session.user.id });
+          
           // Se não encontrou role, usuário foi desativado - fazer logout
           if (error || !data) {
-            console.log('Usuário sem role ativa na inicialização, fazendo logout...');
+            console.log('❌ Usuário sem role ativa na inicialização, fazendo logout...');
             await supabase.auth.signOut();
             setUserRole(null);
             setUser(null);
             setSession(null);
+            toast({
+              title: "Acesso revogado",
+              description: "Sua conta foi desativada.",
+              variant: "destructive",
+            });
           } else {
+            console.log('✅ Usuário inicializado com role:', data.role);
             setUserRole(data.role);
           }
         } catch (error) {
