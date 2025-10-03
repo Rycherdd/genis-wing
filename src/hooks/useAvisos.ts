@@ -33,6 +33,7 @@ export function useAvisos() {
         .order('data_publicacao', { ascending: false });
 
       if (error) throw error;
+      
       setAvisos((data || []) as Aviso[]);
     } catch (error) {
       console.error('Erro ao buscar avisos:', error);
@@ -46,7 +47,7 @@ export function useAvisos() {
     }
   };
 
-  const createAviso = async (aviso: Omit<AvisoInsert, 'user_id'>) => {
+  const createAviso = async (aviso: Omit<AvisoInsert, 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return;
 
     try {

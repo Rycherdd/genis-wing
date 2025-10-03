@@ -1,84 +1,38 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAvisos } from "@/hooks/useAvisos";
 import { useAuth } from "@/contexts/AuthContext";
-import { AvisoForm, AvisoFormData } from "@/components/forms/AvisoForm";
-import { Bell, Pin, Search, MoreVertical, Edit, Trash2, Clock } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AvisoForm } from "@/components/forms/AvisoForm";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Plus, Search, MoreVertical, Pin, Trash2, Calendar, Users } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Avisos() {
-  const { avisos, loading, createAviso, updateAviso, deleteAviso } = useAvisos();
+  const { avisos, loading, deleteAviso } = useAvisos();
   const { isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingAviso, setEditingAviso] = useState<any>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [avisoToDelete, setAvisoToDelete] = useState<string | null>(null);
 
   const filteredAvisos = avisos.filter((aviso) =>
     aviso.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     aviso.conteudo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleCreateOrUpdate = async (data: AvisoFormData) => {
-    if (editingAviso) {
-      await updateAviso(editingAviso.id, data);
-      setEditingAviso(null);
-    } else {
-      await createAviso(data);
-    }
-  };
-
-  const handleEdit = (aviso: any) => {
-    setEditingAviso(aviso);
-    setShowForm(true);
-  };
-
-  const handleDelete = async () => {
-    if (deletingId) {
-      await deleteAviso(deletingId);
-      setDeletingId(null);
-    }
-  };
-
   const getPrioridadeBadge = (prioridade: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants = {
       baixa: "secondary",
       normal: "default",
-      alta: "outline",
+      alta: "default",
       urgente: "destructive",
     };
-    return (
-      <Badge variant={variants[prioridade] || "default"}>
-        {prioridade.charAt(0).toUpperCase() + prioridade.slice(1)}
-      </Badge>
-    );
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
+    return <Badge variant={variants[prioridade as keyof typeof variants] as any}>{prioridade.toUpperCase()}</Badge>;
   };
 
   if (loading) {
@@ -96,65 +50,62 @@ export default function Avisos() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Bell className="h-8 w-8" />
-            Avisos
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {isAdmin ? "Gerencie os avisos do sistema" : "Fique por dentro das novidades"}
-          </p>
+          <h1 className="text-3xl font-bold">Avisos e Comunicados</h1>
+          <p className="text-muted-foreground">Confira as últimas notícias e informações importantes</p>
         </div>
         {isAdmin && (
-          <Button onClick={() => { setEditingAviso(null); setShowForm(true); }}>
-            <Bell className="h-4 w-4 mr-2" />
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="mr-2 h-4 w-4" />
             Novo Aviso
           </Button>
         )}
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Buscar avisos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-9"
+          className="pl-10"
         />
       </div>
 
-      {filteredAvisos.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Bell className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {searchTerm ? "Nenhum aviso encontrado" : "Nenhum aviso publicado"}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {filteredAvisos.map((aviso) => (
+      <div className="space-y-4">
+        {filteredAvisos.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-muted-foreground">Nenhum aviso encontrado</p>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredAvisos.map((aviso) => (
             <Card key={aviso.id} className={aviso.fixado ? "border-primary" : ""}>
               <CardHeader>
-                <div className="flex items-start justify-between">
+                <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {aviso.fixado && <Pin className="h-4 w-4 text-primary" />}
-                      <CardTitle className="text-xl">{aviso.titulo}</CardTitle>
-                    </div>
-                    <CardDescription className="flex items-center gap-2 flex-wrap">
-                      <span>{formatDate(aviso.data_publicacao)}</span>
                       {getPrioridadeBadge(aviso.prioridade)}
                       {aviso.turmas && (
-                        <Badge variant="outline">{aviso.turmas.nome}</Badge>
-                      )}
-                      {aviso.data_expiracao && (
-                        <Badge variant="secondary" className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Expira em {formatDate(aviso.data_expiracao)}
+                        <Badge variant="outline" className="gap-1">
+                          <Users className="h-3 w-3" />
+                          {aviso.turmas.nome}
                         </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-xl">{aviso.titulo}</CardTitle>
+                    <CardDescription className="flex items-center gap-4 mt-2">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {format(new Date(aviso.data_publicacao), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                      </span>
+                      {aviso.data_expiracao && (
+                        <span className="text-xs">
+                          Expira em: {format(new Date(aviso.data_expiracao), "dd/MM/yyyy", { locale: ptBR })}
+                        </span>
                       )}
                     </CardDescription>
                   </div>
@@ -166,15 +117,11 @@ export default function Avisos() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(aviso)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Editar
-                        </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => setDeletingId(aviso.id)}
+                          onClick={() => setAvisoToDelete(aviso.id)}
                           className="text-destructive"
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
+                          <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -186,23 +133,13 @@ export default function Avisos() {
                 <p className="whitespace-pre-wrap">{aviso.conteudo}</p>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
-      {isAdmin && (
-        <AvisoForm
-          open={showForm}
-          onOpenChange={(open) => {
-            setShowForm(open);
-            if (!open) setEditingAviso(null);
-          }}
-          onSubmit={handleCreateOrUpdate}
-          initialData={editingAviso}
-        />
-      )}
+      <AvisoForm open={showForm} onOpenChange={setShowForm} />
 
-      <AlertDialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>
+      <AlertDialog open={!!avisoToDelete} onOpenChange={() => setAvisoToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
@@ -212,8 +149,15 @@ export default function Avisos() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Excluir
+            <AlertDialogAction
+              onClick={() => {
+                if (avisoToDelete) {
+                  deleteAviso(avisoToDelete);
+                  setAvisoToDelete(null);
+                }
+              }}
+            >
+              Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

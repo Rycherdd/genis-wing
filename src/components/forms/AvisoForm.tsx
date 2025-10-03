@@ -1,64 +1,59 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useAvisos } from "@/hooks/useAvisos";
 import { useTurmas } from "@/hooks/useTurmas";
 
 interface AvisoFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: AvisoFormData) => Promise<void>;
-  initialData?: AvisoFormData & { id?: string };
 }
 
-export interface AvisoFormData {
-  titulo: string;
-  conteudo: string;
-  prioridade: 'baixa' | 'normal' | 'alta' | 'urgente';
-  fixado: boolean;
-  turma_id: string | null;
-  data_expiracao: string | null;
-}
-
-export function AvisoForm({ open, onOpenChange, onSubmit, initialData }: AvisoFormProps) {
+export function AvisoForm({ open, onOpenChange }: AvisoFormProps) {
+  const { createAviso } = useAvisos();
   const { turmas } = useTurmas();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<AvisoFormData>({
+  
+  const [formData, setFormData] = useState({
     titulo: "",
     conteudo: "",
-    prioridade: "normal",
+    prioridade: "normal" as "baixa" | "normal" | "alta" | "urgente",
     fixado: false,
-    turma_id: null,
-    data_expiracao: null,
+    turma_id: "",
+    data_expiracao: "",
   });
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    } else {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await createAviso({
+        titulo: formData.titulo,
+        conteudo: formData.conteudo,
+        prioridade: formData.prioridade,
+        fixado: formData.fixado,
+        turma_id: formData.turma_id || null,
+        data_expiracao: formData.data_expiracao || null,
+      });
+
       setFormData({
         titulo: "",
         conteudo: "",
         prioridade: "normal",
         fixado: false,
-        turma_id: null,
-        data_expiracao: null,
+        turma_id: "",
+        data_expiracao: "",
       });
-    }
-  }, [initialData, open]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSubmit(formData);
+      
       onOpenChange(false);
     } catch (error) {
-      console.error("Erro ao salvar aviso:", error);
+      console.error("Erro ao criar aviso:", error);
     } finally {
       setLoading(false);
     }
@@ -66,11 +61,9 @@ export function AvisoForm({ open, onOpenChange, onSubmit, initialData }: AvisoFo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            {initialData?.id ? "Editar Aviso" : "Publicar Novo Aviso"}
-          </DialogTitle>
+          <DialogTitle>Publicar Novo Aviso</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -80,7 +73,7 @@ export function AvisoForm({ open, onOpenChange, onSubmit, initialData }: AvisoFo
               id="titulo"
               value={formData.titulo}
               onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-              placeholder="Ex: Recesso de Fim de Ano"
+              placeholder="Digite o título do aviso"
               required
             />
           </div>
@@ -91,7 +84,7 @@ export function AvisoForm({ open, onOpenChange, onSubmit, initialData }: AvisoFo
               id="conteudo"
               value={formData.conteudo}
               onChange={(e) => setFormData({ ...formData, conteudo: e.target.value })}
-              placeholder="Descreva os detalhes do aviso..."
+              placeholder="Digite o conteúdo do aviso"
               rows={5}
               required
             />
@@ -117,18 +110,16 @@ export function AvisoForm({ open, onOpenChange, onSubmit, initialData }: AvisoFo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="turma">Turma (Opcional)</Label>
+              <Label htmlFor="turma">Turma (opcional)</Label>
               <Select
-                value={formData.turma_id || "todos"}
-                onValueChange={(value) => 
-                  setFormData({ ...formData, turma_id: value === "todos" ? null : value })
-                }
+                value={formData.turma_id}
+                onValueChange={(value) => setFormData({ ...formData, turma_id: value })}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Todas as turmas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todas as Turmas</SelectItem>
+                  <SelectItem value="">Todas as turmas</SelectItem>
                   {turmas.map((turma) => (
                     <SelectItem key={turma.id} value={turma.id}>
                       {turma.nome}
@@ -140,14 +131,12 @@ export function AvisoForm({ open, onOpenChange, onSubmit, initialData }: AvisoFo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="data_expiracao">Data de Expiração (Opcional)</Label>
+            <Label htmlFor="data_expiracao">Data de Expiração (opcional)</Label>
             <Input
               id="data_expiracao"
               type="date"
-              value={formData.data_expiracao || ""}
-              onChange={(e) => 
-                setFormData({ ...formData, data_expiracao: e.target.value || null })
-              }
+              value={formData.data_expiracao}
+              onChange={(e) => setFormData({ ...formData, data_expiracao: e.target.value })}
             />
           </div>
 
@@ -158,23 +147,18 @@ export function AvisoForm({ open, onOpenChange, onSubmit, initialData }: AvisoFo
               onCheckedChange={(checked) => setFormData({ ...formData, fixado: checked })}
             />
             <Label htmlFor="fixado" className="cursor-pointer">
-              Fixar no topo da lista
+              Fixar no topo
             </Label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : initialData?.id ? "Atualizar" : "Publicar"}
+              {loading ? "Publicando..." : "Publicar Aviso"}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
