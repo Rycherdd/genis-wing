@@ -13,6 +13,7 @@ import Turmas from "./pages/Turmas";
 import TurmasAluno from "./pages/TurmasAluno";
 import Aulas from "./pages/Aulas";
 import AulasAluno from "./pages/AulasAluno";
+import Avisos from "./pages/Avisos";
 import Alunos from "./pages/Alunos";
 import Presenca from "./pages/Presenca";
 import MinhasPresencas from "./pages/MinhasPresencas";
@@ -50,6 +51,7 @@ function AppRoutes() {
       {/* Student Routes */}
       <Route path="/aulas-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><AulasAluno /></Layout></ProtectedRoute>} />
       <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
+      <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />

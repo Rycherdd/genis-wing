@@ -166,6 +166,56 @@ export type Database = {
           },
         ]
       }
+      avisos: {
+        Row: {
+          conteudo: string
+          created_at: string
+          data_expiracao: string | null
+          data_publicacao: string
+          fixado: boolean
+          id: string
+          prioridade: string
+          titulo: string
+          turma_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conteudo: string
+          created_at?: string
+          data_expiracao?: string | null
+          data_publicacao?: string
+          fixado?: boolean
+          id?: string
+          prioridade?: string
+          titulo: string
+          turma_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string
+          data_expiracao?: string | null
+          data_publicacao?: string
+          fixado?: boolean
+          id?: string
+          prioridade?: string
+          titulo?: string
+          turma_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avisos_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       convites: {
         Row: {
           accepted_at: string | null

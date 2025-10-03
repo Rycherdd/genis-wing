@@ -11,6 +11,7 @@ export function useRoleNavigation() {
         { label: 'Próximas Aulas', icon: 'BookOpen', url: '/aulas-aluno' },
         { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
         { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },
+        { label: 'Avisos', icon: 'Mail', url: '/avisos' },
       ];
     }
     
@@ -23,6 +24,7 @@ export function useRoleNavigation() {
         { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
         { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
+        { label: 'Avisos', icon: 'Mail', url: '/avisos' },
       ];
     }
     
@@ -38,6 +40,7 @@ export function useRoleNavigation() {
         { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
         { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
+        { label: 'Avisos', icon: 'Mail', url: '/avisos' },
       ];
     }
     
