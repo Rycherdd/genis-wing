@@ -83,6 +83,17 @@ export function useAulas() {
       if (error) throw error;
 
       setAulas(prev => [...prev, data as AulaAgendada]);
+      
+      // Enviar notificação por email aos alunos
+      try {
+        await supabase.functions.invoke('send-aula-notification', {
+          body: { aulaId: data.id }
+        });
+      } catch (emailError) {
+        console.error('Erro ao enviar emails de notificação:', emailError);
+        // Não bloqueia a criação da aula se o email falhar
+      }
+      
       toast({
         title: "Sucesso",
         description: "Aula criada com sucesso!",

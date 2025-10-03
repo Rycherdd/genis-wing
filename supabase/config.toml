@@ -8,3 +8,9 @@ verify_jwt = true
 
 [functions.manage-users]
 verify_jwt = true
+
+[functions.send-aula-notification]
+verify_jwt = true
+
+[functions.send-aula-reminder]
+verify_jwt = false
