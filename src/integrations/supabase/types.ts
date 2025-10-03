@@ -58,6 +58,7 @@ export type Database = {
           numero: number
           objetivo: string | null
           ordem: number
+          search_vector: unknown | null
           titulo: string
         }
         Insert: {
@@ -73,6 +74,7 @@ export type Database = {
           numero: number
           objetivo?: string | null
           ordem: number
+          search_vector?: unknown | null
           titulo: string
         }
         Update: {
@@ -88,6 +90,7 @@ export type Database = {
           numero?: number
           objetivo?: string | null
           ordem?: number
+          search_vector?: unknown | null
           titulo?: string
         }
         Relationships: [
