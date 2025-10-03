@@ -112,14 +112,14 @@ export function AvisoForm({ open, onOpenChange }: AvisoFormProps) {
             <div className="space-y-2">
               <Label htmlFor="turma">Turma (opcional)</Label>
               <Select
-                value={formData.turma_id}
-                onValueChange={(value) => setFormData({ ...formData, turma_id: value })}
+                value={formData.turma_id || "all"}
+                onValueChange={(value) => setFormData({ ...formData, turma_id: value === "all" ? "" : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todas as turmas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as turmas</SelectItem>
+                  <SelectItem value="all">Todas as turmas</SelectItem>
                   {turmas.map((turma) => (
                     <SelectItem key={turma.id} value={turma.id}>
                       {turma.nome}
