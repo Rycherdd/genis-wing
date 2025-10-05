@@ -112,6 +112,7 @@ export type Database = {
           horario_inicio: string
           id: string
           local: string | null
+          pdf_url: string | null
           professor_id: string
           status: string
           titulo: string
@@ -127,6 +128,7 @@ export type Database = {
           horario_inicio: string
           id?: string
           local?: string | null
+          pdf_url?: string | null
           professor_id: string
           status?: string
           titulo: string
@@ -142,6 +144,7 @@ export type Database = {
           horario_inicio?: string
           id?: string
           local?: string | null
+          pdf_url?: string | null
           professor_id?: string
           status?: string
           titulo?: string

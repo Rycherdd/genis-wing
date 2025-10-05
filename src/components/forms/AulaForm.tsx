@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Upload, FileText, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +35,9 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
   const { professores } = useProfessores();
   const { turmas } = useTurmas();
   const [loading, setLoading] = useState(false);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     titulo: "",
     descricao: "",
@@ -42,14 +48,56 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
     horario_fim: "",
     local: "",
     status: "agendada" as "agendada" | "em-andamento" | "concluida" | "cancelada",
+    pdf_url: null as string | null,
   });
+
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: "Erro",
+          description: "Por favor, selecione apenas arquivos PDF.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast({
+          title: "Erro",
+          description: "O arquivo deve ter no máximo 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setPdfFile(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await createAula({
+      let pdfUrl = formData.pdf_url;
+      let uploadedFileName = '';
+
+      // Upload PDF if there's a file selected
+      if (pdfFile) {
+        setUploadingPdf(true);
+        const fileExt = pdfFile.name.split('.').pop();
+        uploadedFileName = `${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('aula-pdfs')
+          .upload(`temp/${uploadedFileName}`, pdfFile);
+
+        if (uploadError) throw uploadError;
+        
+        pdfUrl = `temp/${uploadedFileName}`;
+      }
+
+      const newAula = await createAula({
         titulo: formData.titulo,
         descricao: formData.descricao || null,
         professor_id: formData.professor_id,
@@ -59,7 +107,23 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
         horario_fim: formData.horario_fim,
         local: formData.local || null,
         status: formData.status,
+        pdf_url: pdfUrl,
       });
+
+      // Move PDF to proper folder if uploaded
+      if (pdfFile && newAula && pdfUrl && uploadedFileName) {
+        const newFileName = `${newAula.id}/${uploadedFileName}`;
+        
+        await supabase.storage
+          .from('aula-pdfs')
+          .move(pdfUrl, newFileName);
+
+        // Update aula with correct path
+        await supabase
+          .from('aulas_agendadas')
+          .update({ pdf_url: newFileName })
+          .eq('id', newAula.id);
+      }
       
       // Reset form
       setFormData({
@@ -72,12 +136,20 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
         horario_fim: "",
         local: "",
         status: "agendada",
+        pdf_url: null,
       });
+      setPdfFile(null);
       onOpenChange(false);
     } catch (error) {
       console.error('Erro ao criar aula:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar a aula. Tente novamente.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
+      setUploadingPdf(false);
     }
   };
 
@@ -219,6 +291,44 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
                 <SelectItem value="cancelada">Cancelada</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pdf">Material da Aula (PDF)</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="pdf"
+                type="file"
+                accept=".pdf"
+                onChange={handlePdfChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('pdf')?.click()}
+                className="w-full"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {pdfFile ? pdfFile.name : "Selecionar PDF"}
+              </Button>
+              {pdfFile && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPdfFile(null)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {pdfFile && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <FileText className="h-4 w-4" />
+                <span>{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+            )}
           </div>
 
           <DialogFooter>

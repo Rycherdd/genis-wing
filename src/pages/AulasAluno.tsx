@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Search, Clock, MapPin, User, Calendar } from "lucide-react";
+import { Search, Clock, MapPin, User, Calendar, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +76,27 @@ export default function AulasAluno() {
     }
   };
 
+  const handleDownloadPdf = async (pdfUrl: string, titulo: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('aula-pdfs')
+        .download(pdfUrl);
+
+      if (error) throw error;
+
+      const url = window.URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${titulo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Erro ao baixar PDF:', error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -138,6 +160,16 @@ export default function AulasAluno() {
                     <span className="text-sm font-medium">
                       Turma: {aula.turmas?.nome || 'Turma não informada'}
                     </span>
+                    {aula.pdf_url && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadPdf(aula.pdf_url!, aula.titulo)}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Material da Aula
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -204,6 +236,16 @@ export default function AulasAluno() {
                     <span className="text-sm font-medium">
                       Turma: {aula.turmas?.nome || 'Turma não informada'}
                     </span>
+                    {aula.pdf_url && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadPdf(aula.pdf_url!, aula.titulo)}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Material da Aula
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
