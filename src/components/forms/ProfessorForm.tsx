@@ -36,6 +36,7 @@ export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormPr
     email: professor?.email || "", 
     telefone: professor?.telefone || "",
     status: (professor?.status as "ativo" | "inativo" | "pendente") || "ativo",
+    nivel_mentoria: professor?.nivel_mentoria || "",
   });
   const [especializacoes, setEspecializacoes] = useState<string[]>(professor?.especializacao || []);
   const [novaEspecializacao, setNovaEspecializacao] = useState("");
@@ -53,6 +54,7 @@ export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormPr
           telefone: formData.telefone || null,
           especializacao: especializacoes.length > 0 ? especializacoes : null,
           status: formData.status,
+          nivel_mentoria: formData.nivel_mentoria || null,
         });
       } else {
         // Modo criação
@@ -62,6 +64,7 @@ export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormPr
           telefone: formData.telefone || null,
           especializacao: especializacoes.length > 0 ? especializacoes : null,
           status: formData.status,
+          nivel_mentoria: formData.nivel_mentoria || null,
         });
       }
       
@@ -71,6 +74,7 @@ export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormPr
         email: "",
         telefone: "",
         status: "ativo" as "ativo" | "inativo" | "pendente",
+        nivel_mentoria: "",
       });
       setEspecializacoes([]);
       onOpenChange(false);
@@ -100,6 +104,7 @@ export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormPr
         email: professor.email || "",
         telefone: professor.telefone || "",
         status: professor.status || "ativo",
+        nivel_mentoria: professor.nivel_mentoria || "",
       });
       setEspecializacoes(professor.especializacao || []);
     } else {
@@ -108,6 +113,7 @@ export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormPr
         email: "",
         telefone: "",
         status: "ativo",
+        nivel_mentoria: "",
       });
       setEspecializacoes([]);
     }
@@ -172,6 +178,28 @@ export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormPr
                 <SelectItem value="ativo">Ativo</SelectItem>
                 <SelectItem value="inativo">Inativo</SelectItem>
                 <SelectItem value="pendente">Pendente</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="nivel_mentoria">Nível de Mentoria</Label>
+            <Select 
+              value={formData.nivel_mentoria} 
+              onValueChange={(value) => 
+                setFormData({ ...formData, nivel_mentoria: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um nível" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="aprendiz">Mentor Aprendiz</SelectItem>
+                <SelectItem value="semeador">Mentor Semeador</SelectItem>
+                <SelectItem value="criador">Mentor Criador</SelectItem>
+                <SelectItem value="mestre">Mentor Mestre</SelectItem>
+                <SelectItem value="lider_empresario">Mentor Líder ou Empresário</SelectItem>
+                <SelectItem value="guardiao_socio">Mentor Guardião e Sócio Estratégico</SelectItem>
               </SelectContent>
             </Select>
           </div>
