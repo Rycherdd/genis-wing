@@ -52,6 +52,19 @@ export default function Professores() {
     }
   };
 
+  const getNivelMentoriaLabel = (nivel: string | null) => {
+    if (!nivel) return null;
+    const labels: Record<string, string> = {
+      aprendiz: "Mentor Aprendiz",
+      semeador: "Mentor Semeador",
+      criador: "Mentor Criador",
+      mestre: "Mentor Mestre",
+      lider_empresario: "Mentor Líder ou Empresário",
+      guardiao_socio: "Mentor Guardião e Sócio Estratégico"
+    };
+    return labels[nivel] || nivel;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -228,6 +241,16 @@ export default function Professores() {
                   )) || <p className="text-xs text-muted-foreground">Nenhuma especialização</p>}
                 </div>
               </div>
+
+              {/* Nível de Mentoria */}
+              {professor.nivel_mentoria && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Nível de Mentoria:</p>
+                  <Badge variant="outline" className="text-xs">
+                    {getNivelMentoriaLabel(professor.nivel_mentoria)}
+                  </Badge>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -300,6 +323,15 @@ export default function Professores() {
                     )) || <p className="text-sm text-muted-foreground">Nenhuma especialização</p>}
                   </div>
                 </div>
+
+                {selectedProfessor.nivel_mentoria && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Nível de Mentoria</p>
+                    <Badge variant="outline">
+                      {getNivelMentoriaLabel(selectedProfessor.nivel_mentoria)}
+                    </Badge>
+                  </div>
+                )}
               </div>
             </div>
           )}

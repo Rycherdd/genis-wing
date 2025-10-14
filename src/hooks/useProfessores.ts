@@ -4,7 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Database } from '@/integrations/supabase/types';
 
-type Professor = Database['public']['Tables']['professores']['Row'];
+type ProfessorBase = Database['public']['Tables']['professores']['Row'];
+
+// Estender o tipo base para incluir nivel_mentoria
+type Professor = ProfessorBase & {
+  nivel_mentoria?: 'aprendiz' | 'semeador' | 'criador' | 'mestre' | 'lider_empresario' | 'guardiao_socio' | null;
+};
 
 export function useProfessores() {
   const [professores, setProfessores] = useState<Professor[]>([]);
