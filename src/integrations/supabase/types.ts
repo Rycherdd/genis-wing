@@ -219,6 +219,38 @@ export type Database = {
           },
         ]
       }
+      avisos_lidos: {
+        Row: {
+          aviso_id: string
+          created_at: string
+          id: string
+          lido_em: string
+          user_id: string
+        }
+        Insert: {
+          aviso_id: string
+          created_at?: string
+          id?: string
+          lido_em?: string
+          user_id: string
+        }
+        Update: {
+          aviso_id?: string
+          created_at?: string
+          id?: string
+          lido_em?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avisos_lidos_aviso_id_fkey"
+            columns: ["aviso_id"]
+            isOneToOne: false
+            referencedRelation: "avisos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       convites: {
         Row: {
           accepted_at: string | null

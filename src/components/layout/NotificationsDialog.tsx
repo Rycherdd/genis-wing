@@ -1,7 +1,8 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Bell, AlertCircle, Info, AlertTriangle } from "lucide-react";
+import { Bell, AlertCircle, Info, AlertTriangle, Check } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -13,7 +14,7 @@ interface NotificationsDialogProps {
 }
 
 export function NotificationsDialog({ open, onOpenChange }: NotificationsDialogProps) {
-  const { notifications, loading } = useNotifications();
+  const { notifications, loading, markAsRead, markAllAsRead } = useNotifications();
 
   const getPriorityIcon = (prioridade: string) => {
     switch (prioridade) {
@@ -56,37 +57,56 @@ export function NotificationsDialog({ open, onOpenChange }: NotificationsDialogP
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : notifications.length > 0 ? (
-          <div className="space-y-3">
-            {notifications.map((notification) => (
-              <Card key={notification.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    {getPriorityIcon(notification.prioridade)}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold">{notification.titulo}</h3>
-                        {getPriorityBadge(notification.prioridade)}
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground">
-                        {notification.conteudo}
-                      </p>
-                      
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{formatDate(notification.data_publicacao)}</span>
-                        {notification.turma_nome && (
-                          <>
-                            <span>•</span>
-                            <span>{notification.turma_nome}</span>
-                          </>
-                        )}
+          <>
+            <div className="space-y-3">
+              {notifications.map((notification) => (
+                <Card key={notification.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      {getPriorityIcon(notification.prioridade)}
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-semibold">{notification.titulo}</h3>
+                          {getPriorityBadge(notification.prioridade)}
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground">
+                          {notification.conteudo}
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{formatDate(notification.data_publicacao)}</span>
+                            {notification.turma_nome && (
+                              <>
+                                <span>•</span>
+                                <span>{notification.turma_nome}</span>
+                              </>
+                            )}
+                          </div>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => markAsRead(notification.id)}
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Marcar como lido
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <DialogFooter className="mt-4">
+              <Button variant="outline" onClick={markAllAsRead}>
+                Marcar todas como lidas
+              </Button>
+            </DialogFooter>
+          </>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
             <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />

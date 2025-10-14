@@ -44,7 +44,20 @@ export function useNotifications() {
 
       if (error) throw error;
 
-      const mappedNotifications: Notification[] = (avisos || []).map(aviso => ({
+      // Buscar avisos já lidos pelo usuário
+      const { data: avisosLidos, error: lidosError } = await supabase
+        .from('avisos_lidos')
+        .select('aviso_id')
+        .eq('user_id', user.id);
+
+      if (lidosError) throw lidosError;
+
+      const idsLidos = new Set(avisosLidos?.map(al => al.aviso_id) || []);
+
+      // Filtrar apenas avisos não lidos
+      const avisosNaoLidos = (avisos || []).filter(aviso => !idsLidos.has(aviso.id));
+
+      const mappedNotifications: Notification[] = avisosNaoLidos.map(aviso => ({
         id: aviso.id,
         titulo: aviso.titulo,
         conteudo: aviso.conteudo,
@@ -62,6 +75,50 @@ export function useNotifications() {
     }
   };
 
+  const markAsRead = async (avisoId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('avisos_lidos')
+        .insert({
+          user_id: user.id,
+          aviso_id: avisoId,
+        });
+
+      if (error) throw error;
+
+      // Remover da lista local
+      setNotifications(prev => prev.filter(n => n.id !== avisoId));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Erro ao marcar como lido:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!user || notifications.length === 0) return;
+
+    try {
+      const inserts = notifications.map(notification => ({
+        user_id: user.id,
+        aviso_id: notification.id,
+      }));
+
+      const { error } = await supabase
+        .from('avisos_lidos')
+        .insert(inserts);
+
+      if (error) throw error;
+
+      // Limpar lista local
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Erro ao marcar todos como lidos:', error);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchNotifications();
@@ -72,6 +129,8 @@ export function useNotifications() {
     notifications,
     unreadCount,
     loading,
+    markAsRead,
+    markAllAsRead,
     refetch: fetchNotifications,
   };
 }
