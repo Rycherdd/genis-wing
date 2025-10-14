@@ -169,6 +169,26 @@ export function useMatriculas() {
   useEffect(() => {
     if (user) {
       fetchMatriculas();
+      
+      // Configurar realtime para atualizações instantâneas
+      const channel = supabase
+        .channel('matriculas-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'matriculas'
+          },
+          () => {
+            fetchMatriculas();
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user?.id]);
 

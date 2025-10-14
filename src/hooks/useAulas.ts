@@ -178,6 +178,26 @@ export function useAulas() {
   useEffect(() => {
     if (user) {
       fetchAulas();
+      
+      // Configurar realtime para atualizações instantâneas
+      const channel = supabase
+        .channel('aulas-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'aulas_agendadas'
+          },
+          () => {
+            fetchAulas();
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user?.id]);
 

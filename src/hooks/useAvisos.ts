@@ -145,7 +145,29 @@ export function useAvisos() {
   };
 
   useEffect(() => {
-    fetchAvisos();
+    if (user) {
+      fetchAvisos();
+      
+      // Configurar realtime para atualizações instantâneas
+      const channel = supabase
+        .channel('avisos-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'avisos'
+          },
+          () => {
+            fetchAvisos();
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user]);
 
   return {
