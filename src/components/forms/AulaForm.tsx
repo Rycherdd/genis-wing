@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,10 +28,11 @@ import { useTurmas } from "@/hooks/useTurmas";
 interface AulaFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  aula?: any;
 }
 
-export function AulaForm({ open, onOpenChange }: AulaFormProps) {
-  const { createAula } = useAulas();
+export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
+  const { createAula, updateAula } = useAulas();
   const { professores } = useProfessores();
   const { turmas } = useTurmas();
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,38 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
     status: "agendada" as "agendada" | "em-andamento" | "concluida" | "cancelada",
     pdf_url: null as string | null,
   });
+
+  // Update form data when aula prop changes
+  useEffect(() => {
+    if (aula) {
+      setFormData({
+        titulo: aula.titulo || "",
+        descricao: aula.descricao || "",
+        professor_id: aula.professor_id || "",
+        turma_id: aula.turma_id || "",
+        data: aula.data || "",
+        horario_inicio: aula.horario_inicio || "",
+        horario_fim: aula.horario_fim || "",
+        local: aula.local || "",
+        status: aula.status || "agendada",
+        pdf_url: aula.pdf_url || null,
+      });
+    } else {
+      setFormData({
+        titulo: "",
+        descricao: "",
+        professor_id: "",
+        turma_id: "",
+        data: "",
+        horario_inicio: "",
+        horario_fim: "",
+        local: "",
+        status: "agendada",
+        pdf_url: null,
+      });
+      setPdfFile(null);
+    }
+  }, [aula]);
 
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,7 +130,7 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
         pdfUrl = `temp/${uploadedFileName}`;
       }
 
-      const newAula = await createAula({
+      const aulaData = {
         titulo: formData.titulo,
         descricao: formData.descricao || null,
         professor_id: formData.professor_id,
@@ -108,21 +141,44 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
         local: formData.local || null,
         status: formData.status,
         pdf_url: pdfUrl,
-      });
+      };
 
-      // Move PDF to proper folder if uploaded
-      if (pdfFile && newAula && pdfUrl && uploadedFileName) {
-        const newFileName = `${newAula.id}/${uploadedFileName}`;
+      if (aula) {
+        // Update existing aula
+        await updateAula(aula.id, aulaData);
         
-        await supabase.storage
-          .from('aula-pdfs')
-          .move(pdfUrl, newFileName);
+        // Move PDF to proper folder if uploaded
+        if (pdfFile && pdfUrl && uploadedFileName) {
+          const newFileName = `${aula.id}/${uploadedFileName}`;
+          
+          await supabase.storage
+            .from('aula-pdfs')
+            .move(pdfUrl, newFileName);
 
-        // Update aula with correct path
-        await supabase
-          .from('aulas_agendadas')
-          .update({ pdf_url: newFileName })
-          .eq('id', newAula.id);
+          // Update aula with correct path
+          await supabase
+            .from('aulas_agendadas')
+            .update({ pdf_url: newFileName })
+            .eq('id', aula.id);
+        }
+      } else {
+        // Create new aula
+        const newAula = await createAula(aulaData);
+
+        // Move PDF to proper folder if uploaded
+        if (pdfFile && newAula && pdfUrl && uploadedFileName) {
+          const newFileName = `${newAula.id}/${uploadedFileName}`;
+          
+          await supabase.storage
+            .from('aula-pdfs')
+            .move(pdfUrl, newFileName);
+
+          // Update aula with correct path
+          await supabase
+            .from('aulas_agendadas')
+            .update({ pdf_url: newFileName })
+            .eq('id', newAula.id);
+        }
       }
       
       // Reset form
@@ -141,10 +197,10 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
       setPdfFile(null);
       onOpenChange(false);
     } catch (error) {
-      console.error('Erro ao criar aula:', error);
+      console.error('Erro ao salvar aula:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível criar a aula. Tente novamente.",
+        description: `Não foi possível ${aula ? 'atualizar' : 'criar'} a aula. Tente novamente.`,
         variant: "destructive",
       });
     } finally {
@@ -157,9 +213,9 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nova Aula</DialogTitle>
+          <DialogTitle>{aula ? "Editar Aula" : "Nova Aula"}</DialogTitle>
           <DialogDescription>
-            Agende uma nova aula no sistema.
+            {aula ? "Edite as informações da aula." : "Agende uma nova aula no sistema."}
           </DialogDescription>
         </DialogHeader>
         
@@ -336,7 +392,7 @@ export function AulaForm({ open, onOpenChange }: AulaFormProps) {
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar Aula"}
+              {loading ? "Salvando..." : aula ? "Atualizar Aula" : "Salvar Aula"}
             </Button>
           </DialogFooter>
         </form>

@@ -9,11 +9,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAulas } from "@/hooks/useAulas";
 import { AulaForm } from "@/components/forms/AulaForm";
 import { PresencaForm } from "@/components/forms/PresencaForm";
+import { AulaDetailsDialog } from "@/components/aulas/AulaDetailsDialog";
 
 export default function Aulas() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAulaForm, setShowAulaForm] = useState(false);
   const [selectedAulaForPresenca, setSelectedAulaForPresenca] = useState<any>(null);
+  const [selectedAula, setSelectedAula] = useState<any>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [editingAula, setEditingAula] = useState<any>(null);
   const { aulas, loading, deleteAula } = useAulas();
 
   const filteredAulas = aulas.filter(aula =>
@@ -142,11 +146,21 @@ export default function Aulas() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedAula(aula);
+                        setDetailsOpen(true);
+                      }}
+                    >
                       <Eye className="mr-2 h-4 w-4" />
                       Ver Detalhes
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setEditingAula(aula);
+                        setShowAulaForm(true);
+                      }}
+                    >
                       <Edit className="mr-2 h-4 w-4" />
                       Editar
                     </DropdownMenuItem>
@@ -206,13 +220,28 @@ export default function Aulas() {
         </div>
       )}
 
-      <AulaForm open={showAulaForm} onOpenChange={setShowAulaForm} />
+      <AulaForm 
+        open={showAulaForm} 
+        onOpenChange={(open) => {
+          setShowAulaForm(open);
+          if (!open) setEditingAula(null);
+        }}
+        aula={editingAula}
+      />
       
       {selectedAulaForPresenca && (
         <PresencaForm
           open={!!selectedAulaForPresenca}
           onOpenChange={(open) => !open && setSelectedAulaForPresenca(null)}
           aula={selectedAulaForPresenca}
+        />
+      )}
+      
+      {selectedAula && (
+        <AulaDetailsDialog
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+          aula={selectedAula}
         />
       )}
     </div>
