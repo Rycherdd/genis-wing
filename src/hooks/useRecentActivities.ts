@@ -162,8 +162,10 @@ export function useRecentActivities() {
   };
 
   useEffect(() => {
-    fetchActivities();
-  }, [user]);
+    if (user) {
+      fetchActivities();
+    }
+  }, [user?.id]);
 
   return {
     activities,

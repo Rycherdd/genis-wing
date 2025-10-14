@@ -131,8 +131,10 @@ export function useProfessores() {
   };
 
   useEffect(() => {
-    fetchProfessores();
-  }, [user]);
+    if (user) {
+      fetchProfessores();
+    }
+  }, [user?.id]);
 
   return {
     professores,

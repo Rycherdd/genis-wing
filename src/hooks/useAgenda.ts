@@ -79,8 +79,10 @@ export function useAgenda() {
   };
 
   useEffect(() => {
-    fetchEventos();
-  }, [user]);
+    if (user) {
+      fetchEventos();
+    }
+  }, [user?.id]);
 
   // Datas que têm eventos
   const diasComEventos = useMemo(() => {

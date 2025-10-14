@@ -173,8 +173,10 @@ export function useTurmas() {
   };
 
   useEffect(() => {
-    fetchTurmas();
-  }, [user]);
+    if (user) {
+      fetchTurmas();
+    }
+  }, [user?.id]);
 
   return {
     turmas,

@@ -167,8 +167,10 @@ export function useMatriculas() {
   };
 
   useEffect(() => {
-    fetchMatriculas();
-  }, [user]);
+    if (user) {
+      fetchMatriculas();
+    }
+  }, [user?.id]);
 
   return {
     matriculas,

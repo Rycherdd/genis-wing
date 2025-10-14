@@ -176,8 +176,10 @@ export function useAulas() {
   };
 
   useEffect(() => {
-    fetchAulas();
-  }, [user]);
+    if (user) {
+      fetchAulas();
+    }
+  }, [user?.id]);
 
   return {
     aulas,

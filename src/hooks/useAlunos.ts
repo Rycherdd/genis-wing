@@ -132,8 +132,10 @@ export function useAlunos() {
   };
 
   useEffect(() => {
-    fetchAlunos();
-  }, [user]);
+    if (user) {
+      fetchAlunos();
+    }
+  }, [user?.id]);
 
   return {
     alunos,
