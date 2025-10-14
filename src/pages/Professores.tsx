@@ -74,7 +74,7 @@ export default function Professores() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-4 md:space-y-6 w-full overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -99,70 +99,70 @@ export default function Professores() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full">
+        <div className="relative flex-1 max-w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por nome ou especialidade..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 w-full"
           />
         </div>
-        <Button variant="outline">
+        <Button variant="outline" className="w-full sm:w-auto">
           <Filter className="mr-2 h-4 w-4" />
           Filtros
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
+      <div className="grid gap-2 sm:gap-4 grid-cols-2 md:grid-cols-4 w-full">
+        <Card className="min-w-0">
+          <CardContent className="p-3 sm:p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-accent">
+              <p className="text-xl sm:text-2xl font-bold text-accent">
                 {professores.filter(p => p.status === 'ativo').length}
               </p>
-              <p className="text-sm text-muted-foreground">Total Ativos</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Total Ativos</p>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="min-w-0">
+          <CardContent className="p-3 sm:p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">
+              <p className="text-xl sm:text-2xl font-bold text-primary">
                 {professores.filter(p => 
                   new Date(p.created_at).getMonth() === new Date().getMonth()
                 ).length}
               </p>
-              <p className="text-sm text-muted-foreground">Novos este Mês</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Novos este Mês</p>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="min-w-0">
+          <CardContent className="p-3 sm:p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-muted-foreground">
+              <p className="text-xl sm:text-2xl font-bold text-muted-foreground">
                 {professores.filter(p => p.status === 'pendente').length}
               </p>
-              <p className="text-sm text-muted-foreground">Pendentes</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Pendentes</p>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="min-w-0">
+          <CardContent className="p-3 sm:p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold">{professores.length}</p>
-              <p className="text-sm text-muted-foreground">Total Professores</p>
+              <p className="text-xl sm:text-2xl font-bold">{professores.length}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Total Professores</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Professors Grid */}
-      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
         {filteredProfessores.map((professor) => (
-          <Card key={professor.id} className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
+          <Card key={professor.id} className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow min-w-0 w-full">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -219,14 +219,14 @@ export default function Professores() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Contact Info */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground break-all">
+              <div className="space-y-2 min-w-0">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
                   <Mail className="h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">{professor.email}</span>
+                  <span className="truncate min-w-0">{professor.email}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4 flex-shrink-0" />
-                  <span>{professor.telefone || "Não informado"}</span>
+                  <span className="truncate">{professor.telefone || "Não informado"}</span>
                 </div>
               </div>
 
