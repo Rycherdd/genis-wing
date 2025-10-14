@@ -185,12 +185,21 @@ export default function Professores() {
                     <DropdownMenuItem onClick={() => navigate('/agenda')}>
                       Ver Agenda
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-destructive"
-                      onClick={() => updateProfessor(professor.id, { status: 'inativo' })}
-                    >
-                      Desativar
-                    </DropdownMenuItem>
+                    {professor.status === 'ativo' ? (
+                      <DropdownMenuItem 
+                        className="text-destructive"
+                        onClick={() => updateProfessor(professor.id, { status: 'inativo' })}
+                      >
+                        Desativar
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem 
+                        className="text-accent"
+                        onClick={() => updateProfessor(professor.id, { status: 'ativo' })}
+                      >
+                        Ativar
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
