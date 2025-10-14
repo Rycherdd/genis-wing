@@ -86,13 +86,16 @@ export function useNotifications() {
           aviso_id: avisoId,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao marcar como lido:', error);
+        throw error;
+      }
 
-      // Remover da lista local
+      // Remover da lista local imediatamente
       setNotifications(prev => prev.filter(n => n.id !== avisoId));
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Erro ao marcar como lido:', error);
+      console.error('Erro ao marcar notificação como lida:', error);
     }
   };
 
@@ -109,13 +112,16 @@ export function useNotifications() {
         .from('avisos_lidos')
         .insert(inserts);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao marcar todas como lidas:', error);
+        throw error;
+      }
 
-      // Limpar lista local
+      // Limpar lista local imediatamente
       setNotifications([]);
       setUnreadCount(0);
     } catch (error) {
-      console.error('Erro ao marcar todos como lidos:', error);
+      console.error('Erro ao marcar todas as notificações como lidas:', error);
     }
   };
 
