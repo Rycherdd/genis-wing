@@ -40,6 +40,29 @@ export default function Aulas() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
+  // Calcular estatísticas reais
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  
+  const aulasHoje = aulas.filter(aula => {
+    const aulaDate = new Date(aula.data);
+    aulaDate.setHours(0, 0, 0, 0);
+    return aulaDate.getTime() === hoje.getTime();
+  }).length;
+
+  const inicioSemana = new Date(hoje);
+  inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+  const fimSemana = new Date(inicioSemana);
+  fimSemana.setDate(inicioSemana.getDate() + 6);
+  
+  const aulasEstaSemana = aulas.filter(aula => {
+    const aulaDate = new Date(aula.data);
+    return aulaDate >= inicioSemana && aulaDate <= fimSemana;
+  }).length;
+
+  // Contar locais únicos que têm aulas
+  const salasAtivas = new Set(aulas.filter(a => a.local).map(a => a.local)).size;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -84,7 +107,7 @@ export default function Aulas() {
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-blue-500" />
               <div>
-                <p className="text-2xl font-bold">24</p>
+                <p className="text-2xl font-bold">{aulasHoje}</p>
                 <p className="text-sm text-muted-foreground">Aulas Hoje</p>
               </div>
             </div>
@@ -96,7 +119,7 @@ export default function Aulas() {
             <div className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-green-500" />
               <div>
-                <p className="text-2xl font-bold">156</p>
+                <p className="text-2xl font-bold">{aulasEstaSemana}</p>
                 <p className="text-sm text-muted-foreground">Esta Semana</p>
               </div>
             </div>
@@ -108,8 +131,8 @@ export default function Aulas() {
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-orange-500" />
               <div>
-                <p className="text-2xl font-bold">85%</p>
-                <p className="text-sm text-muted-foreground">Presença Média</p>
+                <p className="text-2xl font-bold">{aulas.length}</p>
+                <p className="text-sm text-muted-foreground">Total Aulas</p>
               </div>
             </div>
           </CardContent>
@@ -120,7 +143,7 @@ export default function Aulas() {
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-purple-500" />
               <div>
-                <p className="text-2xl font-bold">8</p>
+                <p className="text-2xl font-bold">{salasAtivas}</p>
                 <p className="text-sm text-muted-foreground">Salas Ativas</p>
               </div>
             </div>
