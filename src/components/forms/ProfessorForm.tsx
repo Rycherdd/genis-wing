@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,18 +25,19 @@ import { useProfessores } from "@/hooks/useProfessores";
 interface ProfessorFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  professor?: any;
 }
 
-export function ProfessorForm({ open, onOpenChange }: ProfessorFormProps) {
-  const { createProfessor } = useProfessores();
+export function ProfessorForm({ open, onOpenChange, professor }: ProfessorFormProps) {
+  const { createProfessor, updateProfessor } = useProfessores();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    nome: "",
-    email: "", 
-    telefone: "",
-    status: "ativo" as "ativo" | "inativo" | "pendente",
+    nome: professor?.nome || "",
+    email: professor?.email || "", 
+    telefone: professor?.telefone || "",
+    status: (professor?.status as "ativo" | "inativo" | "pendente") || "ativo",
   });
-  const [especializacoes, setEspecializacoes] = useState<string[]>([]);
+  const [especializacoes, setEspecializacoes] = useState<string[]>(professor?.especializacao || []);
   const [novaEspecializacao, setNovaEspecializacao] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,13 +45,25 @@ export function ProfessorForm({ open, onOpenChange }: ProfessorFormProps) {
     setLoading(true);
 
     try {
-      await createProfessor({
-        nome: formData.nome,
-        email: formData.email,
-        telefone: formData.telefone || null,
-        especializacao: especializacoes.length > 0 ? especializacoes : null,
-        status: formData.status,
-      });
+      if (professor) {
+        // Modo edição
+        await updateProfessor(professor.id, {
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone || null,
+          especializacao: especializacoes.length > 0 ? especializacoes : null,
+          status: formData.status,
+        });
+      } else {
+        // Modo criação
+        await createProfessor({
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone || null,
+          especializacao: especializacoes.length > 0 ? especializacoes : null,
+          status: formData.status,
+        });
+      }
       
       // Reset form
       setFormData({
@@ -62,7 +75,7 @@ export function ProfessorForm({ open, onOpenChange }: ProfessorFormProps) {
       setEspecializacoes([]);
       onOpenChange(false);
     } catch (error) {
-      console.error('Erro ao criar professor:', error);
+      console.error('Erro ao salvar professor:', error);
     } finally {
       setLoading(false);
     }
@@ -79,13 +92,34 @@ export function ProfessorForm({ open, onOpenChange }: ProfessorFormProps) {
     setEspecializacoes(especializacoes.filter(e => e !== especializacao));
   };
 
+  // Atualizar formulário quando professor mudar
+  useEffect(() => {
+    if (professor) {
+      setFormData({
+        nome: professor.nome || "",
+        email: professor.email || "",
+        telefone: professor.telefone || "",
+        status: professor.status || "ativo",
+      });
+      setEspecializacoes(professor.especializacao || []);
+    } else {
+      setFormData({
+        nome: "",
+        email: "",
+        telefone: "",
+        status: "ativo",
+      });
+      setEspecializacoes([]);
+    }
+  }, [professor]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Novo Professor</DialogTitle>
+          <DialogTitle>{professor ? 'Editar Professor' : 'Novo Professor'}</DialogTitle>
           <DialogDescription>
-            Cadastre um novo professor no sistema.
+            {professor ? 'Edite as informações do professor.' : 'Cadastre um novo professor no sistema.'}
           </DialogDescription>
         </DialogHeader>
         
@@ -176,7 +210,7 @@ export function ProfessorForm({ open, onOpenChange }: ProfessorFormProps) {
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar Professor"}
+              {loading ? "Salvando..." : (professor ? "Atualizar Professor" : "Salvar Professor")}
             </Button>
           </DialogFooter>
         </form>

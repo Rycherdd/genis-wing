@@ -30,7 +30,7 @@ export default function Professores() {
   const [selectedProfessor, setSelectedProfessor] = useState<any>(null);
   const [editingProfessor, setEditingProfessor] = useState<any>(null);
   const [viewProfileOpen, setViewProfileOpen] = useState(false);
-  const { professores, loading, deleteProfessor } = useProfessores();
+  const { professores, loading, updateProfessor } = useProfessores();
 
   const filteredProfessores = professores.filter(professor =>
     professor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -187,7 +187,7 @@ export default function Professores() {
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-destructive"
-                      onClick={() => deleteProfessor(professor.id)}
+                      onClick={() => updateProfessor(professor.id, { status: 'inativo' })}
                     >
                       Desativar
                     </DropdownMenuItem>
@@ -242,6 +242,7 @@ export default function Professores() {
           setProfessorFormOpen(open);
           if (!open) setEditingProfessor(null);
         }}
+        professor={editingProfessor}
       />
       <ConviteForm 
         open={showConviteForm} 
