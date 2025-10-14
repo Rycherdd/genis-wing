@@ -9,6 +9,7 @@ import { TurmaForm } from "@/components/forms/TurmaForm";
 import { useProfessores } from "@/hooks/useProfessores";
 import { useTurmas } from "@/hooks/useTurmas";
 import { useAulas } from "@/hooks/useAulas";
+import { useRecentActivities } from "@/hooks/useRecentActivities";
 import { Link } from "react-router-dom";
 
 const quickActions = [
@@ -16,30 +17,6 @@ const quickActions = [
   { label: "Nova Turma", href: "/turmas/nova" },
   { label: "Agendar Aula", href: "/agenda/nova" },
   { label: "Lançar Presença", href: "/presenca" },
-];
-
-const recentActivities = [
-  {
-    professor: "Ana Silva",
-    action: "Confirmou presença",
-    turma: "Comunicação Empresarial - Turma A",
-    time: "há 2 horas",
-    type: "presence" as const
-  },
-  {
-    professor: "Carlos Santos",
-    action: "Enviou material",
-    turma: "Oratória Avançada - Turma B", 
-    time: "há 4 horas",
-    type: "material" as const
-  },
-  {
-    professor: "Mariana Costa",
-    action: "Solicitou substituição",
-    turma: "Técnicas de Apresentação",
-    time: "há 6 horas", 
-    type: "substitution" as const
-  }
 ];
 
 const upcomingClasses = [
@@ -73,6 +50,7 @@ export default function Dashboard() {
   const { professores } = useProfessores();
   const { turmas } = useTurmas();
   const { aulas } = useAulas();
+  const { activities: recentActivities, loading: activitiesLoading } = useRecentActivities();
 
   // Calculate real metrics
   const professorAtivos = professores.filter(p => p.status === 'ativo').length;
@@ -176,25 +154,40 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-3">
-                    <div className={`h-2 w-2 rounded-full ${
-                      activity.type === 'presence' ? 'bg-accent' :
-                      activity.type === 'material' ? 'bg-primary' : 'bg-destructive'
-                    }`} />
-                    <div>
-                      <p className="font-medium">{activity.professor}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.action} • {activity.turma}
-                      </p>
+            {activitiesLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 rounded-lg bg-muted/50 animate-pulse" />
+                ))}
+              </div>
+            ) : recentActivities.length > 0 ? (
+              <div className="space-y-4">
+                {recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-2 w-2 rounded-full ${
+                        activity.type === 'presence' ? 'bg-accent' :
+                        activity.type === 'aula' ? 'bg-primary' : 
+                        activity.type === 'turma' ? 'bg-primary' : 'bg-secondary'
+                      }`} />
+                      <div>
+                        <p className="font-medium">{activity.professor}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {activity.action} • {activity.turma}
+                        </p>
+                      </div>
                     </div>
+                    <span className="text-xs text-muted-foreground">{activity.time}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{activity.time}</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhuma atividade recente.</p>
+                <p className="text-sm">As atividades aparecerão aqui conforme você usar o sistema.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
