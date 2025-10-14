@@ -77,7 +77,6 @@ export function useProfessores() {
         .from('professores')
         .update(updates)
         .eq('id', id)
-        .eq('user_id', user.id)
         .select()
         .single();
 
