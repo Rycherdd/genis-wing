@@ -15,12 +15,17 @@ import { useTurmas } from "@/hooks/useTurmas";
 import { useMatriculas } from "@/hooks/useMatriculas";
 import { TurmaForm } from "@/components/forms/TurmaForm";
 import { GerenciarAlunosForm } from "@/components/forms/GerenciarAlunosForm";
+import { TurmaDetailsDialog } from "@/components/turmas/TurmaDetailsDialog";
+import { AulasTurmaDialog } from "@/components/turmas/AulasTurmaDialog";
 
 export default function Turmas() {
   const [searchTerm, setSearchTerm] = useState("");
   const [turmaFormOpen, setTurmaFormOpen] = useState(false);
   const [gerenciarAlunosOpen, setGerenciarAlunosOpen] = useState(false);
-  const [selectedTurma, setSelectedTurma] = useState<{ id: string; nome: string } | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [aulasOpen, setAulasOpen] = useState(false);
+  const [selectedTurma, setSelectedTurma] = useState<any | null>(null);
+  const [editingTurma, setEditingTurma] = useState<any | null>(null);
   const { turmas, loading, deleteTurma } = useTurmas();
   const { getMatriculasByTurma } = useMatriculas();
 
@@ -164,12 +169,33 @@ export default function Turmas() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
-                    <DropdownMenuItem>Editar</DropdownMenuItem>
-                    <DropdownMenuItem>Ver Aulas</DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        setSelectedTurma({ id: turma.id, nome: turma.nome });
+                        setSelectedTurma(turma);
+                        setDetailsOpen(true);
+                      }}
+                    >
+                      Ver Detalhes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setEditingTurma(turma);
+                        setTurmaFormOpen(true);
+                      }}
+                    >
+                      Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedTurma(turma);
+                        setAulasOpen(true);
+                      }}
+                    >
+                      Ver Aulas
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedTurma(turma);
                         setGerenciarAlunosOpen(true);
                       }}
                     >
@@ -241,16 +267,38 @@ export default function Turmas() {
       )}
 
       {/* Turma Form */}
-      <TurmaForm open={turmaFormOpen} onOpenChange={setTurmaFormOpen} />
+      <TurmaForm 
+        open={turmaFormOpen} 
+        onOpenChange={(open) => {
+          setTurmaFormOpen(open);
+          if (!open) setEditingTurma(null);
+        }}
+        turma={editingTurma}
+      />
       
       {/* Gerenciar Alunos Form */}
       {selectedTurma && (
-        <GerenciarAlunosForm 
-          open={gerenciarAlunosOpen}
-          onOpenChange={setGerenciarAlunosOpen}
-          turmaId={selectedTurma.id}
-          turmaNome={selectedTurma.nome}
-        />
+        <>
+          <GerenciarAlunosForm 
+            open={gerenciarAlunosOpen}
+            onOpenChange={setGerenciarAlunosOpen}
+            turmaId={selectedTurma.id}
+            turmaNome={selectedTurma.nome}
+          />
+          
+          <TurmaDetailsDialog
+            open={detailsOpen}
+            onOpenChange={setDetailsOpen}
+            turma={selectedTurma}
+          />
+          
+          <AulasTurmaDialog
+            open={aulasOpen}
+            onOpenChange={setAulasOpen}
+            turmaId={selectedTurma.id}
+            turmaNome={selectedTurma.nome}
+          />
+        </>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,10 +24,11 @@ import { useProfessores } from "@/hooks/useProfessores";
 interface TurmaFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  turma?: any;
 }
 
-export function TurmaForm({ open, onOpenChange }: TurmaFormProps) {
-  const { createTurma } = useTurmas();
+export function TurmaForm({ open, onOpenChange, turma }: TurmaFormProps) {
+  const { createTurma, updateTurma } = useTurmas();
   const { professores } = useProfessores();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -40,12 +41,37 @@ export function TurmaForm({ open, onOpenChange }: TurmaFormProps) {
     status: "planejada" as "ativa" | "planejada" | "concluida" | "cancelada",
   });
 
+  // Update form data when turma prop changes
+  useEffect(() => {
+    if (turma) {
+      setFormData({
+        nome: turma.nome || "",
+        descricao: turma.descricao || "",
+        professor_id: turma.professor_id || "",
+        max_alunos: turma.max_alunos || 20,
+        data_inicio: turma.data_inicio || "",
+        data_fim: turma.data_fim || "",
+        status: turma.status || "planejada",
+      });
+    } else {
+      setFormData({
+        nome: "",
+        descricao: "",
+        professor_id: "",
+        max_alunos: 20,
+        data_inicio: "",
+        data_fim: "",
+        status: "planejada" as "ativa" | "planejada" | "concluida" | "cancelada",
+      });
+    }
+  }, [turma]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await createTurma({
+      const turmaData = {
         nome: formData.nome,
         descricao: formData.descricao || null,
         professor_id: formData.professor_id || null,
@@ -53,7 +79,13 @@ export function TurmaForm({ open, onOpenChange }: TurmaFormProps) {
         data_inicio: formData.data_inicio || null,
         data_fim: formData.data_fim || null,
         status: formData.status,
-      });
+      };
+
+      if (turma) {
+        await updateTurma(turma.id, turmaData);
+      } else {
+        await createTurma(turmaData);
+      }
       
       // Reset form
       setFormData({
@@ -67,7 +99,7 @@ export function TurmaForm({ open, onOpenChange }: TurmaFormProps) {
       });
       onOpenChange(false);
     } catch (error) {
-      console.error('Erro ao criar turma:', error);
+      console.error('Erro ao salvar turma:', error);
     } finally {
       setLoading(false);
     }
@@ -77,9 +109,9 @@ export function TurmaForm({ open, onOpenChange }: TurmaFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Nova Turma</DialogTitle>
+          <DialogTitle>{turma ? "Editar Turma" : "Nova Turma"}</DialogTitle>
           <DialogDescription>
-            Cadastre uma nova turma no sistema.
+            {turma ? "Edite as informações da turma." : "Cadastre uma nova turma no sistema."}
           </DialogDescription>
         </DialogHeader>
         
@@ -183,7 +215,7 @@ export function TurmaForm({ open, onOpenChange }: TurmaFormProps) {
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar Turma"}
+              {loading ? "Salvando..." : turma ? "Atualizar Turma" : "Salvar Turma"}
             </Button>
           </DialogFooter>
         </form>
