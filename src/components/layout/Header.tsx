@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
+import { NotificationsDialog } from "@/components/layout/NotificationsDialog";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const pageNames: Record<string, string> = {
   "/": "Dashboard",
@@ -26,6 +28,8 @@ export function Header() {
   const location = useLocation();
   const currentPageName = pageNames[location.pathname] || "Página não encontrada";
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   return (
     <>
@@ -45,9 +49,18 @@ export function Header() {
           </div>
 
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative"
+            onClick={() => setNotificationsOpen(true)}
+          >
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive"></span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-white text-xs flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </Button>
 
           {/* Profile */}
@@ -62,6 +75,7 @@ export function Header() {
       </header>
       
       <ProfileDialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen} />
+      <NotificationsDialog open={notificationsOpen} onOpenChange={setNotificationsOpen} />
     </>
   );
 }
