@@ -82,22 +82,41 @@ export default function AulasAluno() {
 
   const handleDownloadPdf = async (pdfUrl: string, titulo: string) => {
     try {
-      const { data, error } = await supabase.storage
-        .from('aula-pdfs')
-        .download(pdfUrl);
+      // Se tiver múltiplos arquivos (separados por vírgula)
+      const urls = pdfUrl.split(',').map(url => url.trim());
+      
+      for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        const { data, error } = await supabase.storage
+          .from('aula-pdfs')
+          .download(url);
 
-      if (error) throw error;
+        if (error) {
+          console.error('Erro ao baixar arquivo:', error);
+          continue;
+        }
 
-      const url = window.URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${titulo}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+        // Determinar o nome do arquivo e extensão
+        const fileName = url.split('/').pop() || 'arquivo';
+        const fileExt = fileName.split('.').pop() || 'pdf';
+        const downloadName = urls.length > 1 ? `${titulo}_${i + 1}.${fileExt}` : `${titulo}.${fileExt}`;
+
+        const downloadUrl = window.URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        document.body.removeChild(a);
+        
+        // Pequeno delay entre downloads se houver múltiplos arquivos
+        if (i < urls.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
     } catch (error) {
-      console.error('Erro ao baixar PDF:', error);
+      console.error('Erro ao baixar arquivos:', error);
     }
   };
 
@@ -171,7 +190,7 @@ export default function AulasAluno() {
                         onClick={() => handleDownloadPdf(aula.pdf_url!, aula.titulo)}
                       >
                         <FileText className="h-4 w-4 mr-2" />
-                        Material da Aula
+                        {aula.pdf_url.includes(',') ? 'Baixar Materiais' : 'Material da Aula'}
                       </Button>
                     )}
                   </div>
@@ -245,7 +264,7 @@ export default function AulasAluno() {
                         onClick={() => handleDownloadPdf(aula.pdf_url!, aula.titulo)}
                       >
                         <FileText className="h-4 w-4 mr-2" />
-                        Material da Aula
+                        {aula.pdf_url.includes(',') ? 'Baixar Materiais' : 'Material da Aula'}
                       </Button>
                     )}
                   </div>
@@ -308,7 +327,7 @@ export default function AulasAluno() {
                         onClick={() => handleDownloadPdf(aula.pdf_url!, aula.titulo)}
                       >
                         <FileText className="h-4 w-4 mr-2" />
-                        Material da Aula
+                        {aula.pdf_url.includes(',') ? 'Baixar Materiais' : 'Material da Aula'}
                       </Button>
                     )}
                   </div>
