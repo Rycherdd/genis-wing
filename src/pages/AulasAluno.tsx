@@ -46,6 +46,10 @@ export default function AulasAluno() {
     parseISO(aula.data) > today
   );
 
+  const pastAulas = filteredAulas.filter(aula => 
+    parseISO(aula.data) < today && !isSameDay(parseISO(aula.data), today)
+  ).sort((a, b) => parseISO(b.data).getTime() - parseISO(a.data).getTime());
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'agendada':
@@ -187,9 +191,7 @@ export default function AulasAluno() {
               <div className="text-center space-y-3">
                 <Calendar className="h-12 w-12 text-muted-foreground mx-auto" />
                 <p className="text-muted-foreground">
-                  {filteredAulas.length === 0 && searchTerm
-                    ? "Nenhuma aula encontrada com os termos de busca."
-                    : "Não há aulas agendadas no momento."}
+                  Não há aulas agendadas no momento.
                 </p>
               </div>
             </CardContent>
@@ -253,6 +255,69 @@ export default function AulasAluno() {
           </div>
         )}
       </div>
+
+      {/* Past Classes */}
+      {pastAulas.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Aulas Anteriores</h2>
+          <div className="grid gap-4">
+            {pastAulas.map((aula) => (
+              <Card key={aula.id} className="opacity-90">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{aula.titulo}</CardTitle>
+                      <CardDescription>{aula.descricao}</CardDescription>
+                    </div>
+                    <Badge className={getStatusColor(aula.status)}>
+                      {getStatusText(aula.status)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      {format(parseISO(aula.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {aula.horario_inicio} - {aula.horario_fim}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                      {aula.professores?.nome || 'Professor não informado'}
+                    </div>
+                    {aula.local && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {aula.local}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      Turma: {aula.turmas?.nome || 'Turma não informada'}
+                    </span>
+                    {aula.pdf_url && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadPdf(aula.pdf_url!, aula.titulo)}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Material da Aula
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
