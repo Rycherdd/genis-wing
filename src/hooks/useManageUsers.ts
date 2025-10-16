@@ -94,23 +94,25 @@ export function useManageUsers() {
     }
   };
 
-  const activateUser = async (userId: string, newRole: string = 'user') => {
+  const updateUserRole = async (userId: string, newRole: string) => {
     if (!user) return;
 
     try {
       setActionLoading(userId);
       
-      const { error } = await supabase
-        .from('user_roles')
-        .insert([
-          { user_id: userId, role: newRole as 'admin' | 'professor' | 'aluno' }
-        ]);
+      const { data, error } = await supabase.functions.invoke('manage-users', {
+        body: {
+          action: 'update-role',
+          userId: userId,
+          newRole: newRole
+        },
+      });
 
       if (error) throw error;
 
       toast({
         title: "Sucesso",
-        description: "Usuário ativado com sucesso!",
+        description: "Perfil do usuário atualizado com sucesso!",
       });
 
       // Refresh the users list
@@ -118,10 +120,10 @@ export function useManageUsers() {
       
       return { success: true };
     } catch (error) {
-      console.error('Error activating user:', error);
+      console.error('Error updating user role:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível ativar o usuário.",
+        description: "Não foi possível atualizar o perfil do usuário.",
         variant: "destructive",
       });
       throw error;
@@ -177,7 +179,7 @@ export function useManageUsers() {
     loading,
     actionLoading,
     deleteUser,
-    activateUser,
+    updateUserRole,
     createUser,
     refetch: fetchUsers,
   };

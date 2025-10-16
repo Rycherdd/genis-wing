@@ -8,8 +8,9 @@ const corsHeaders = {
 };
 
 interface ManageUserRequest {
-  action: 'delete' | 'create' | 'list' | 'deactivate';
+  action: 'delete' | 'create' | 'list' | 'deactivate' | 'update-role';
   userId?: string;
+  newRole?: string;
   userData?: {
     email: string;
     password: string;
@@ -35,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    const { action, userId, userData }: ManageUserRequest = await req.json();
+    const { action, userId, userData, newRole }: ManageUserRequest = await req.json();
 
     // Get the Authorization header to verify the requesting user
     const authHeader = req.headers.get("Authorization");
@@ -257,6 +258,69 @@ const handler = async (req: Request): Promise<Response> => {
           success: true, 
           message: "User created successfully",
           user: newUser.user
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            ...corsHeaders,
+          },
+        }
+      );
+
+    } else if (action === 'update-role' && userId && newRole) {
+      // First check if user has a role
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      if (existingRole) {
+        // Update existing role
+        const { error: updateError } = await supabase
+          .from('user_roles')
+          .update({ role: newRole as 'admin' | 'professor' | 'aluno' })
+          .eq('user_id', userId);
+
+        if (updateError) {
+          console.error("Error updating user role:", updateError);
+          return new Response(
+            JSON.stringify({ error: "Failed to update user role" }),
+            {
+              status: 500,
+              headers: { "Content-Type": "application/json", ...corsHeaders },
+            }
+          );
+        }
+      } else {
+        // Insert new role (reactivate user)
+        const { error: insertError } = await supabase
+          .from('user_roles')
+          .insert([
+            { 
+              user_id: userId, 
+              role: newRole as 'admin' | 'professor' | 'aluno',
+              assigned_by: user.id
+            }
+          ]);
+
+        if (insertError) {
+          console.error("Error inserting user role:", insertError);
+          return new Response(
+            JSON.stringify({ error: "Failed to assign user role" }),
+            {
+              status: 500,
+              headers: { "Content-Type": "application/json", ...corsHeaders },
+            }
+          );
+        }
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "User role updated successfully"
         }),
         {
           status: 200,

@@ -12,18 +12,14 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function GerenciarUsuarios() {
-  const { users, loading, actionLoading, deleteUser, activateUser, createUser } = useManageUsers();
+  const { users, loading, actionLoading, deleteUser, updateUserRole, createUser } = useManageUsers();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [userToToggle, setUserToToggle] = useState<{ id: string; action: 'activate' | 'deactivate'; name: string } | null>(null);
+  const [userToDeactivate, setUserToDeactivate] = useState<{ id: string; name: string } | null>(null);
 
-  const handleToggleUserStatus = async () => {
-    if (userToToggle) {
-      if (userToToggle.action === 'activate') {
-        await activateUser(userToToggle.id, 'user');
-      } else {
-        await deleteUser(userToToggle.id);
-      }
-      setUserToToggle(null);
+  const handleDeactivateUser = async () => {
+    if (userToDeactivate) {
+      await deleteUser(userToDeactivate.id);
+      setUserToDeactivate(null);
     }
   };
 
@@ -137,25 +133,42 @@ export default function GerenciarUsuarios() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center gap-2 justify-end">
-                        {isUserActive(user.user_role) ? (
+                        <Select 
+                          value={user.user_role || 'inactive'}
+                          onValueChange={async (newRole) => {
+                            if (newRole !== user.user_role) {
+                              await updateUserRole(user.id, newRole);
+                            }
+                          }}
+                          disabled={actionLoading === user.id}
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            {actionLoading === user.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <SelectValue placeholder="Selecionar..." />
+                            )}
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="aluno">Aluno</SelectItem>
+                            <SelectItem value="professor">Professor</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        {isUserActive(user.user_role) && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 disabled={actionLoading === user.id}
-                                onClick={() => setUserToToggle({ 
+                                onClick={() => setUserToDeactivate({ 
                                   id: user.id, 
-                                  action: 'deactivate', 
                                   name: user.full_name 
                                 })}
                               >
-                                {actionLoading === user.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <UserX className="h-4 w-4" />
-                                )}
-                                {actionLoading !== user.id && "Desativar"}
+                                <UserX className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -167,11 +180,11 @@ export default function GerenciarUsuarios() {
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setUserToToggle(null)}>
+                                <AlertDialogCancel onClick={() => setUserToDeactivate(null)}>
                                   Cancelar
                                 </AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={handleToggleUserStatus}
+                                  onClick={handleDeactivateUser}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
                                   Desativar
@@ -179,24 +192,6 @@ export default function GerenciarUsuarios() {
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
-                        ) : (
-                          <Select 
-                            onValueChange={async (newRole) => {
-                              if (newRole !== 'inactive') {
-                                await activateUser(user.id, newRole);
-                              }
-                            }}
-                          >
-                            <SelectTrigger className="w-auto">
-                              <SelectValue placeholder="Ativar como..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="user">Usuário</SelectItem>
-                              <SelectItem value="professor">Professor</SelectItem>
-                              <SelectItem value="aluno">Aluno</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
                         )}
                       </div>
                     </TableCell>
@@ -228,37 +223,6 @@ export default function GerenciarUsuarios() {
         loading={actionLoading === 'creating'}
       />
 
-      {userToToggle && (
-        <AlertDialog open={!!userToToggle} onOpenChange={() => setUserToToggle(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {userToToggle.action === 'activate' ? 'Ativar Usuário' : 'Desativar Usuário'}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {userToToggle.action === 'activate' 
-                  ? `Tem certeza que deseja ativar o usuário ${userToToggle.name}?`
-                  : `Tem certeza que deseja desativar o usuário ${userToToggle.name}? O usuário não conseguirá mais fazer login.`
-                }
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setUserToToggle(null)}>
-                Cancelar
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleToggleUserStatus}
-                className={userToToggle.action === 'deactivate' 
-                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90"
-                }
-              >
-                {userToToggle.action === 'activate' ? 'Ativar' : 'Desativar'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
     </div>
   );
 }
