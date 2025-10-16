@@ -428,6 +428,7 @@ export type Database = {
           email: string
           especializacao: string[] | null
           id: string
+          nivel_mentoria: Database["public"]["Enums"]["nivel_mentoria"] | null
           nome: string
           status: string
           telefone: string | null
@@ -439,6 +440,7 @@ export type Database = {
           email: string
           especializacao?: string[] | null
           id?: string
+          nivel_mentoria?: Database["public"]["Enums"]["nivel_mentoria"] | null
           nome: string
           status?: string
           telefone?: string | null
@@ -450,6 +452,7 @@ export type Database = {
           email?: string
           especializacao?: string[] | null
           id?: string
+          nivel_mentoria?: Database["public"]["Enums"]["nivel_mentoria"] | null
           nome?: string
           status?: string
           telefone?: string | null
@@ -617,6 +620,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "professor" | "aluno"
+      nivel_mentoria:
+        | "aprendiz"
+        | "semeador"
+        | "criador"
+        | "mestre"
+        | "lider_empresario"
+        | "guardiao_socio"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -745,6 +755,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "professor", "aluno"],
+      nivel_mentoria: [
+        "aprendiz",
+        "semeador",
+        "criador",
+        "mestre",
+        "lider_empresario",
+        "guardiao_socio",
+      ],
     },
   },
 } as const
