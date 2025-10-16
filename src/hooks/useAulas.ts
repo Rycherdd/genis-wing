@@ -37,8 +37,8 @@ export function useAulas() {
           professores (nome),
           turmas (nome)
         `)
-        .order('data', { ascending: true })
-        .order('horario_inicio', { ascending: true });
+        .order('data', { ascending: false })
+        .order('horario_inicio', { ascending: false });
 
       // Apenas professores (não admins) filtram por user_id
       // Alunos dependem apenas das políticas RLS
