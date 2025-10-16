@@ -20,6 +20,7 @@ const iconMap = {
   Settings,
   Mail,
   Bell,
+  FileText,
   UserCog,
   GraduationCap,
 };

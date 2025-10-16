@@ -20,6 +20,8 @@ import MinhasPresencas from "./pages/MinhasPresencas";
 import GerenciarConvites from "./pages/GerenciarConvites";
 import GerenciarUsuarios from "./pages/GerenciarUsuarios";
 import Agenda from "./pages/Agenda";
+import FormulariosAulas from "./pages/FormulariosAulas";
+import FormulariosAluno from "./pages/FormulariosAluno";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -44,6 +46,7 @@ function AppRoutes() {
       <Route path="/aulas" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Aulas /></Layout></ProtectedRoute>} />
       <Route path="/presenca" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Presenca /></Layout></ProtectedRoute>} />
       <Route path="/agenda" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Agenda /></Layout></ProtectedRoute>} />
+      <Route path="/formularios" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><FormulariosAulas /></Layout></ProtectedRoute>} />
       
       {/* All authenticated users */}
       <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
@@ -51,6 +54,7 @@ function AppRoutes() {
       {/* Student Routes */}
       <Route path="/aulas-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><AulasAluno /></Layout></ProtectedRoute>} />
       <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
+      <Route path="/formularios-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><FormulariosAluno /></Layout></ProtectedRoute>} />
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -293,6 +293,50 @@ export type Database = {
         }
         Relationships: []
       }
+      formularios_aulas: {
+        Row: {
+          ativo: boolean
+          aula_id: string
+          created_at: string
+          created_by: string
+          descricao: string | null
+          id: string
+          perguntas: Json
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          aula_id: string
+          created_at?: string
+          created_by: string
+          descricao?: string | null
+          id?: string
+          perguntas?: Json
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          aula_id?: string
+          created_at?: string
+          created_by?: string
+          descricao?: string | null
+          id?: string
+          perguntas?: Json
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formularios_aulas_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas_agendadas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matriculas: {
         Row: {
           aluno_id: string
@@ -499,6 +543,48 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      respostas_formularios: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          formulario_id: string
+          id: string
+          respostas: Json
+          updated_at: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          formulario_id: string
+          id?: string
+          respostas?: Json
+          updated_at?: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          formulario_id?: string
+          id?: string
+          respostas?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "respostas_formularios_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "respostas_formularios_formulario_id_fkey"
+            columns: ["formulario_id"]
+            isOneToOne: false
+            referencedRelation: "formularios_aulas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tags: {
         Row: {

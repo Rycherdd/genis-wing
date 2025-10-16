@@ -11,6 +11,7 @@ export function useRoleNavigation() {
         { label: 'Próximas Aulas', icon: 'BookOpen', url: '/aulas-aluno' },
         { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
         { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },
+        { label: 'Formulários', icon: 'FileText', url: '/formularios-aluno' },
         { label: 'Avisos', icon: 'Bell', url: '/avisos' },
       ];
     }
@@ -23,6 +24,7 @@ export function useRoleNavigation() {
         { label: 'Visualizar Turmas', icon: 'GraduationCap', url: '/turmas-aluno' },
         { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
+        { label: 'Formulários', icon: 'FileText', url: '/formularios' },
         { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
         { label: 'Avisos', icon: 'Bell', url: '/avisos' },
       ];
@@ -39,6 +41,7 @@ export function useRoleNavigation() {
         { label: 'Visualizar Turmas', icon: 'GraduationCap', url: '/turmas-aluno' },
         { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
+        { label: 'Formulários', icon: 'FileText', url: '/formularios' },
         { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
         { label: 'Avisos', icon: 'Bell', url: '/avisos' },
       ];
