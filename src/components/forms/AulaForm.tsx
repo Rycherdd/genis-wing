@@ -36,7 +36,7 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
   const { professores } = useProfessores();
   const { turmas } = useTurmas();
   const [loading, setLoading] = useState(false);
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFiles, setPdfFiles] = useState<File[]>([]);
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -80,32 +80,44 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
         status: "agendada",
         pdf_url: null,
       });
-      setPdfFile(null);
+      setPdfFiles([]);
     }
   }, [aula]);
 
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = Array.from(e.target.files || []);
+    
+    for (const file of files) {
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
         toast({
           title: "Erro",
-          description: "Por favor, selecione um arquivo PDF ou uma imagem (JPG, PNG, GIF, WEBP).",
+          description: `${file.name}: Por favor, selecione um arquivo PDF ou uma imagem (JPG, PNG, GIF, WEBP).`,
           variant: "destructive",
         });
-        return;
+        continue;
       }
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "Erro",
-          description: "O arquivo deve ter no máximo 10MB.",
+          description: `${file.name}: O arquivo deve ter no máximo 10MB.`,
           variant: "destructive",
         });
-        return;
+        continue;
       }
-      setPdfFile(file);
     }
+    
+    const validFiles = files.filter(file => {
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      return allowedTypes.includes(file.type) && file.size <= 10 * 1024 * 1024;
+    });
+    
+    setPdfFiles(prev => [...prev, ...validFiles]);
+    e.target.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setPdfFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,23 +125,30 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
     setLoading(true);
 
     try {
-      let pdfUrl = formData.pdf_url;
-      let uploadedFileName = '';
+      let pdfUrls: string[] = [];
+      let uploadedFileNames: string[] = [];
 
-      // Upload PDF if there's a file selected
-      if (pdfFile) {
+      // Upload PDFs if there are files selected
+      if (pdfFiles.length > 0) {
         setUploadingPdf(true);
-        const fileExt = pdfFile.name.split('.').pop();
-        uploadedFileName = `${Date.now()}.${fileExt}`;
         
-        const { error: uploadError } = await supabase.storage
-          .from('aula-pdfs')
-          .upload(`temp/${uploadedFileName}`, pdfFile);
+        for (const file of pdfFiles) {
+          const fileExt = file.name.split('.').pop();
+          const uploadedFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('aula-pdfs')
+            .upload(`temp/${uploadedFileName}`, file);
 
-        if (uploadError) throw uploadError;
-        
-        pdfUrl = `temp/${uploadedFileName}`;
+          if (uploadError) throw uploadError;
+          
+          pdfUrls.push(`temp/${uploadedFileName}`);
+          uploadedFileNames.push(uploadedFileName);
+        }
       }
+
+      // Combinar URLs existentes com novas (se editando)
+      let finalPdfUrl = pdfUrls.length > 0 ? pdfUrls.join(',') : formData.pdf_url;
 
       const aulaData = {
         titulo: formData.titulo,
@@ -141,43 +160,59 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
         horario_fim: formData.horario_fim,
         local: formData.local || null,
         status: formData.status,
-        pdf_url: pdfUrl,
+        pdf_url: finalPdfUrl,
       };
 
       if (aula) {
         // Update existing aula
         await updateAula(aula.id, aulaData);
         
-        // Move PDF to proper folder if uploaded
-        if (pdfFile && pdfUrl && uploadedFileName) {
-          const newFileName = `${aula.id}/${uploadedFileName}`;
+        // Move PDFs to proper folder if uploaded
+        if (pdfFiles.length > 0 && uploadedFileNames.length > 0) {
+          const newFileNames: string[] = [];
           
-          await supabase.storage
-            .from('aula-pdfs')
-            .move(pdfUrl, newFileName);
+          for (let i = 0; i < uploadedFileNames.length; i++) {
+            const newFileName = `${aula.id}/${uploadedFileNames[i]}`;
+            
+            await supabase.storage
+              .from('aula-pdfs')
+              .move(pdfUrls[i], newFileName);
+            
+            newFileNames.push(newFileName);
+          }
 
-          // Update aula with correct path
+          // Combinar com URLs existentes
+          const existingUrls = formData.pdf_url ? formData.pdf_url.split(',') : [];
+          const allUrls = [...existingUrls, ...newFileNames].join(',');
+
+          // Update aula with correct paths
           await supabase
             .from('aulas_agendadas')
-            .update({ pdf_url: newFileName })
+            .update({ pdf_url: allUrls })
             .eq('id', aula.id);
         }
       } else {
         // Create new aula
         const newAula = await createAula(aulaData);
 
-        // Move PDF to proper folder if uploaded
-        if (pdfFile && newAula && pdfUrl && uploadedFileName) {
-          const newFileName = `${newAula.id}/${uploadedFileName}`;
+        // Move PDFs to proper folder if uploaded
+        if (pdfFiles.length > 0 && newAula && uploadedFileNames.length > 0) {
+          const newFileNames: string[] = [];
           
-          await supabase.storage
-            .from('aula-pdfs')
-            .move(pdfUrl, newFileName);
+          for (let i = 0; i < uploadedFileNames.length; i++) {
+            const newFileName = `${newAula.id}/${uploadedFileNames[i]}`;
+            
+            await supabase.storage
+              .from('aula-pdfs')
+              .move(pdfUrls[i], newFileName);
+            
+            newFileNames.push(newFileName);
+          }
 
-          // Update aula with correct path
+          // Update aula with correct paths
           await supabase
             .from('aulas_agendadas')
-            .update({ pdf_url: newFileName })
+            .update({ pdf_url: newFileNames.join(',') })
             .eq('id', newAula.id);
         }
       }
@@ -195,7 +230,7 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
         status: "agendada",
         pdf_url: null,
       });
-      setPdfFile(null);
+      setPdfFiles([]);
       onOpenChange(false);
     } catch (error) {
       console.error('Erro ao salvar aula:', error);
@@ -351,7 +386,7 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pdf">Material da Aula (PDF ou Imagem)</Label>
+            <Label htmlFor="pdf">Materiais da Aula (PDF ou Imagem)</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="pdf"
@@ -359,6 +394,7 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
                 accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
                 onChange={handlePdfChange}
                 className="hidden"
+                multiple
               />
               <Button
                 type="button"
@@ -367,23 +403,31 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
                 className="w-full"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                {pdfFile ? pdfFile.name : "Selecionar Arquivo"}
+                Adicionar Arquivos ({pdfFiles.length})
               </Button>
-              {pdfFile && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setPdfFile(null)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
             </div>
-            {pdfFile && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <FileText className="h-4 w-4" />
-                <span>{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</span>
+            {pdfFiles.length > 0 && (
+              <div className="space-y-2">
+                {pdfFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between gap-2 p-2 bg-muted rounded-md">
+                    <div className="flex items-center gap-2 text-sm min-w-0 flex-1">
+                      <FileText className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{file.name}</span>
+                      <span className="text-muted-foreground flex-shrink-0">
+                        ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFile(index)}
+                      className="flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
