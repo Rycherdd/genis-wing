@@ -87,10 +87,11 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.type !== 'application/pdf') {
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
         toast({
           title: "Erro",
-          description: "Por favor, selecione apenas arquivos PDF.",
+          description: "Por favor, selecione um arquivo PDF ou uma imagem (JPG, PNG, GIF, WEBP).",
           variant: "destructive",
         });
         return;
@@ -350,12 +351,12 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pdf">Material da Aula (PDF)</Label>
+            <Label htmlFor="pdf">Material da Aula (PDF ou Imagem)</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="pdf"
                 type="file"
-                accept=".pdf"
+                accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
                 onChange={handlePdfChange}
                 className="hidden"
               />
@@ -366,7 +367,7 @@ export function AulaForm({ open, onOpenChange, aula }: AulaFormProps) {
                 className="w-full"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                {pdfFile ? pdfFile.name : "Selecionar PDF"}
+                {pdfFile ? pdfFile.name : "Selecionar Arquivo"}
               </Button>
               {pdfFile && (
                 <Button
