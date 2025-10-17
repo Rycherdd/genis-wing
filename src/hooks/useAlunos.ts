@@ -134,28 +134,8 @@ export function useAlunos() {
   useEffect(() => {
     if (user) {
       fetchAlunos();
-      
-      // Configurar realtime para atualizações instantâneas
-      const channel = supabase
-        .channel('alunos-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'alunos'
-          },
-          () => {
-            fetchAlunos();
-          }
-        )
-        .subscribe();
-      
-      return () => {
-        supabase.removeChannel(channel);
-      };
     }
-  }, [user?.id]);
+  }, [user]);
 
   return {
     alunos,

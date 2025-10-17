@@ -175,28 +175,8 @@ export function useTurmas() {
   useEffect(() => {
     if (user) {
       fetchTurmas();
-      
-      // Configurar realtime para atualizações instantâneas
-      const channel = supabase
-        .channel('turmas-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'turmas'
-          },
-          () => {
-            fetchTurmas();
-          }
-        )
-        .subscribe();
-      
-      return () => {
-        supabase.removeChannel(channel);
-      };
     }
-  }, [user?.id]);
+  }, [user]);
 
   return {
     turmas,

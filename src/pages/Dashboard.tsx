@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, Clock, CheckCircle, AlertTriangle, ArrowRight, BookOpen } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,44 +52,59 @@ export default function Dashboard() {
   const { aulas } = useAulas();
   const { activities: recentActivities, loading: activitiesLoading } = useRecentActivities();
 
-  // Calculate real metrics
-  const professorAtivos = professores.filter(p => p.status === 'ativo').length;
-  const turmasAtivas = turmas.filter(t => t.status === 'ativa').length;
-  const aulasHoje = aulas.filter(a => {
+  // Calculate real metrics with memoization
+  const metrics = useMemo(() => {
+    const professorAtivos = professores.filter(p => p.status === 'ativo').length;
+    const turmasAtivas = turmas.filter(t => t.status === 'ativa').length;
     const hoje = new Date().toDateString();
-    const aulaData = new Date(a.data).toDateString();
-    return hoje === aulaData;
-  }).length;
+    const aulasHoje = aulas.filter(a => {
+      const aulaData = new Date(a.data).toDateString();
+      return hoje === aulaData;
+    }).length;
+    const professorNovos = professores.filter(p => 
+      new Date(p.created_at).getMonth() === new Date().getMonth()
+    ).length;
+    const turmasPlanejadas = turmas.filter(t => t.status === 'planejada').length;
+    const aulasAgendadas = aulas.filter(a => a.status === 'agendada').length;
+
+    return {
+      professorAtivos,
+      turmasAtivas,
+      aulasHoje,
+      professorNovos,
+      turmasPlanejadas,
+      aulasAgendadas,
+      totalDados: professores.length + turmas.length + aulas.length
+    };
+  }, [professores, turmas, aulas]);
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Metrics Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Professores Ativos"
-          value={professorAtivos.toString()}
-          change={`+${professores.filter(p => 
-            new Date(p.created_at).getMonth() === new Date().getMonth()
-          ).length} este mês`}
+          value={metrics.professorAtivos.toString()}
+          change={`+${metrics.professorNovos} este mês`}
           changeType="positive"
           icon={Users}
         />
         <MetricCard
           title="Turmas em Andamento"
-          value={turmasAtivas.toString()}
-          change={`${turmas.filter(t => t.status === 'planejada').length} planejadas`}
+          value={metrics.turmasAtivas.toString()}
+          change={`${metrics.turmasPlanejadas} planejadas`}
           changeType="positive"
           icon={GraduationCap}
         />
         <MetricCard
           title="Aulas Hoje"
-          value={aulasHoje.toString()}
-          change={`${aulas.filter(a => a.status === 'agendada').length} agendadas`}
+          value={metrics.aulasHoje.toString()}
+          change={`${metrics.aulasAgendadas} agendadas`}
           changeType="neutral"
           icon={Calendar}
         />
         <MetricCard
           title="Total de Dados"
-          value={(professores.length + turmas.length + aulas.length).toString()}
+          value={metrics.totalDados.toString()}
           change="Sistema funcionando"
           changeType="positive"
           icon={DollarSign}

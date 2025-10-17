@@ -58,7 +58,6 @@ export function useProfessores() {
       if (error) throw error;
 
       setProfessores(prev => [...prev, data]);
-      await fetchProfessores(); // Refetch para garantir sincronização
       toast({
         title: "Sucesso",
         description: "Professor criado com sucesso!",
@@ -91,7 +90,6 @@ export function useProfessores() {
       setProfessores(prev => 
         prev.map(prof => prof.id === id ? { ...prof, ...data } : prof)
       );
-      await fetchProfessores(); // Refetch para garantir sincronização
       toast({
         title: "Sucesso",
         description: "Professor atualizado com sucesso!",
@@ -139,28 +137,8 @@ export function useProfessores() {
   useEffect(() => {
     if (user) {
       fetchProfessores();
-      
-      // Configurar realtime para atualizações instantâneas
-      const channel = supabase
-        .channel('professores-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'professores'
-          },
-          () => {
-            fetchProfessores();
-          }
-        )
-        .subscribe();
-      
-      return () => {
-        supabase.removeChannel(channel);
-      };
     }
-  }, [user?.id]);
+  }, [user]);
 
   return {
     professores,
