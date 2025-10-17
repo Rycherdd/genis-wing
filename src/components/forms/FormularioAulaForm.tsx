@@ -137,11 +137,15 @@ export function FormularioAulaForm({ open, onOpenChange, formulario }: Formulari
                 <SelectValue placeholder="Selecione uma aula" />
               </SelectTrigger>
               <SelectContent>
-                {aulas.map((aula) => (
-                  <SelectItem key={aula.id} value={aula.id}>
-                    {aula.titulo} - {new Date(aula.data).toLocaleDateString('pt-BR')}
-                  </SelectItem>
-                ))}
+                {aulas.map((aula) => {
+                  const [year, month, day] = aula.data.split('-');
+                  const formattedDate = new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString('pt-BR');
+                  return (
+                    <SelectItem key={aula.id} value={aula.id}>
+                      {aula.titulo} - {formattedDate}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

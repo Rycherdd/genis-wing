@@ -48,7 +48,8 @@ export default function Turmas() {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "Não definido";
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    const [year, month, day] = dateString.split('-');
+    return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString('pt-BR');
   };
 
   if (loading) {

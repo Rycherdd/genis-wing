@@ -14,7 +14,10 @@ export function AulaDetailsDialog({ open, onOpenChange, aula }: AulaDetailsDialo
   if (!aula) return null;
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+    // Usar split para evitar problema de timezone
+    const [year, month, day] = dateString.split('-');
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   };
 
   const getStatusBadge = (status: string) => {

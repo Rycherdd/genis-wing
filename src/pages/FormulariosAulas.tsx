@@ -110,7 +110,12 @@ export default function FormulariosAulas() {
                   )}
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>{formulario.perguntas.length} pergunta(s)</span>
-                    <span>Criado em {new Date(formulario.created_at).toLocaleDateString('pt-BR')}</span>
+                    <span>Criado em {(() => {
+                      const date = new Date(formulario.created_at);
+                      const [dateStr] = date.toISOString().split('T');
+                      const [year, month, day] = dateStr.split('-');
+                      return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString('pt-BR');
+                    })()}</span>
                   </div>
                 </div>
                 

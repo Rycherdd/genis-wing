@@ -37,7 +37,9 @@ export default function Aulas() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    // Usar split para evitar problema de timezone
+    const [year, month, day] = dateString.split('-');
+    return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString('pt-BR');
   };
 
   // Calcular estatísticas reais
@@ -45,7 +47,8 @@ export default function Aulas() {
   hoje.setHours(0, 0, 0, 0);
   
   const aulasHoje = aulas.filter(aula => {
-    const aulaDate = new Date(aula.data);
+    const [year, month, day] = aula.data.split('-');
+    const aulaDate = new Date(Number(year), Number(month) - 1, Number(day));
     aulaDate.setHours(0, 0, 0, 0);
     return aulaDate.getTime() === hoje.getTime();
   }).length;
@@ -56,7 +59,8 @@ export default function Aulas() {
   fimSemana.setDate(inicioSemana.getDate() + 6);
   
   const aulasEstaSemana = aulas.filter(aula => {
-    const aulaDate = new Date(aula.data);
+    const [year, month, day] = aula.data.split('-');
+    const aulaDate = new Date(Number(year), Number(month) - 1, Number(day));
     return aulaDate >= inicioSemana && aulaDate <= fimSemana;
   }).length;
 
