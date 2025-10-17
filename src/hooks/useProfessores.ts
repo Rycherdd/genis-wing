@@ -137,6 +137,28 @@ export function useProfessores() {
   useEffect(() => {
     if (user) {
       fetchProfessores();
+
+      // Realtime subscription otimizada
+      const channel = supabase
+        .channel('professores-changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'professores' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setProfessores(prev => [...prev, payload.new as Professor]);
+            } else if (payload.eventType === 'UPDATE') {
+              setProfessores(prev => prev.map(p => p.id === payload.new.id ? payload.new as Professor : p));
+            } else if (payload.eventType === 'DELETE') {
+              setProfessores(prev => prev.filter(p => p.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 

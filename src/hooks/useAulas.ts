@@ -178,6 +178,28 @@ export function useAulas() {
   useEffect(() => {
     if (user) {
       fetchAulas();
+
+      // Realtime subscription otimizada
+      const channel = supabase
+        .channel('aulas-changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'aulas_agendadas' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setAulas(prev => [...prev, payload.new as AulaAgendada]);
+            } else if (payload.eventType === 'UPDATE') {
+              setAulas(prev => prev.map(a => a.id === payload.new.id ? payload.new as AulaAgendada : a));
+            } else if (payload.eventType === 'DELETE') {
+              setAulas(prev => prev.filter(a => a.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 

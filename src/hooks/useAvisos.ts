@@ -147,23 +147,25 @@ export function useAvisos() {
   useEffect(() => {
     if (user) {
       fetchAvisos();
-      
-      // Configurar realtime para atualizações instantâneas
+
+      // Realtime subscription otimizada
       const channel = supabase
         .channel('avisos-changes')
         .on(
           'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'avisos'
-          },
-          () => {
-            fetchAvisos();
+          { event: '*', schema: 'public', table: 'avisos' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setAvisos(prev => [payload.new as Aviso, ...prev]);
+            } else if (payload.eventType === 'UPDATE') {
+              setAvisos(prev => prev.map(a => a.id === payload.new.id ? payload.new as Aviso : a));
+            } else if (payload.eventType === 'DELETE') {
+              setAvisos(prev => prev.filter(a => a.id !== payload.old.id));
+            }
           }
         )
         .subscribe();
-      
+
       return () => {
         supabase.removeChannel(channel);
       };

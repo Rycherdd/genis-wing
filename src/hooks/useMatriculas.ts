@@ -169,28 +169,30 @@ export function useMatriculas() {
   useEffect(() => {
     if (user) {
       fetchMatriculas();
-      
-      // Configurar realtime para atualizações instantâneas
+
+      // Realtime subscription otimizada
       const channel = supabase
         .channel('matriculas-changes')
         .on(
           'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'matriculas'
-          },
-          () => {
-            fetchMatriculas();
+          { event: '*', schema: 'public', table: 'matriculas' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setMatriculas(prev => [...prev, payload.new as Matricula]);
+            } else if (payload.eventType === 'UPDATE') {
+              setMatriculas(prev => prev.map(m => m.id === payload.new.id ? payload.new as Matricula : m));
+            } else if (payload.eventType === 'DELETE') {
+              setMatriculas(prev => prev.filter(m => m.id !== payload.old.id));
+            }
           }
         )
         .subscribe();
-      
+
       return () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user?.id]);
+  }, [user]);
 
   return {
     matriculas,

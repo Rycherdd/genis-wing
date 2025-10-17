@@ -175,6 +175,28 @@ export function useTurmas() {
   useEffect(() => {
     if (user) {
       fetchTurmas();
+
+      // Realtime subscription otimizada
+      const channel = supabase
+        .channel('turmas-changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'turmas' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setTurmas(prev => [...prev, payload.new as Turma]);
+            } else if (payload.eventType === 'UPDATE') {
+              setTurmas(prev => prev.map(t => t.id === payload.new.id ? payload.new as Turma : t));
+            } else if (payload.eventType === 'DELETE') {
+              setTurmas(prev => prev.filter(t => t.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 

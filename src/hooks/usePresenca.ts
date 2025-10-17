@@ -184,7 +184,31 @@ export function usePresenca() {
   };
 
   useEffect(() => {
-    fetchPresencas();
+    if (user) {
+      fetchPresencas();
+
+      // Realtime subscription otimizada
+      const channel = supabase
+        .channel('presenca-changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'presenca' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setPresencas(prev => [...prev, payload.new as Presenca]);
+            } else if (payload.eventType === 'UPDATE') {
+              setPresencas(prev => prev.map(p => p.id === payload.new.id ? payload.new as Presenca : p));
+            } else if (payload.eventType === 'DELETE') {
+              setPresencas(prev => prev.filter(p => p.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user]);
 
   return {

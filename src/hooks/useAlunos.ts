@@ -134,6 +134,28 @@ export function useAlunos() {
   useEffect(() => {
     if (user) {
       fetchAlunos();
+
+      // Realtime subscription otimizada
+      const channel = supabase
+        .channel('alunos-changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'alunos' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setAlunos(prev => [...prev, payload.new as Aluno]);
+            } else if (payload.eventType === 'UPDATE') {
+              setAlunos(prev => prev.map(a => a.id === payload.new.id ? payload.new as Aluno : a));
+            } else if (payload.eventType === 'DELETE') {
+              setAlunos(prev => prev.filter(a => a.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
