@@ -65,6 +65,7 @@ export function useAvaliacoes(turmaId?: string, apenasAtivas: boolean = true) {
 
       if (avaliacoesError) throw avaliacoesError;
 
+      console.log('Avaliações carregadas:', avaliacoesData);
       setAvaliacoes((avaliacoesData as unknown as Avaliacao[]) || []);
 
       // Buscar tentativas do usuário
