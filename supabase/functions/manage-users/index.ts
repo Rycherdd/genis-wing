@@ -269,6 +269,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
 
     } else if (action === 'update-role' && userId && newRole) {
+      // Get user data for creating profile records
+      const { data: { user: targetUser }, error: getUserError } = await supabase.auth.admin.getUserById(userId);
+      
+      if (getUserError || !targetUser) {
+        console.error("Error getting user:", getUserError);
+        return new Response(
+          JSON.stringify({ error: "Failed to get user data" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+
       // First check if user has a role
       const { data: existingRole } = await supabase
         .from('user_roles')
@@ -314,6 +328,83 @@ const handler = async (req: Request): Promise<Response> => {
               headers: { "Content-Type": "application/json", ...corsHeaders },
             }
           );
+        }
+      }
+
+      // Create corresponding record in alunos or professores table
+      if (newRole === 'aluno') {
+        // Check if aluno record already exists
+        const { data: existingAluno } = await supabase
+          .from('alunos')
+          .select('id')
+          .eq('user_id', userId)
+          .single();
+
+        if (!existingAluno) {
+          // Create aluno record
+          const { error: alunoError } = await supabase
+            .from('alunos')
+            .insert([
+              {
+                user_id: userId,
+                nome: targetUser.user_metadata?.full_name || targetUser.email?.split('@')[0] || 'Aluno',
+                email: targetUser.email || '',
+                telefone: targetUser.user_metadata?.phone || null
+              }
+            ]);
+
+          if (alunoError) {
+            console.error("Error creating aluno record:", alunoError);
+            // Role was updated but aluno record creation failed
+            return new Response(
+              JSON.stringify({ 
+                success: true, 
+                warning: "Role updated but failed to create student profile",
+                message: "User role updated successfully"
+              }),
+              {
+                status: 207,
+                headers: { "Content-Type": "application/json", ...corsHeaders },
+              }
+            );
+          }
+        }
+      } else if (newRole === 'professor') {
+        // Check if professor record already exists
+        const { data: existingProfessor } = await supabase
+          .from('professores')
+          .select('id')
+          .eq('user_id', userId)
+          .single();
+
+        if (!existingProfessor) {
+          // Create professor record
+          const { error: professorError } = await supabase
+            .from('professores')
+            .insert([
+              {
+                user_id: userId,
+                nome: targetUser.user_metadata?.full_name || targetUser.email?.split('@')[0] || 'Professor',
+                email: targetUser.email || '',
+                telefone: targetUser.user_metadata?.phone || null
+              }
+            ]);
+
+          if (professorError) {
+            console.error("Error creating professor record:", professorError);
+            // Role was updated but professor record creation failed
+            return new Response(
+              JSON.stringify({ 
+                success: true, 
+                warning: "Role updated but failed to create mentor profile",
+                message: "User role updated successfully"
+              }),
+              {
+                status: 207,
+                headers: { "Content-Type": "application/json", ...corsHeaders },
+              }
+            );
+          }
         }
       }
 
