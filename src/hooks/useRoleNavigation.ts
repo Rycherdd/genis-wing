@@ -8,8 +8,8 @@ export function useRoleNavigation() {
   const getNavigationItems = () => {
     if (userRole === 'aluno') {
       return [
-        { label: 'Próximas Aulas', icon: 'BookOpen', url: '/aulas-aluno' },
         { label: 'Meu Progresso', icon: 'CheckCircle', url: '/meu-progresso' },
+        { label: 'Próximas Aulas', icon: 'BookOpen', url: '/aulas-aluno' },
         { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
         { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },
         { label: 'Formulários', icon: 'FileText', url: '/formularios-aluno' },

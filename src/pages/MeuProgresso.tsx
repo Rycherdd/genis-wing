@@ -1,4 +1,3 @@
-import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { Progress } from "@/components/ui/progress";
@@ -10,20 +9,17 @@ export default function MeuProgresso() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Carregando seu progresso...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando seu progresso...</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Meu Progresso</h1>
           <p className="text-muted-foreground">
@@ -138,6 +134,5 @@ export default function MeuProgresso() {
           )}
         </div>
       </div>
-    </Layout>
   );
 }
