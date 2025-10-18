@@ -27,6 +27,7 @@ export function useRoleNavigation() {
         { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
         { label: 'Formulários', icon: 'FileText', url: '/formularios' },
+        { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
         { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
         { label: 'Avisos', icon: 'Bell', url: '/avisos' },
       ];
@@ -44,6 +45,7 @@ export function useRoleNavigation() {
         { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
         { label: 'Formulários', icon: 'FileText', url: '/formularios' },
+        { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
         { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
         { label: 'Avisos', icon: 'Bell', url: '/avisos' },
       ];

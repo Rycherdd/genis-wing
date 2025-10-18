@@ -57,8 +57,10 @@ function AppRoutes() {
       <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
       <Route path="/meu-progresso" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MeuProgresso /></Layout></ProtectedRoute>} />
       <Route path="/formularios-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><FormulariosAluno /></Layout></ProtectedRoute>} />
-      <Route path="/gamificacao" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><Gamificacao /></Layout></ProtectedRoute>} />
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
+      
+      {/* Gamification - accessible to all */}
+      <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
