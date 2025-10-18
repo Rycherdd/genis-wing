@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail, UserCog, CalendarDays, CheckSquare, Bell } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail, UserCog, CalendarDays, CheckSquare, Bell, Trophy } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,6 +23,7 @@ const iconMap = {
   FileText,
   UserCog,
   GraduationCap,
+  Trophy,
 };
 
 interface NavigationItem {
