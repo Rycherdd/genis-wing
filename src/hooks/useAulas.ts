@@ -34,8 +34,8 @@ export function useAulas() {
         .from('aulas_agendadas')
         .select(`
           *,
-          professores (nome),
-          turmas (nome)
+          professores!professor_id (nome),
+          turmas!turma_id (nome)
         `)
         .order('data', { ascending: false })
         .order('horario_inicio', { ascending: false });
@@ -75,8 +75,8 @@ export function useAulas() {
         })
         .select(`
           *,
-          professores (nome),
-          turmas (nome)
+          professores!professor_id (nome),
+          turmas!turma_id (nome)
         `)
         .single();
 
@@ -121,8 +121,8 @@ export function useAulas() {
         .eq('user_id', user.id)
         .select(`
           *,
-          professores (nome),
-          turmas (nome)
+          professores!professor_id (nome),
+          turmas!turma_id (nome)
         `)
         .single();
 
@@ -179,20 +179,15 @@ export function useAulas() {
     if (user) {
       fetchAulas();
 
-      // Realtime subscription otimizada
+      // Realtime subscription - refetch completo para garantir dados relacionados
       const channel = supabase
         .channel('aulas-changes')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'aulas_agendadas' },
-          (payload) => {
-            if (payload.eventType === 'INSERT') {
-              setAulas(prev => [...prev, payload.new as AulaAgendada]);
-            } else if (payload.eventType === 'UPDATE') {
-              setAulas(prev => prev.map(a => a.id === payload.new.id ? payload.new as AulaAgendada : a));
-            } else if (payload.eventType === 'DELETE') {
-              setAulas(prev => prev.filter(a => a.id !== payload.old.id));
-            }
+          () => {
+            // Refetch completo para garantir que temos os dados relacionados
+            fetchAulas();
           }
         )
         .subscribe();

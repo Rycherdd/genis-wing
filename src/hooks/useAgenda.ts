@@ -42,8 +42,8 @@ export function useAgenda() {
           descricao,
           local,
           status,
-          turmas (nome),
-          professores (nome)
+          turmas!turma_id (nome),
+          professores!professor_id (nome)
         `)
         .order('data', { ascending: true })
         .order('horario_inicio', { ascending: true });

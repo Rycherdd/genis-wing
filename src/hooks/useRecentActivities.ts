@@ -62,8 +62,8 @@ export function useRecentActivities() {
           id,
           titulo,
           created_at,
-          professores (nome),
-          turmas (nome)
+          professores!professor_id (nome),
+          turmas!turma_id (nome)
         `)
         .order('created_at', { ascending: false })
         .limit(5);
