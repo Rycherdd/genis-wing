@@ -36,8 +36,7 @@ export function useLeaderboard(turmaId?: string, periodo: 'semanal' | 'mensal' |
           user_id,
           pontos_totais,
           nivel,
-          streak_atual,
-          alunos!inner(nome, user_id)
+          streak_atual
         `)
         .order('pontos_totais', { ascending: false })
         .limit(50);
@@ -74,9 +73,18 @@ export function useLeaderboard(turmaId?: string, periodo: 'semanal' | 'mensal' |
         return;
       }
 
+      // Buscar nomes dos alunos separadamente
+      const userIds = data?.map(d => d.user_id) || [];
+      const { data: alunosData } = await supabase
+        .from('alunos')
+        .select('user_id, nome')
+        .in('user_id', userIds);
+
+      const alunosMap = new Map(alunosData?.map(a => [a.user_id, a.nome]) || []);
+
       const formattedData: LeaderboardEntry[] = data?.map((entry: any, index: number) => ({
         user_id: entry.user_id,
-        nome: entry.alunos?.nome || 'Anônimo',
+        nome: alunosMap.get(entry.user_id) || 'Usuário',
         pontos_totais: entry.pontos_totais,
         nivel: entry.nivel,
         streak_atual: entry.streak_atual,

@@ -29,19 +29,49 @@ export default function Gamificacao() {
 
   return (
     <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Trophy className="h-8 w-8 text-primary" />
-            Gamificação
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Acompanhe seu progresso, conquiste badges e compete no ranking!
-          </p>
-        </div>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Trophy className="h-8 w-8 text-primary" />
+          Gamificação
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          {gamification 
+            ? "Acompanhe seu progresso, conquiste badges e compete no ranking!"
+            : "Comece a participar das aulas para começar sua jornada de gamificação!"
+          }
+        </p>
+      </div>
 
-        {/* Cards de Estatísticas */}
+      {/* Cards de Estatísticas */}
+      {!gamification ? (
+        <Card className="bg-gradient-to-br from-primary/5 to-accent/5">
+          <CardContent className="p-8 text-center">
+            <Trophy className="h-16 w-16 mx-auto mb-4 text-primary/50" />
+            <h2 className="text-2xl font-bold mb-2">Comece sua Jornada!</h2>
+            <p className="text-muted-foreground mb-4">
+              Você ainda não tem dados de gamificação. Comece participando das aulas,
+              respondendo formulários e mantendo uma sequência de presença para ganhar pontos e badges!
+            </p>
+            <div className="grid md:grid-cols-3 gap-4 mt-6 text-left">
+              <div className="p-4 rounded-lg bg-card border">
+                <p className="font-semibold">✅ Presença em Aula</p>
+                <p className="text-sm text-muted-foreground">+10 pontos</p>
+              </div>
+              <div className="p-4 rounded-lg bg-card border">
+                <p className="font-semibold">📝 Formulário Respondido</p>
+                <p className="text-sm text-muted-foreground">+15 pontos</p>
+              </div>
+              <div className="p-4 rounded-lg bg-card border">
+                <p className="font-semibold">🔥 Streak Diário</p>
+                <p className="text-sm text-muted-foreground">+5 pontos (+bônus)</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
         <GamificationCard gamification={gamification} />
+      )}
 
         {/* Tabs */}
         <Tabs defaultValue="badges" className="space-y-6">
