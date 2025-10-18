@@ -10,7 +10,8 @@ export function useRoleNavigation() {
       return [
         { label: 'Meu Progresso', icon: 'CheckCircle', url: '/meu-progresso' },
         { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
-        { label: 'Próximas Aulas', icon: 'BookOpen', url: '/aulas-aluno' },
+        { label: 'Conteúdos Complementares', icon: 'BookOpen', url: '/conteudos' },
+        { label: 'Próximas Aulas', icon: 'Calendar', url: '/aulas-aluno' },
         { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
         { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },
         { label: 'Formulários', icon: 'FileText', url: '/formularios-aluno' },

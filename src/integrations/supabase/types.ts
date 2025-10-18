@@ -183,6 +183,72 @@ export type Database = {
           },
         ]
       }
+      avaliacoes: {
+        Row: {
+          ativa: boolean | null
+          conteudo_id: string | null
+          created_at: string | null
+          created_by: string
+          descricao: string | null
+          id: string
+          nota_minima: number | null
+          pontos_totais: number
+          questoes: Json
+          tempo_limite: number | null
+          tentativas_permitidas: number | null
+          titulo: string
+          turma_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ativa?: boolean | null
+          conteudo_id?: string | null
+          created_at?: string | null
+          created_by: string
+          descricao?: string | null
+          id?: string
+          nota_minima?: number | null
+          pontos_totais: number
+          questoes: Json
+          tempo_limite?: number | null
+          tentativas_permitidas?: number | null
+          titulo: string
+          turma_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ativa?: boolean | null
+          conteudo_id?: string | null
+          created_at?: string | null
+          created_by?: string
+          descricao?: string | null
+          id?: string
+          nota_minima?: number | null
+          pontos_totais?: number
+          questoes?: Json
+          tempo_limite?: number | null
+          tentativas_permitidas?: number | null
+          titulo?: string
+          turma_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_conteudo_id_fkey"
+            columns: ["conteudo_id"]
+            isOneToOne: false
+            referencedRelation: "conteudos_complementares"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       avisos: {
         Row: {
           conteudo: string
@@ -300,6 +366,65 @@ export type Database = {
           tipo?: string
         }
         Relationships: []
+      }
+      conteudos_complementares: {
+        Row: {
+          conteudo: string
+          created_at: string | null
+          created_by: string
+          descricao: string | null
+          duracao_estimada: number | null
+          id: string
+          modulo: string | null
+          pontos_estudo: number | null
+          pontos_revisao: number | null
+          tags: string[] | null
+          tipo: string
+          titulo: string
+          turma_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          conteudo: string
+          created_at?: string | null
+          created_by: string
+          descricao?: string | null
+          duracao_estimada?: number | null
+          id?: string
+          modulo?: string | null
+          pontos_estudo?: number | null
+          pontos_revisao?: number | null
+          tags?: string[] | null
+          tipo: string
+          titulo: string
+          turma_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string | null
+          created_by?: string
+          descricao?: string | null
+          duracao_estimada?: number | null
+          id?: string
+          modulo?: string | null
+          pontos_estudo?: number | null
+          pontos_revisao?: number | null
+          tags?: string[] | null
+          tipo?: string
+          titulo?: string
+          turma_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conteudos_complementares_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       convites: {
         Row: {
@@ -624,6 +749,56 @@ export type Database = {
         }
         Relationships: []
       }
+      progresso_conteudos: {
+        Row: {
+          concluido_em: string | null
+          conteudo_id: string
+          created_at: string | null
+          id: string
+          primeira_visualizacao: string | null
+          status: string
+          tempo_estudo: number | null
+          ultima_visualizacao: string | null
+          updated_at: string | null
+          user_id: string
+          vezes_revisado: number | null
+        }
+        Insert: {
+          concluido_em?: string | null
+          conteudo_id: string
+          created_at?: string | null
+          id?: string
+          primeira_visualizacao?: string | null
+          status?: string
+          tempo_estudo?: number | null
+          ultima_visualizacao?: string | null
+          updated_at?: string | null
+          user_id: string
+          vezes_revisado?: number | null
+        }
+        Update: {
+          concluido_em?: string | null
+          conteudo_id?: string
+          created_at?: string | null
+          id?: string
+          primeira_visualizacao?: string | null
+          status?: string
+          tempo_estudo?: number | null
+          ultima_visualizacao?: string | null
+          updated_at?: string | null
+          user_id?: string
+          vezes_revisado?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_conteudos_conteudo_id_fkey"
+            columns: ["conteudo_id"]
+            isOneToOne: false
+            referencedRelation: "conteudos_complementares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       respostas_formularios: {
         Row: {
           aluno_id: string
@@ -692,6 +867,56 @@ export type Database = {
           nome?: string
         }
         Relationships: []
+      }
+      tentativas_avaliacoes: {
+        Row: {
+          aprovado: boolean
+          avaliacao_id: string
+          created_at: string | null
+          finalizado_em: string | null
+          id: string
+          iniciado_em: string | null
+          nota: number
+          pontos_ganhos: number | null
+          respostas: Json
+          tempo_gasto: number | null
+          user_id: string
+        }
+        Insert: {
+          aprovado: boolean
+          avaliacao_id: string
+          created_at?: string | null
+          finalizado_em?: string | null
+          id?: string
+          iniciado_em?: string | null
+          nota: number
+          pontos_ganhos?: number | null
+          respostas: Json
+          tempo_gasto?: number | null
+          user_id: string
+        }
+        Update: {
+          aprovado?: boolean
+          avaliacao_id?: string
+          created_at?: string | null
+          finalizado_em?: string | null
+          id?: string
+          iniciado_em?: string | null
+          nota?: number
+          pontos_ganhos?: number | null
+          respostas?: Json
+          tempo_gasto?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tentativas_avaliacoes_avaliacao_id_fkey"
+            columns: ["avaliacao_id"]
+            isOneToOne: false
+            referencedRelation: "avaliacoes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       turmas: {
         Row: {
@@ -917,6 +1142,18 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      marcar_conteudo_estudado: {
+        Args: {
+          p_concluir?: boolean
+          p_conteudo_id: string
+          p_tempo_minutos?: number
+        }
+        Returns: undefined
+      }
+      marcar_revisao: {
+        Args: { p_conteudo_id: string }
+        Returns: undefined
       }
       verificar_badges: {
         Args: { p_user_id: string }

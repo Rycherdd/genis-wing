@@ -23,6 +23,7 @@ import Agenda from "./pages/Agenda";
 import FormulariosAulas from "./pages/FormulariosAulas";
 import FormulariosAluno from "./pages/FormulariosAluno";
 import Gamificacao from "./pages/Gamificacao";
+import ConteudosComplementares from "./pages/ConteudosComplementares";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -57,6 +58,7 @@ function AppRoutes() {
       <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
       <Route path="/meu-progresso" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MeuProgresso /></Layout></ProtectedRoute>} />
       <Route path="/formularios-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><FormulariosAluno /></Layout></ProtectedRoute>} />
+      <Route path="/conteudos" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><ConteudosComplementares /></Layout></ProtectedRoute>} />
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
       
       {/* Gamification - accessible to all */}
