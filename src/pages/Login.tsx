@@ -53,7 +53,7 @@ export default function Login() {
                 <GraduationCap className="h-8 w-8" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold mb-4">Genis - Gestão de Professores</h1>
+            <h1 className="text-4xl font-bold mb-4">Genis Hub</h1>
             <p className="text-xl mb-2 text-white/90">Sistema de Gestão de Professores</p>
             <p className="text-lg mb-6 text-white/80 font-medium">Para uso interno exclusivo</p>
             <div className="mb-6 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
@@ -75,7 +75,7 @@ export default function Login() {
                 <GraduationCap className="h-6 w-6" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold">Genis - Gestão de Professores</h1>
+            <h1 className="text-2xl font-bold">Genis Hub</h1>
             <p className="text-muted-foreground">Sistema de Gestão de Professores</p>
             <p className="text-sm text-muted-foreground/80 mt-1">Para uso interno exclusivo</p>
           </div>
@@ -189,7 +189,7 @@ export default function Login() {
 
           {/* Footer */}
           <div className="text-center text-xs text-muted-foreground">
-            <p>© 2024 Genis - Gestão de Professores. Todos os direitos reservados.</p>
+            <p>© 2024 Genis Hub. Todos os direitos reservados.</p>
             <div className="flex justify-center gap-4 mt-2">
               <Button variant="link" className="p-0 text-xs text-muted-foreground">
                 Termos de Uso
