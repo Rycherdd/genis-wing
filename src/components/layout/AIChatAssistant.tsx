@@ -35,12 +35,12 @@ export function AIChatAssistant() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`,
+        `https://kgkjrxwoojykdebtgutf.supabase.co/functions/v1/chat-assistant`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtna2pyeHdvb2p5a2RlYnRndXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNzY2OTcsImV4cCI6MjA3Mzk1MjY5N30.MJRmYLNO7Cwfg_rhLza1ukwS-h5jLSKYTaYZ7VSfF-g`,
           },
           body: JSON.stringify({ messages: newMessages }),
         }
