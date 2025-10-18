@@ -1,4 +1,3 @@
-import { Layout } from "@/components/layout/Layout";
 import { useGamification } from "@/hooks/useGamification";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { GamificationCard } from "@/components/gamification/GamificationCard";
@@ -17,22 +16,19 @@ export default function Gamificacao() {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-64" />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
-          </div>
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -134,6 +130,5 @@ export default function Gamificacao() {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 }
