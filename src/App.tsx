@@ -24,6 +24,7 @@ import FormulariosAulas from "./pages/FormulariosAulas";
 import FormulariosAluno from "./pages/FormulariosAluno";
 import Gamificacao from "./pages/Gamificacao";
 import ConteudosComplementares from "./pages/ConteudosComplementares";
+import GerenciarConteudos from "./pages/GerenciarConteudos";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ function AppRoutes() {
       <Route path="/presenca" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Presenca /></Layout></ProtectedRoute>} />
       <Route path="/agenda" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Agenda /></Layout></ProtectedRoute>} />
       <Route path="/formularios" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><FormulariosAulas /></Layout></ProtectedRoute>} />
+      <Route path="/gerenciar-conteudos" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><GerenciarConteudos /></Layout></ProtectedRoute>} />
       
       {/* All authenticated users */}
       <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />

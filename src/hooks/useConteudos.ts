@@ -7,7 +7,7 @@ export interface ConteudoComplementar {
   id: string;
   titulo: string;
   descricao: string | null;
-  tipo: 'video' | 'texto' | 'pdf' | 'link' | 'slides';
+  tipo: 'video' | 'texto' | 'pdf' | 'link' | 'slides' | 'exercicio_video';
   conteudo: string;
   turma_id: string | null;
   modulo: string | null;
@@ -48,7 +48,7 @@ export function useConteudos(turmaId?: string) {
         .order('created_at', { ascending: false });
 
       if (turmaId) {
-        query = query.eq('turma_id', turmaId);
+        query = query.or(`turma_id.eq.${turmaId},turma_id.is.null`);
       }
 
       const { data: conteudosData, error: conteudosError } = await query;
