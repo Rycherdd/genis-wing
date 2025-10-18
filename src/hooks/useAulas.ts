@@ -34,8 +34,8 @@ export function useAulas() {
         .from('aulas_agendadas')
         .select(`
           *,
-          professores!professor_id (nome),
-          turmas!turma_id (nome)
+          professores!aulas_agendadas_professor_id_fkey (nome),
+          turmas!aulas_agendadas_turma_id_fkey (nome)
         `)
         .order('data', { ascending: false })
         .order('horario_inicio', { ascending: false });
@@ -75,8 +75,8 @@ export function useAulas() {
         })
         .select(`
           *,
-          professores!professor_id (nome),
-          turmas!turma_id (nome)
+          professores!aulas_agendadas_professor_id_fkey (nome),
+          turmas!aulas_agendadas_turma_id_fkey (nome)
         `)
         .single();
 
@@ -121,8 +121,8 @@ export function useAulas() {
         .eq('user_id', user.id)
         .select(`
           *,
-          professores!professor_id (nome),
-          turmas!turma_id (nome)
+          professores!aulas_agendadas_professor_id_fkey (nome),
+          turmas!aulas_agendadas_turma_id_fkey (nome)
         `)
         .single();
 

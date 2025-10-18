@@ -42,8 +42,8 @@ export function useAgenda() {
           descricao,
           local,
           status,
-          turmas!turma_id (nome),
-          professores!professor_id (nome)
+          turmas!aulas_agendadas_turma_id_fkey (nome),
+          professores!aulas_agendadas_professor_id_fkey (nome)
         `)
         .order('data', { ascending: true })
         .order('horario_inicio', { ascending: true });
