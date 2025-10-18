@@ -18,15 +18,16 @@ export function VideoPlayer({ url, titulo }: VideoPlayerProps) {
   if (youtubeId) {
     return (
       <Card className="overflow-hidden">
-        <div className="aspect-video">
+        <div className="aspect-video bg-black">
           <iframe
             width="100%"
             height="100%"
-            src={`https://www.youtube.com/embed/${youtubeId}`}
+            src={`https://www.youtube.com/embed/${youtubeId}?modestbranding=1&rel=0&showinfo=0`}
             title={titulo}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
-            className="w-full h-full"
+            className="w-full h-full border-0"
+            style={{ border: 0 }}
           />
         </div>
       </Card>
