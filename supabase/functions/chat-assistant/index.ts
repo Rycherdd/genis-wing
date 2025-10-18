@@ -254,21 +254,26 @@ Sua função é ajudar os usuários a entender como usar o sistema, responder d�
 
       // Se não há tool calls, retornar a resposta
       if (!assistantMessage.tool_calls) {
-        // Fazer streaming da resposta final
-        const streamResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENAI_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "gpt-4o-mini",
-            messages: conversationMessages,
-            stream: true,
-          }),
+        const content = assistantMessage.content;
+        
+        // Criar stream simulado para manter compatibilidade com o frontend
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream({
+          start(controller) {
+            const lines = [
+              `data: ${JSON.stringify({ choices: [{ delta: { role: 'assistant', content: '' } }] })}\n\n`,
+              `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`,
+              'data: [DONE]\n\n'
+            ];
+            
+            for (const line of lines) {
+              controller.enqueue(encoder.encode(line));
+            }
+            controller.close();
+          }
         });
 
-        return new Response(streamResponse.body, {
+        return new Response(stream, {
           headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
         });
       }
