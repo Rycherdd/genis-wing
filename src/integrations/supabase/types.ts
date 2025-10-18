@@ -677,6 +677,53 @@ export type Database = {
           },
         ]
       }
+      user_progress: {
+        Row: {
+          aulas_assistidas: number | null
+          created_at: string | null
+          formularios_respondidos: number | null
+          horas_aprendizado: number | null
+          id: string
+          taxa_presenca: number | null
+          turma_id: string
+          ultima_atividade: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          aulas_assistidas?: number | null
+          created_at?: string | null
+          formularios_respondidos?: number | null
+          horas_aprendizado?: number | null
+          id?: string
+          taxa_presenca?: number | null
+          turma_id: string
+          ultima_atividade?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          aulas_assistidas?: number | null
+          created_at?: string | null
+          formularios_respondidos?: number | null
+          horas_aprendizado?: number | null
+          id?: string
+          taxa_presenca?: number | null
+          turma_id?: string
+          ultima_atividade?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           assigned_at: string | null

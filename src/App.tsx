@@ -17,6 +17,7 @@ import Avisos from "./pages/Avisos";
 import Alunos from "./pages/Alunos";
 import Presenca from "./pages/Presenca";
 import MinhasPresencas from "./pages/MinhasPresencas";
+import MeuProgresso from "./pages/MeuProgresso";
 import GerenciarConvites from "./pages/GerenciarConvites";
 import GerenciarUsuarios from "./pages/GerenciarUsuarios";
 import Agenda from "./pages/Agenda";
@@ -54,6 +55,7 @@ function AppRoutes() {
       {/* Student Routes */}
       <Route path="/aulas-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><AulasAluno /></Layout></ProtectedRoute>} />
       <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
+      <Route path="/meu-progresso" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MeuProgresso /></Layout></ProtectedRoute>} />
       <Route path="/formularios-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><FormulariosAluno /></Layout></ProtectedRoute>} />
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
       
