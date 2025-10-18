@@ -154,6 +154,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "aulas_agendadas_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "professores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aulas_agendadas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_aulas_agendadas_professor"
             columns: ["professor_id"]
             isOneToOne: false
