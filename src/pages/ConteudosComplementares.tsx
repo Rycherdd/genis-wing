@@ -5,24 +5,42 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useConteudos } from "@/hooks/useConteudos";
 import { useAvaliacoes } from "@/hooks/useAvaliacoes";
-import { BookOpen, Clock, CheckCircle, RefreshCw, Play, FileText, Video, Link2, FileSpreadsheet, Trophy } from "lucide-react";
+import { BookOpen, Clock, CheckCircle, RefreshCw, Play, FileText, Video, Link2, FileSpreadsheet, Trophy, Mic } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { VideoPlayer } from "@/components/conteudos/VideoPlayer";
+import { VideoRecorder } from "@/components/conteudos/VideoRecorder";
+import { AvaliacaoDialog } from "@/components/conteudos/AvaliacaoDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ConteudosComplementares() {
   const { conteudos, progressos, loading, marcarComoEstudado, marcarRevisao } = useConteudos();
   const { avaliacoes, tentativas } = useAvaliacoes();
   const [conteudoSelecionado, setConteudoSelecionado] = useState<string | null>(null);
+  const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const getIconByTipo = (tipo: string) => {
     switch (tipo) {
       case 'video': return <Video className="h-5 w-5" />;
+      case 'exercicio_video': return <Mic className="h-5 w-5" />;
       case 'pdf': return <FileText className="h-5 w-5" />;
       case 'link': return <Link2 className="h-5 w-5" />;
       case 'slides': return <FileSpreadsheet className="h-5 w-5" />;
       default: return <BookOpen className="h-5 w-5" />;
     }
+  };
+
+  const handleVideoComplete = async (conteudoId: string, blob: Blob) => {
+    // Aqui você pode fazer upload para Supabase Storage se necessário
+    toast({
+      title: "Gravação enviada!",
+      description: "Sua apresentação foi salva com sucesso.",
+    });
+    
+    await marcarComoEstudado(conteudoId, true);
+    setConteudoSelecionado(null);
   };
 
   const getStatusBadge = (conteudoId: string) => {
@@ -265,6 +283,7 @@ export default function ConteudosComplementares() {
                         <Button 
                           className="w-full"
                           disabled={minhasTentativas.length >= avaliacao.tentativas_permitidas}
+                          onClick={() => setAvaliacaoSelecionada(avaliacao.id)}
                         >
                           {minhasTentativas.length >= avaliacao.tentativas_permitidas
                             ? 'Tentativas esgotadas'
@@ -293,48 +312,73 @@ export default function ConteudosComplementares() {
                   <p className="text-muted-foreground">{conteudoAtual.descricao}</p>
                 )}
 
-                {/* Aqui você pode renderizar o conteúdo baseado no tipo */}
-                <div className="border rounded-lg p-4 bg-muted/50">
+                <div className="space-y-4">
                   {conteudoAtual.tipo === 'video' && (
-                    <div className="aspect-video bg-black rounded flex items-center justify-center">
-                      <p className="text-white">Player de vídeo: {conteudoAtual.conteudo}</p>
+                    <VideoPlayer url={conteudoAtual.conteudo} titulo={conteudoAtual.titulo} />
+                  )}
+                  
+                  {conteudoAtual.tipo === 'exercicio_video' && (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-muted rounded-lg">
+                        <h4 className="font-semibold mb-2">Instruções:</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {conteudoAtual.conteudo}
+                        </p>
+                      </div>
+                      <VideoRecorder 
+                        onComplete={(blob) => handleVideoComplete(conteudoAtual.id, blob)}
+                        maxDuration={conteudoAtual.duracao_estimada ? conteudoAtual.duracao_estimada * 60 : 120}
+                      />
                     </div>
                   )}
+                  
                   {conteudoAtual.tipo === 'link' && (
                     <a href={conteudoAtual.conteudo} target="_blank" rel="noopener noreferrer" className="text-primary underline">
                       Abrir link externo
                     </a>
                   )}
+                  
                   {conteudoAtual.tipo === 'texto' && (
-                    <div className="prose max-w-none">
+                    <div className="prose max-w-none p-4 border rounded-lg">
                       <p>{conteudoAtual.conteudo}</p>
                     </div>
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <Button 
-                    className="flex-1"
-                    onClick={() => {
-                      marcarComoEstudado(conteudoAtual.id, true);
-                      setConteudoSelecionado(null);
-                    }}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Marcar como Concluído
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setConteudoSelecionado(null)}
-                  >
-                    Fechar
-                  </Button>
-                </div>
+                {conteudoAtual.tipo !== 'exercicio_video' && (
+                  <div className="flex gap-2">
+                    <Button 
+                      className="flex-1"
+                      onClick={() => {
+                        marcarComoEstudado(conteudoAtual.id, true);
+                        setConteudoSelecionado(null);
+                      }}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Marcar como Concluído
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setConteudoSelecionado(null)}
+                    >
+                      Fechar
+                    </Button>
+                  </div>
+                )}
               </div>
             </>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Avaliação */}
+      {avaliacaoSelecionada && (
+        <AvaliacaoDialog
+          open={!!avaliacaoSelecionada}
+          onOpenChange={(open) => !open && setAvaliacaoSelecionada(null)}
+          avaliacaoId={avaliacaoSelecionada}
+        />
+      )}
     </div>
   );
 }
