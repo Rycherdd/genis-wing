@@ -35,7 +35,7 @@ export function useRoleNavigation() {
         { label: 'Dashboard', icon: 'Home', url: '/' },
         { label: 'Gerenciar Usuários', icon: 'Settings', url: '/gerenciar-usuarios' },
         { label: 'Gerenciar Convites', icon: 'Mail', url: '/gerenciar-convites' },
-        { label: 'Professores', icon: 'Users', url: '/professores' },
+        { label: 'Mentores', icon: 'Users', url: '/professores' },
         { label: 'Alunos', icon: 'Users', url: '/alunos' },
         { label: 'Gerenciar Turmas', icon: 'BookOpen', url: '/turmas' },
         { label: 'Visualizar Turmas', icon: 'GraduationCap', url: '/turmas-aluno' },
