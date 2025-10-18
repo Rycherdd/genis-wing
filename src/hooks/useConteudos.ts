@@ -64,7 +64,10 @@ export function useConteudos(turmaId?: string) {
         .select('*')
         .eq('user_id', user.id);
 
-      if (progressosError) throw progressosError;
+      if (progressosError) {
+        console.error('Erro ao buscar progressos:', progressosError);
+        // Não bloquear se erro no progresso
+      }
 
       const progressosMap = new Map(
         progressosData?.map((p) => [p.conteudo_id, p as ProgressoConteudo]) || []
