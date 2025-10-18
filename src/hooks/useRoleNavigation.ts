@@ -9,6 +9,7 @@ export function useRoleNavigation() {
     if (userRole === 'aluno') {
       return [
         { label: 'Meu Progresso', icon: 'CheckCircle', url: '/meu-progresso' },
+        { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
         { label: 'Próximas Aulas', icon: 'BookOpen', url: '/aulas-aluno' },
         { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
         { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },

@@ -22,6 +22,7 @@ import GerenciarUsuarios from "./pages/GerenciarUsuarios";
 import Agenda from "./pages/Agenda";
 import FormulariosAulas from "./pages/FormulariosAulas";
 import FormulariosAluno from "./pages/FormulariosAluno";
+import Gamificacao from "./pages/Gamificacao";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -56,6 +57,7 @@ function AppRoutes() {
       <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
       <Route path="/meu-progresso" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MeuProgresso /></Layout></ProtectedRoute>} />
       <Route path="/formularios-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><FormulariosAluno /></Layout></ProtectedRoute>} />
+      <Route path="/gamificacao" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><Gamificacao /></Layout></ProtectedRoute>} />
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

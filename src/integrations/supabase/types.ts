@@ -265,6 +265,42 @@ export type Database = {
           },
         ]
       }
+      badges: {
+        Row: {
+          cor: string | null
+          created_at: string | null
+          descricao: string
+          icone: string
+          id: string
+          nome: string
+          pontos_bonus: number | null
+          requisito: Json
+          tipo: string
+        }
+        Insert: {
+          cor?: string | null
+          created_at?: string | null
+          descricao: string
+          icone: string
+          id?: string
+          nome: string
+          pontos_bonus?: number | null
+          requisito: Json
+          tipo: string
+        }
+        Update: {
+          cor?: string | null
+          created_at?: string | null
+          descricao?: string
+          icone?: string
+          id?: string
+          nome?: string
+          pontos_bonus?: number | null
+          requisito?: Json
+          tipo?: string
+        }
+        Relationships: []
+      }
       convites: {
         Row: {
           accepted_at: string | null
@@ -429,6 +465,36 @@ export type Database = {
           objetivo?: string | null
           ordem?: number
           titulo?: string
+        }
+        Relationships: []
+      }
+      pontos_historico: {
+        Row: {
+          created_at: string | null
+          id: string
+          motivo: string
+          pontos: number
+          referencia_id: string | null
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          motivo: string
+          pontos: number
+          referencia_id?: string | null
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          motivo?: string
+          pontos?: number
+          referencia_id?: string | null
+          tipo?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -677,6 +743,80 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          conquistado_em: string | null
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          conquistado_em?: string | null
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          conquistado_em?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_gamification: {
+        Row: {
+          created_at: string | null
+          id: string
+          melhor_streak: number | null
+          nivel: number | null
+          pontos_totais: number | null
+          streak_atual: number | null
+          ultima_atividade: string | null
+          updated_at: string | null
+          user_id: string
+          xp_atual: number | null
+          xp_proximo_nivel: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          melhor_streak?: number | null
+          nivel?: number | null
+          pontos_totais?: number | null
+          streak_atual?: number | null
+          ultima_atividade?: string | null
+          updated_at?: string | null
+          user_id: string
+          xp_atual?: number | null
+          xp_proximo_nivel?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          melhor_streak?: number | null
+          nivel?: number | null
+          pontos_totais?: number | null
+          streak_atual?: number | null
+          ultima_atividade?: string | null
+          updated_at?: string | null
+          user_id?: string
+          xp_atual?: number | null
+          xp_proximo_nivel?: number | null
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           aulas_assistidas: number | null
@@ -753,6 +893,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      adicionar_pontos: {
+        Args: {
+          p_motivo: string
+          p_pontos: number
+          p_referencia_id?: string
+          p_tipo: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      atualizar_streak: {
+        Args: { p_data: string; p_user_id: string }
+        Returns: undefined
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -763,6 +917,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      verificar_badges: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
