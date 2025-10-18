@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Loader2 } from "lucide-react";
+import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Loader2, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useFormulariosAulas } from "@/hooks/useFormulariosAulas";
 import { FormularioAulaForm } from "@/components/forms/FormularioAulaForm";
+import { VerRespostasDialog } from "@/components/forms/VerRespostasDialog";
 import { Formulario } from "@/hooks/useFormulariosAulas";
 
 export default function FormulariosAulas() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingFormulario, setEditingFormulario] = useState<Formulario | undefined>(undefined);
+  const [viewingRespostas, setViewingRespostas] = useState<Formulario | null>(null);
   const { formularios, loading, deleteFormulario } = useFormulariosAulas();
 
   const filteredFormularios = formularios.filter(form =>
@@ -127,6 +129,12 @@ export default function FormulariosAulas() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
+                      onClick={() => setViewingRespostas(formulario)}
+                    >
+                      <FileCheck className="mr-2 h-4 w-4" />
+                      Ver Respostas
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
                       onClick={() => {
                         setEditingFormulario(formulario);
                         setShowForm(true);
@@ -165,6 +173,12 @@ export default function FormulariosAulas() {
           if (!open) setEditingFormulario(undefined);
         }}
         formulario={editingFormulario}
+      />
+
+      <VerRespostasDialog
+        open={!!viewingRespostas}
+        onOpenChange={(open) => !open && setViewingRespostas(null)}
+        formulario={viewingRespostas}
       />
     </div>
   );
