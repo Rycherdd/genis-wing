@@ -21,6 +21,30 @@ export default function ConteudosComplementares() {
   const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState<string | null>(null);
   const { toast } = useToast();
 
+  const verificarSePassouAvaliacao = (conteudo: any) => {
+    if (!conteudo.avaliacao_id) return true;
+    
+    const minhasTentativas = tentativas.get(conteudo.avaliacao_id) || [];
+    return minhasTentativas.some(t => t.aprovado);
+  };
+
+  const handleConcluir = async (conteudoId: string) => {
+    const conteudo = conteudos.find(c => c.id === conteudoId);
+    
+    if (conteudo?.avaliacao_id && !verificarSePassouAvaliacao(conteudo)) {
+      toast({
+        title: "Avaliação necessária!",
+        description: "Você precisa passar na avaliação antes de concluir este conteúdo.",
+        variant: "destructive",
+      });
+      setAvaliacaoSelecionada(conteudo.avaliacao_id);
+      return;
+    }
+
+    await marcarComoEstudado(conteudoId, true);
+    setConteudoSelecionado(null);
+  };
+
   const getIconByTipo = (tipo: string) => {
     switch (tipo) {
       case 'video': return <Video className="h-5 w-5" />;
@@ -150,6 +174,9 @@ export default function ConteudosComplementares() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {conteudos.map((conteudo) => {
                 const progresso = progressos.get(conteudo.id);
+                const temAvaliacao = !!conteudo.avaliacao_id;
+                const passouAvaliacao = verificarSePassouAvaliacao(conteudo);
+                
                 return (
                   <Card key={conteudo.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
@@ -178,6 +205,14 @@ export default function ConteudosComplementares() {
                             {conteudo.pontos_estudo} pts
                           </div>
                         </div>
+
+                        {temAvaliacao && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <Badge variant={passouAvaliacao ? "default" : "secondary"}>
+                              {passouAvaliacao ? "✓ Avaliação concluída" : "🎯 Requer avaliação"}
+                            </Badge>
+                          </div>
+                        )}
 
                         {progresso && (
                           <div className="text-sm">
@@ -347,16 +382,23 @@ export default function ConteudosComplementares() {
 
                 {(conteudoAtual.tipo as string) !== 'exercicio_video' && (
                   <div className="flex gap-2">
-                    <Button 
-                      className="flex-1"
-                      onClick={() => {
-                        marcarComoEstudado(conteudoAtual.id, true);
-                        setConteudoSelecionado(null);
-                      }}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Marcar como Concluído
-                    </Button>
+                    {conteudoAtual.avaliacao_id && !verificarSePassouAvaliacao(conteudoAtual) ? (
+                      <Button 
+                        className="flex-1"
+                        onClick={() => setAvaliacaoSelecionada(conteudoAtual.avaliacao_id!)}
+                      >
+                        <Trophy className="h-4 w-4 mr-2" />
+                        Fazer Avaliação para Concluir
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="flex-1"
+                        onClick={() => handleConcluir(conteudoAtual.id)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Marcar como Concluído
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       onClick={() => setConteudoSelecionado(null)}

@@ -16,6 +16,7 @@ export interface ConteudoComplementar {
   pontos_estudo: number;
   pontos_revisao: number;
   created_at: string;
+  avaliacao_id: string | null;
 }
 
 export interface ProgressoConteudo {

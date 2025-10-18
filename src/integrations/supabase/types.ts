@@ -369,6 +369,7 @@ export type Database = {
       }
       conteudos_complementares: {
         Row: {
+          avaliacao_id: string | null
           conteudo: string
           created_at: string | null
           created_by: string
@@ -385,6 +386,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          avaliacao_id?: string | null
           conteudo: string
           created_at?: string | null
           created_by: string
@@ -401,6 +403,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          avaliacao_id?: string | null
           conteudo?: string
           created_at?: string | null
           created_by?: string
@@ -417,6 +420,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "conteudos_complementares_avaliacao_id_fkey"
+            columns: ["avaliacao_id"]
+            isOneToOne: false
+            referencedRelation: "avaliacoes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conteudos_complementares_turma_id_fkey"
             columns: ["turma_id"]

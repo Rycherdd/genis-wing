@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAvaliacoes } from "@/hooks/useAvaliacoes";
 
 interface ConteudoFormProps {
   open: boolean;
@@ -18,6 +19,7 @@ interface ConteudoFormProps {
 export function ConteudoForm({ open, onOpenChange, onSuccess }: ConteudoFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { avaliacoes } = useAvaliacoes();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     titulo: "",
@@ -29,6 +31,7 @@ export function ConteudoForm({ open, onOpenChange, onSuccess }: ConteudoFormProp
     pontos_revisao: "10",
     modulo: "",
     tags: "",
+    avaliacao_id: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,6 +49,7 @@ export function ConteudoForm({ open, onOpenChange, onSuccess }: ConteudoFormProp
         pontos_revisao: parseInt(formData.pontos_revisao),
         modulo: formData.modulo || null,
         tags: formData.tags ? formData.tags.split(",").map(t => t.trim()) : null,
+        avaliacao_id: formData.avaliacao_id || null,
         created_by: user!.id,
       });
 
@@ -66,6 +70,7 @@ export function ConteudoForm({ open, onOpenChange, onSuccess }: ConteudoFormProp
         pontos_revisao: "10",
         modulo: "",
         tags: "",
+        avaliacao_id: "",
       });
 
       onSuccess();
@@ -211,6 +216,29 @@ export function ConteudoForm({ open, onOpenChange, onSuccess }: ConteudoFormProp
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
               placeholder="oratória, comunicação, técnicas"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="avaliacao">Avaliação Obrigatória (Opcional)</Label>
+            <Select 
+              value={formData.avaliacao_id} 
+              onValueChange={(value) => setFormData({ ...formData, avaliacao_id: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Nenhuma avaliação" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Nenhuma avaliação</SelectItem>
+                {avaliacoes.map((av) => (
+                  <SelectItem key={av.id} value={av.id}>
+                    {av.titulo}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Se selecionada, o aluno precisará passar na avaliação para concluir o conteúdo
+            </p>
           </div>
 
           <div className="flex gap-2">
