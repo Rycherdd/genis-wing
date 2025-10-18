@@ -53,9 +53,8 @@ export default function Login() {
                 <GraduationCap className="h-8 w-8" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold mb-4">Genis Hub</h1>
-            <p className="text-xl mb-2 text-white/90">Sistema de Gestão de Professores</p>
-            <p className="text-lg mb-6 text-white/80 font-medium">Para uso interno exclusivo</p>
+            <h1 className="text-4xl font-bold mb-4">Genis Hub - Gestão Educacional</h1>
+            <p className="text-xl mb-2 text-white/90">Sistema interno exclusivo para alunos, empresas e mentores Genis</p>
             <div className="mb-6 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
               <p className="text-white font-semibold text-center">
                 "Genis Hub - onde a comunicação encontra a genialidade"
@@ -75,9 +74,8 @@ export default function Login() {
                 <GraduationCap className="h-6 w-6" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold">Genis Hub</h1>
-            <p className="text-muted-foreground">Sistema de Gestão de Professores</p>
-            <p className="text-sm text-muted-foreground/80 mt-1">Para uso interno exclusivo</p>
+            <h1 className="text-2xl font-bold">Genis Hub - Gestão Educacional</h1>
+            <p className="text-muted-foreground">Sistema interno exclusivo para alunos, empresas e mentores Genis</p>
           </div>
 
           <Card className="bg-gradient-to-br from-card to-card/50 shadow-large border border-primary/10 backdrop-blur-sm">
