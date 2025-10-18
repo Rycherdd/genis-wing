@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function GerenciarConteudos() {
   const { conteudos, loading, refetch } = useConteudos();
-  const { avaliacoes, loading: loadingAvaliacoes, refetch: refetchAvaliacoes } = useAvaliacoes();
+  const { avaliacoes, loading: loadingAvaliacoes, refetch: refetchAvaliacoes } = useAvaliacoes(undefined, false);
   const [showConteudoForm, setShowConteudoForm] = useState(false);
   const [showAvaliacaoForm, setShowAvaliacaoForm] = useState(false);
   const { toast } = useToast();

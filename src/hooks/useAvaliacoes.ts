@@ -35,7 +35,7 @@ export interface TentativaAvaliacao {
   finalizado_em: string | null;
 }
 
-export function useAvaliacoes(turmaId?: string) {
+export function useAvaliacoes(turmaId?: string, apenasAtivas: boolean = true) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
@@ -51,8 +51,11 @@ export function useAvaliacoes(turmaId?: string) {
       let query = supabase
         .from('avaliacoes')
         .select('*')
-        .eq('ativa', true)
         .order('created_at', { ascending: false });
+      
+      if (apenasAtivas) {
+        query = query.eq('ativa', true);
+      }
 
       if (turmaId) {
         query = query.eq('turma_id', turmaId);
@@ -149,7 +152,7 @@ export function useAvaliacoes(turmaId?: string) {
 
   useEffect(() => {
     fetchAvaliacoes();
-  }, [user, turmaId]);
+  }, [user, turmaId, apenasAtivas]);
 
   return {
     avaliacoes,
