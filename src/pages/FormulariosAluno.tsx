@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, CheckCircle2, Clock, Loader2, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -15,35 +15,99 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useFormulariosAulas, Formulario } from "@/hooks/useFormulariosAulas";
-import { useRespostasFormularios } from "@/hooks/useRespostasFormularios";
+import { useFormulariosAulas, Formulario, Resposta } from "@/hooks/useFormulariosAulas";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function FormulariosAluno() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFormulario, setSelectedFormulario] = useState<Formulario | null>(null);
   const [respostas, setRespostas] = useState<Record<string, any>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [respostasMap, setRespostasMap] = useState<Record<string, any>>({});
   
   const { formularios, loading } = useFormulariosAulas();
-  const { submitResposta, minhaResposta } = useRespostasFormularios(selectedFormulario?.id);
+  const { user } = useAuth();
 
   const filteredFormularios = formularios.filter(form =>
     form.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     form.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Buscar respostas do aluno para todos os formulários
+  useEffect(() => {
+    const fetchRespostas = async () => {
+      if (!user) return;
+      
+      try {
+        const { data: alunoData } = await supabase
+          .from('alunos')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!alunoData) return;
+
+        const { data, error } = await supabase
+          .from('respostas_formularios')
+          .select('*')
+          .eq('aluno_id', alunoData.id);
+
+        if (error) throw error;
+        
+        const map: Record<string, any> = {};
+        (data || []).forEach((resposta: any) => {
+          map[resposta.formulario_id] = resposta;
+        });
+        setRespostasMap(map);
+      } catch (error) {
+        console.error('Erro ao buscar respostas:', error);
+      }
+    };
+
+    fetchRespostas();
+  }, [user]);
+
   const handleOpenFormulario = (formulario: Formulario) => {
     setSelectedFormulario(formulario);
-    setRespostas({});
+    const minhaResposta = respostasMap[formulario.id];
+    if (minhaResposta) {
+      setRespostas(minhaResposta.respostas);
+    } else {
+      setRespostas({});
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFormulario) return;
+    if (!selectedFormulario || !user) return;
 
     setSubmitting(true);
     try {
-      await submitResposta(respostas);
+      const { data: alunoData } = await supabase
+        .from('alunos')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!alunoData) {
+        throw new Error('Aluno não encontrado');
+      }
+
+      const { data, error } = await supabase
+        .from('respostas_formularios')
+        .insert({
+          formulario_id: selectedFormulario.id,
+          aluno_id: alunoData.id,
+          respostas,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Atualizar mapa de respostas
+      setRespostasMap({ ...respostasMap, [selectedFormulario.id]: data });
       setSelectedFormulario(null);
       setRespostas({});
     } catch (error) {
@@ -85,7 +149,7 @@ export default function FormulariosAluno() {
       {/* Formulários List */}
       <div className="grid gap-4">
         {filteredFormularios.map((formulario) => {
-          const jaRespondido = false; // TODO: Verificar se já respondeu
+          const jaRespondido = !!respostasMap[formulario.id];
           
           return (
             <Card key={formulario.id}>
@@ -148,70 +212,119 @@ export default function FormulariosAluno() {
           </DialogHeader>
           
           {selectedFormulario && (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {selectedFormulario.perguntas.map((pergunta, index) => (
-                <div key={pergunta.id} className="space-y-3">
-                  <Label className="text-base">
-                    {index + 1}. {pergunta.texto}
-                    {pergunta.obrigatoria && <span className="text-destructive ml-1">*</span>}
-                  </Label>
+            <>
+              {respostasMap[selectedFormulario.id] ? (
+                // Modo visualização - já respondido
+                <div className="space-y-6">
+                  {selectedFormulario.perguntas.map((pergunta, index) => (
+                    <div key={pergunta.id} className="space-y-3">
+                      <Label className="text-base font-semibold">
+                        {index + 1}. {pergunta.texto}
+                      </Label>
+                      
+                      <div className="p-4 bg-muted rounded-lg">
+                        {pergunta.tipo === 'texto' && (
+                          <p className="whitespace-pre-wrap">{respostas[pergunta.id] || 'Sem resposta'}</p>
+                        )}
+                        
+                        {pergunta.tipo === 'multipla_escolha' && (
+                          <p className="font-medium">{respostas[pergunta.id] || 'Sem resposta'}</p>
+                        )}
+                        
+                        {pergunta.tipo === 'nota' && (
+                          <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((nota) => (
+                              <div 
+                                key={nota} 
+                                className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                                  respostas[pergunta.id] === nota 
+                                    ? 'bg-primary text-primary-foreground font-bold' 
+                                    : 'bg-muted-foreground/20'
+                                }`}
+                              >
+                                {nota}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                   
-                  {pergunta.tipo === 'texto' && (
-                    <Textarea
-                      placeholder="Digite sua resposta..."
-                      value={respostas[pergunta.id] || ''}
-                      onChange={(e) => setRespostas({ ...respostas, [pergunta.id]: e.target.value })}
-                      required={pergunta.obrigatoria}
-                      rows={3}
-                    />
-                  )}
-                  
-                  {pergunta.tipo === 'multipla_escolha' && (
-                    <RadioGroup
-                      value={respostas[pergunta.id]}
-                      onValueChange={(value) => setRespostas({ ...respostas, [pergunta.id]: value })}
-                      required={pergunta.obrigatoria}
-                    >
-                      {(pergunta.opcoes || []).map((opcao, idx) => (
-                        <div key={idx} className="flex items-center space-x-2">
-                          <RadioGroupItem value={opcao} id={`${pergunta.id}-${idx}`} />
-                          <Label htmlFor={`${pergunta.id}-${idx}`} className="font-normal">
-                            {opcao}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  )}
-                  
-                  {pergunta.tipo === 'nota' && (
-                    <RadioGroup
-                      value={respostas[pergunta.id]?.toString()}
-                      onValueChange={(value) => setRespostas({ ...respostas, [pergunta.id]: parseInt(value) })}
-                      required={pergunta.obrigatoria}
-                      className="flex gap-2"
-                    >
-                      {[1, 2, 3, 4, 5].map((nota) => (
-                        <div key={nota} className="flex flex-col items-center">
-                          <RadioGroupItem value={nota.toString()} id={`${pergunta.id}-${nota}`} />
-                          <Label htmlFor={`${pergunta.id}-${nota}`} className="font-normal mt-1">
-                            {nota}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  )}
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setSelectedFormulario(null)}>
+                      Fechar
+                    </Button>
+                  </DialogFooter>
                 </div>
-              ))}
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setSelectedFormulario(null)}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? "Enviando..." : "Enviar Respostas"}
-                </Button>
-              </DialogFooter>
-            </form>
+              ) : (
+                // Modo responder - ainda não respondido
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {selectedFormulario.perguntas.map((pergunta, index) => (
+                    <div key={pergunta.id} className="space-y-3">
+                      <Label className="text-base">
+                        {index + 1}. {pergunta.texto}
+                        {pergunta.obrigatoria && <span className="text-destructive ml-1">*</span>}
+                      </Label>
+                      
+                      {pergunta.tipo === 'texto' && (
+                        <Textarea
+                          placeholder="Digite sua resposta..."
+                          value={respostas[pergunta.id] || ''}
+                          onChange={(e) => setRespostas({ ...respostas, [pergunta.id]: e.target.value })}
+                          required={pergunta.obrigatoria}
+                          rows={3}
+                        />
+                      )}
+                      
+                      {pergunta.tipo === 'multipla_escolha' && (
+                        <RadioGroup
+                          value={respostas[pergunta.id]}
+                          onValueChange={(value) => setRespostas({ ...respostas, [pergunta.id]: value })}
+                          required={pergunta.obrigatoria}
+                        >
+                          {(pergunta.opcoes || []).map((opcao, idx) => (
+                            <div key={idx} className="flex items-center space-x-2">
+                              <RadioGroupItem value={opcao} id={`${pergunta.id}-${idx}`} />
+                              <Label htmlFor={`${pergunta.id}-${idx}`} className="font-normal">
+                                {opcao}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      )}
+                      
+                      {pergunta.tipo === 'nota' && (
+                        <RadioGroup
+                          value={respostas[pergunta.id]?.toString()}
+                          onValueChange={(value) => setRespostas({ ...respostas, [pergunta.id]: parseInt(value) })}
+                          required={pergunta.obrigatoria}
+                          className="flex gap-2"
+                        >
+                          {[1, 2, 3, 4, 5].map((nota) => (
+                            <div key={nota} className="flex flex-col items-center">
+                              <RadioGroupItem value={nota.toString()} id={`${pergunta.id}-${nota}`} />
+                              <Label htmlFor={`${pergunta.id}-${nota}`} className="font-normal mt-1">
+                                {nota}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      )}
+                    </div>
+                  ))}
+                  
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setSelectedFormulario(null)}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={submitting}>
+                      {submitting ? "Enviando..." : "Enviar Respostas"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              )}
+            </>
           )}
         </DialogContent>
       </Dialog>
