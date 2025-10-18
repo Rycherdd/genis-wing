@@ -317,7 +317,7 @@ export default function ConteudosComplementares() {
                     <VideoPlayer url={conteudoAtual.conteudo} titulo={conteudoAtual.titulo} />
                   )}
                   
-                  {conteudoAtual.tipo === 'exercicio_video' && (
+                  {(conteudoAtual.tipo as string) === 'exercicio_video' && (
                     <div className="space-y-4">
                       <div className="p-4 bg-muted rounded-lg">
                         <h4 className="font-semibold mb-2">Instruções:</h4>
@@ -345,7 +345,7 @@ export default function ConteudosComplementares() {
                   )}
                 </div>
 
-                {conteudoAtual.tipo !== 'exercicio_video' && (
+                {(conteudoAtual.tipo as string) !== 'exercicio_video' && (
                   <div className="flex gap-2">
                     <Button 
                       className="flex-1"

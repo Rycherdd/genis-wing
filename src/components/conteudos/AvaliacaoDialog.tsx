@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, XCircle, Trophy } from "lucide-react";
-import { useAvaliacoes } from "@/hooks/useAvaliacoes";
+import { useAvaliacoes, type Questao } from "@/hooks/useAvaliacoes";
 import { useToast } from "@/hooks/use-toast";
 
 interface AvaliacaoDialogProps {
@@ -20,25 +19,35 @@ export function AvaliacaoDialog({ open, onOpenChange, avaliacaoId }: AvaliacaoDi
   const { avaliacoes, submeterAvaliacao } = useAvaliacoes();
   const avaliacao = avaliacoes.find(a => a.id === avaliacaoId);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [respostas, setRespostas] = useState<Record<number, string>>({});
+  const [respostas, setRespostas] = useState<{ questao_id: string; resposta_escolhida: number }[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [resultado, setResultado] = useState<{ nota: number; aprovado: boolean } | null>(null);
+  const [startTime] = useState(Date.now());
   const { toast } = useToast();
 
   if (!avaliacao) return null;
 
-  const questoes = avaliacao.questoes as Array<{
-    pergunta: string;
-    tipo: 'multipla_escolha' | 'dissertativa';
-    opcoes?: string[];
-    resposta_correta?: string;
-  }>;
+  const questoes = avaliacao.questoes as Questao[];
 
-  const handleResposta = (valor: string) => {
-    setRespostas(prev => ({
-      ...prev,
-      [currentQuestion]: valor
-    }));
+  const handleResposta = (opcaoIndex: number) => {
+    setRespostas(prev => {
+      const existingIndex = prev.findIndex(r => r.questao_id === questoes[currentQuestion].id);
+      const newResposta = {
+        questao_id: questoes[currentQuestion].id,
+        resposta_escolhida: opcaoIndex
+      };
+
+      if (existingIndex >= 0) {
+        const updated = [...prev];
+        updated[existingIndex] = newResposta;
+        return updated;
+      }
+      return [...prev, newResposta];
+    });
+  };
+
+  const getResposta = () => {
+    return respostas.find(r => r.questao_id === questoes[currentQuestion].id)?.resposta_escolhida;
   };
 
   const handleNext = () => {
@@ -54,31 +63,15 @@ export function AvaliacaoDialog({ open, onOpenChange, avaliacaoId }: AvaliacaoDi
   };
 
   const handleSubmit = async () => {
-    // Calcular nota
-    let corretas = 0;
-    questoes.forEach((questao, index) => {
-      if (questao.tipo === 'multipla_escolha' && questao.resposta_correta) {
-        if (respostas[index] === questao.resposta_correta) {
-          corretas++;
-        }
-      }
-    });
-
-    const nota = (corretas / questoes.length) * 100;
-    const aprovado = nota >= (avaliacao.nota_minima || 60);
+    const tempoGasto = Math.floor((Date.now() - startTime) / 1000);
 
     try {
-      await submeterAvaliacao(avaliacaoId, respostas, nota, aprovado);
-      setResultado({ nota, aprovado });
-      setShowResult(true);
-
-      toast({
-        title: aprovado ? "Parabéns!" : "Não foi dessa vez",
-        description: aprovado 
-          ? `Você foi aprovado com ${nota.toFixed(1)}%!` 
-          : `Você obteve ${nota.toFixed(1)}%. Nota mínima: ${avaliacao.nota_minima}%`,
-        variant: aprovado ? "default" : "destructive"
-      });
+      const result = await submeterAvaliacao(avaliacaoId, respostas, tempoGasto);
+      
+      if (result) {
+        setResultado(result);
+        setShowResult(true);
+      }
     } catch (error) {
       toast({
         title: "Erro",
@@ -90,7 +83,7 @@ export function AvaliacaoDialog({ open, onOpenChange, avaliacaoId }: AvaliacaoDi
 
   const handleClose = () => {
     setCurrentQuestion(0);
-    setRespostas({});
+    setRespostas([]);
     setShowResult(false);
     setResultado(null);
     onOpenChange(false);
@@ -164,35 +157,24 @@ export function AvaliacaoDialog({ open, onOpenChange, avaliacaoId }: AvaliacaoDi
             <CardContent className="p-6 space-y-4">
               <h3 className="font-semibold text-lg">{questaoAtual.pergunta}</h3>
 
-              {questaoAtual.tipo === 'multipla_escolha' && questaoAtual.opcoes && (
-                <RadioGroup
-                  value={respostas[currentQuestion] || ''}
-                  onValueChange={handleResposta}
-                >
-                  <div className="space-y-3">
-                    {questaoAtual.opcoes.map((opcao, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <RadioGroupItem value={opcao} id={`q${currentQuestion}-${index}`} />
-                        <Label 
-                          htmlFor={`q${currentQuestion}-${index}`}
-                          className="flex-1 cursor-pointer p-3 rounded border hover:bg-muted/50"
-                        >
-                          {opcao}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </RadioGroup>
-              )}
-
-              {questaoAtual.tipo === 'dissertativa' && (
-                <Textarea
-                  value={respostas[currentQuestion] || ''}
-                  onChange={(e) => handleResposta(e.target.value)}
-                  placeholder="Digite sua resposta aqui..."
-                  rows={6}
-                />
-              )}
+              <RadioGroup
+                value={getResposta()?.toString() || ''}
+                onValueChange={(value) => handleResposta(parseInt(value))}
+              >
+                <div className="space-y-3">
+                  {questaoAtual.opcoes.map((opcao, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <RadioGroupItem value={index.toString()} id={`q${currentQuestion}-${index}`} />
+                      <Label 
+                        htmlFor={`q${currentQuestion}-${index}`}
+                        className="flex-1 cursor-pointer p-3 rounded border hover:bg-muted/50"
+                      >
+                        {opcao}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </RadioGroup>
             </CardContent>
           </Card>
 
@@ -211,14 +193,14 @@ export function AvaliacaoDialog({ open, onOpenChange, avaliacaoId }: AvaliacaoDi
             {currentQuestion < questoes.length - 1 ? (
               <Button
                 onClick={handleNext}
-                disabled={!respostas[currentQuestion]}
+                disabled={getResposta() === undefined}
               >
                 Próxima
               </Button>
             ) : (
               <Button
                 onClick={handleSubmit}
-                disabled={Object.keys(respostas).length !== questoes.length}
+                disabled={respostas.length !== questoes.length}
               >
                 Finalizar Avaliação
               </Button>
