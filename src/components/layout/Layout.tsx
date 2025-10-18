@@ -1,5 +1,6 @@
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { AIChatAssistant } from "./AIChatAssistant";
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </main>
       </div>
+      <AIChatAssistant />
     </div>
   );
 }

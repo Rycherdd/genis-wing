@@ -56,7 +56,6 @@ export function useConteudos(turmaId?: string) {
 
       if (conteudosError) throw conteudosError;
 
-      console.log('Conteúdos carregados:', conteudosData);
       setConteudos(conteudosData as ConteudoComplementar[] || []);
 
       // Buscar progresso do usuário
