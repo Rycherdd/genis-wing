@@ -9,7 +9,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 
 const pageNames: Record<string, string> = {
   "/": "Dashboard",
-  "/professores": "Professores", 
+  "/professores": "Mentores", 
   "/turmas": "Turmas",
   "/turmas-aluno": "Minhas Turmas",
   "/aulas": "Aulas",
@@ -20,6 +20,13 @@ const pageNames: Record<string, string> = {
   "/gerenciar-convites": "Gerenciar Convites",
   "/gerenciar-usuarios": "Gerenciar Usuários",
   "/agenda": "Agenda",
+  "/gamificacao": "Gamificação",
+  "/avisos": "Avisos",
+  "/formularios": "Formulários",
+  "/formularios-aluno": "Meus Formulários",
+  "/meu-progresso": "Meu Progresso",
+  "/conteudos": "Conteúdos Complementares",
+  "/gerenciar-conteudos": "Gerenciar Conteúdos",
   "/login": "Login",
   "/cadastro": "Cadastro",
 };
