@@ -251,6 +251,57 @@ const handler = async (req: Request): Promise<Response> => {
             }
           );
         }
+
+        // Create corresponding record in alunos or professores table
+        if (userData.userRole === 'aluno') {
+          const { error: alunoError } = await supabase
+            .from('alunos')
+            .insert([
+              {
+                user_id: newUser.user.id,
+                nome: userData.fullName || newUser.user.email?.split('@')[0] || 'Aluno',
+                email: userData.email,
+                telefone: null
+              }
+            ]);
+
+          if (alunoError) {
+            console.error("Error creating aluno record:", alunoError);
+            return new Response(
+              JSON.stringify({ 
+                error: "User created but failed to create student profile: " + alunoError.message
+              }),
+              {
+                status: 207,
+                headers: { "Content-Type": "application/json", ...corsHeaders },
+              }
+            );
+          }
+        } else if (userData.userRole === 'professor') {
+          const { error: professorError } = await supabase
+            .from('professores')
+            .insert([
+              {
+                user_id: newUser.user.id,
+                nome: userData.fullName || newUser.user.email?.split('@')[0] || 'Professor',
+                email: userData.email,
+                telefone: null
+              }
+            ]);
+
+          if (professorError) {
+            console.error("Error creating professor record:", professorError);
+            return new Response(
+              JSON.stringify({ 
+                error: "User created but failed to create mentor profile: " + professorError.message
+              }),
+              {
+                status: 207,
+                headers: { "Content-Type": "application/json", ...corsHeaders },
+              }
+            );
+          }
+        }
       }
 
       return new Response(
