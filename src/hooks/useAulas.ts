@@ -37,8 +37,8 @@ export function useAulas() {
           professores!aulas_agendadas_professor_id_fkey (nome),
           turmas!aulas_agendadas_turma_id_fkey (nome)
         `)
-        .order('data', { ascending: false })
-        .order('horario_inicio', { ascending: false });
+        .order('data', { ascending: true })
+        .order('horario_inicio', { ascending: true });
 
       // Apenas professores (não admins) filtram por user_id
       // Alunos dependem apenas das políticas RLS
