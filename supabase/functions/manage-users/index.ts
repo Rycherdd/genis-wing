@@ -382,8 +382,14 @@ const handler = async (req: Request): Promise<Response> => {
         }
       }
 
-      // Create corresponding record in alunos or professores table
+      // Handle profile table records based on new role
       if (newRole === 'aluno') {
+        // Remove professor record if it exists
+        await supabase
+          .from('professores')
+          .delete()
+          .eq('user_id', userId);
+
         // Check if aluno record already exists
         const { data: existingAluno } = await supabase
           .from('alunos')
@@ -406,12 +412,9 @@ const handler = async (req: Request): Promise<Response> => {
 
           if (alunoError) {
             console.error("Error creating aluno record:", alunoError);
-            // Role was updated but aluno record creation failed
             return new Response(
               JSON.stringify({ 
-                success: true, 
-                warning: "Role updated but failed to create student profile",
-                message: "User role updated successfully"
+                error: "Role updated but failed to create student profile: " + alunoError.message
               }),
               {
                 status: 207,
@@ -421,6 +424,12 @@ const handler = async (req: Request): Promise<Response> => {
           }
         }
       } else if (newRole === 'professor') {
+        // Remove aluno record if it exists
+        await supabase
+          .from('alunos')
+          .delete()
+          .eq('user_id', userId);
+
         // Check if professor record already exists
         const { data: existingProfessor } = await supabase
           .from('professores')
@@ -435,7 +444,7 @@ const handler = async (req: Request): Promise<Response> => {
             .insert([
               {
                 user_id: userId,
-                nome: targetUser.user_metadata?.full_name || targetUser.email?.split('@')[0] || 'Professor',
+                nome: targetUser.user_metadata?.full_name || targetUser.email?.split('@')[0] || 'Mentor',
                 email: targetUser.email || '',
                 telefone: targetUser.user_metadata?.phone || null
               }
@@ -443,12 +452,9 @@ const handler = async (req: Request): Promise<Response> => {
 
           if (professorError) {
             console.error("Error creating professor record:", professorError);
-            // Role was updated but professor record creation failed
             return new Response(
               JSON.stringify({ 
-                success: true, 
-                warning: "Role updated but failed to create mentor profile",
-                message: "User role updated successfully"
+                error: "Role updated but failed to create mentor profile: " + professorError.message
               }),
               {
                 status: 207,
@@ -457,6 +463,17 @@ const handler = async (req: Request): Promise<Response> => {
             );
           }
         }
+      } else if (newRole === 'admin') {
+        // Admins don't need aluno or professor records, but remove them if they exist
+        await supabase
+          .from('alunos')
+          .delete()
+          .eq('user_id', userId);
+        
+        await supabase
+          .from('professores')
+          .delete()
+          .eq('user_id', userId);
       }
 
       return new Response(
