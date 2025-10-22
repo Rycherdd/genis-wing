@@ -20,6 +20,11 @@ export function AulaDetailsDialog({ open, onOpenChange, aula }: AulaDetailsDialo
     return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   };
 
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       'agendada': { variant: 'secondary' as const, label: 'Agendada' },
@@ -64,10 +69,10 @@ export function AulaDetailsDialog({ open, onOpenChange, aula }: AulaDetailsDialo
             <div>
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Professor
+                Mentor
               </label>
               <p className="mt-2 text-sm font-medium">
-                {aula.professores?.nome || "Professor não atribuído"}
+                {aula.professores?.nome || "Mentor não atribuído"}
               </p>
             </div>
             
@@ -133,11 +138,11 @@ export function AulaDetailsDialog({ open, onOpenChange, aula }: AulaDetailsDialo
           {/* Criação */}
           <div className="pt-4 border-t">
             <p className="text-xs text-muted-foreground">
-              Criada em {formatDate(aula.created_at)}
+              Criada em {formatTimestamp(aula.created_at)}
             </p>
             {aula.updated_at && aula.updated_at !== aula.created_at && (
               <p className="text-xs text-muted-foreground mt-1">
-                Última atualização em {formatDate(aula.updated_at)}
+                Última atualização em {formatTimestamp(aula.updated_at)}
               </p>
             )}
           </div>
