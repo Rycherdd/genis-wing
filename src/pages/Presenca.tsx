@@ -37,7 +37,7 @@ export default function Presenca() {
     (aula as any).professores?.nome.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Sort classes by date, with today's classes first
+  // Sort classes by date, with today's classes first, then upcoming dates
   const sortedAulas = filteredAulas.sort((a, b) => {
     const dateA = parseISO(a.data);
     const dateB = parseISO(b.data);
@@ -45,7 +45,7 @@ export default function Presenca() {
     if (isToday(dateA) && !isToday(dateB)) return -1;
     if (!isToday(dateA) && isToday(dateB)) return 1;
     
-    return dateB.getTime() - dateA.getTime();
+    return dateA.getTime() - dateB.getTime();
   });
 
   const getStatusColor = (status: string) => {
@@ -163,7 +163,7 @@ export default function Presenca() {
                         <strong>Horário:</strong> {aula.horario_inicio} - {aula.horario_fim}
                       </div>
                       <div>
-                        <strong>Professor:</strong> {(aula as any).professores?.nome}
+                        <strong>Mentor:</strong> {(aula as any).professores?.nome}
                       </div>
                       {aula.local && (
                         <div>
