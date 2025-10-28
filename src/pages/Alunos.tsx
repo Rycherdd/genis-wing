@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useAlunos } from "@/hooks/useAlunos";
+import { useAlunosUnificado } from "@/hooks/useAlunosUnificado";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMatriculas } from "@/hooks/useMatriculas";
 import { useTurmas } from "@/hooks/useTurmas";
@@ -16,7 +16,7 @@ export default function Alunos() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAlunoForm, setShowAlunoForm] = useState(false);
   const [showConviteForm, setShowConviteForm] = useState(false);
-  const { alunos, loading, deleteAluno } = useAlunos();
+  const { alunos, loading } = useAlunosUnificado();
   const { matriculas } = useMatriculas();
   const { turmas } = useTurmas();
   const { isAdmin } = useAuth();
@@ -147,19 +147,8 @@ export default function Alunos() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
                         <GraduationCap className="mr-2 h-4 w-4" />
                         Ver Turmas
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className="text-destructive"
-                        onClick={() => deleteAluno(aluno.id)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Excluir
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
