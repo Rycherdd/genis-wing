@@ -58,7 +58,7 @@ export type Database = {
           numero: number
           objetivo: string | null
           ordem: number
-          search_vector: unknown | null
+          search_vector: unknown
           titulo: string
         }
         Insert: {
@@ -74,7 +74,7 @@ export type Database = {
           numero: number
           objetivo?: string | null
           ordem: number
-          search_vector?: unknown | null
+          search_vector?: unknown
           titulo: string
         }
         Update: {
@@ -90,7 +90,7 @@ export type Database = {
           numero?: number
           objetivo?: string | null
           ordem?: number
-          search_vector?: unknown | null
+          search_vector?: unknown
           titulo?: string
         }
         Relationships: [
@@ -1161,14 +1161,8 @@ export type Database = {
         }
         Returns: undefined
       }
-      marcar_revisao: {
-        Args: { p_conteudo_id: string }
-        Returns: undefined
-      }
-      verificar_badges: {
-        Args: { p_user_id: string }
-        Returns: undefined
-      }
+      marcar_revisao: { Args: { p_conteudo_id: string }; Returns: undefined }
+      verificar_badges: { Args: { p_user_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "professor" | "aluno"
