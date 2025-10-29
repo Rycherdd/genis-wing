@@ -82,7 +82,11 @@ export function ConviteForm({ open, onOpenChange, defaultRole }: ConviteFormProp
               <SelectTrigger id="role">
                 <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent 
+                position="popper" 
+                sideOffset={5}
+                avoidCollisions={false}
+              >
                 <SelectItem value="aluno">Aluno</SelectItem>
                 <SelectItem value="professor">Professor</SelectItem>
               </SelectContent>
