@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, Send, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,19 @@ export function ConviteForm({ open, onOpenChange, defaultRole }: ConviteFormProp
   const [loading, setLoading] = useState(false);
   const { sendInvite } = useConvites();
   const { user } = useAuth();
+
+  // Reset form quando o dialog fecha
+  useEffect(() => {
+    if (!open) {
+      setEmail("");
+      setRole(defaultRole || "");
+    }
+  }, [open, defaultRole]);
+
+  // Debug log
+  useEffect(() => {
+    console.log('ConviteForm mounted - User:', user?.email, 'Role:', user?.user_metadata);
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,14 +91,21 @@ export function ConviteForm({ open, onOpenChange, defaultRole }: ConviteFormProp
 
           <div className="space-y-2">
             <Label htmlFor="role">Tipo</Label>
-            <Select value={role} onValueChange={setRole}>
+            <Select 
+              value={role} 
+              onValueChange={(value) => {
+                console.log('Role changed to:', value, 'by user:', user?.email);
+                setRole(value);
+              }}
+            >
               <SelectTrigger id="role">
                 <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
               <SelectContent 
-                position="popper" 
+                position="popper"
+                align="start"
                 sideOffset={5}
-                avoidCollisions={false}
+                className="z-[100] bg-background"
               >
                 <SelectItem value="aluno">Aluno</SelectItem>
                 <SelectItem value="professor">Professor</SelectItem>
