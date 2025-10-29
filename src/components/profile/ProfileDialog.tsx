@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Camera, Linkedin, Instagram, Phone, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,14 +26,27 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
-    full_name: profile?.full_name || "",
-    bio: profile?.bio || "",
-    linkedin_url: profile?.linkedin_url || "",
-    instagram_url: profile?.instagram_url || "",
-    phone: profile?.phone || "",
+    full_name: "",
+    bio: "",
+    linkedin_url: "",
+    instagram_url: "",
+    phone: "",
   });
 
   const [uploading, setUploading] = useState(false);
+
+  // Sincronizar formData quando o profile carregar
+  useEffect(() => {
+    if (profile && open) {
+      setFormData({
+        full_name: profile.full_name || "",
+        bio: profile.bio || "",
+        linkedin_url: profile.linkedin_url || "",
+        instagram_url: profile.instagram_url || "",
+        phone: profile.phone || "",
+      });
+    }
+  }, [profile, open]);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -72,14 +85,23 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  if (loading) {
-    return null;
-  }
-
   const getInitials = () => {
     const name = profile?.full_name || user?.email || "U";
     return name.substring(0, 2).toUpperCase();
   };
+
+  // Não renderizar se ainda está carregando
+  if (loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl">
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

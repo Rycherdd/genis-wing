@@ -31,12 +31,38 @@ export function useProfile() {
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      setProfile(data);
+      
+      // Se não existe perfil, criar um automaticamente
+      if (!data) {
+        console.log('Perfil não encontrado, criando automaticamente...');
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            full_name: user.email?.split('@')[0] || 'Usuário',
+          })
+          .select()
+          .single();
+        
+        if (createError) {
+          console.error('Erro ao criar perfil:', createError);
+          throw createError;
+        }
+        
+        setProfile(newProfile);
+      } else {
+        setProfile(data);
+      }
     } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
+      console.error('Erro ao buscar/criar perfil:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar o perfil.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
