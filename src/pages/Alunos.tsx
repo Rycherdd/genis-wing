@@ -125,66 +125,50 @@ export default function Alunos() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredAlunos.map((aluno) => {
           if (!aluno?.id || !aluno?.nome || !aluno?.email) {
-            console.error('Aluno inválido detectado:', aluno);
             return null;
           }
+          
+          const alunoTurmas = getAlunoTurmas(aluno.id);
+          const iniciais = aluno.nome.split(' ').map(n => n[0]).join('').toUpperCase();
+          
           return (
-          <Card key={aluno.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback>
-                      {aluno.nome.split(' ').map(n => n[0]).join('').toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">{aluno.nome}</h3>
-                    <p className="text-sm text-muted-foreground">Aluno</p>
+            <Card key={`aluno-${aluno.id}`} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback>{iniciais}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold">{aluno.nome}</h3>
+                      <p className="text-sm text-muted-foreground">Aluno</p>
+                    </div>
                   </div>
                 </div>
-                {isAdmin && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <GraduationCap className="mr-2 h-4 w-4" />
-                        Ver Turmas
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
 
-              {/* Contact Info */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{aluno.email}</span>
-                </div>
-                {aluno.telefone && (
+                {/* Contact Info */}
+                <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span>{aluno.telefone}</span>
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="break-all">{aluno.email}</span>
                   </div>
-                )}
-              </div>
+                  {aluno.telefone && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{aluno.telefone}</span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Turmas */}
-              <div className="space-y-2 pt-3 border-t mt-4">
-                <span className="text-sm font-medium">Turmas:</span>
-                {(() => {
-                  const alunoTurmas = getAlunoTurmas(aluno.id);
-                  return alunoTurmas.length > 0 ? (
+                {/* Turmas */}
+                <div className="space-y-2 pt-3 border-t mt-4">
+                  <span className="text-sm font-medium">Turmas:</span>
+                  {alunoTurmas.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {alunoTurmas.map((turma) => (
                         <span
-                          key={turma.id}
+                          key={`turma-${turma.id}-${aluno.id}`}
                           className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary/10 text-primary"
                         >
                           {turma.nome}
@@ -193,17 +177,16 @@ export default function Alunos() {
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">Não matriculado em nenhuma turma</p>
-                  );
-                })()}
-              </div>
+                  )}
+                </div>
 
-              {/* Stats */}
-              <div className="flex items-center justify-between pt-3 border-t mt-2">
-                <span className="text-sm text-muted-foreground">Status:</span>
-                <span className="text-sm font-medium text-green-600">Ativo</span>
-              </div>
-            </CardContent>
-          </Card>
+                {/* Stats */}
+                <div className="flex items-center justify-between pt-3 border-t mt-2">
+                  <span className="text-sm text-muted-foreground">Status:</span>
+                  <span className="text-sm font-medium text-green-600">Ativo</span>
+                </div>
+              </CardContent>
+            </Card>
           );
         })}
       </div>
