@@ -130,8 +130,11 @@ const handler = async (req: Request): Promise<Response> => {
       inviteToken = newInvite.token;
     }
 
-    // Create the invite link
-    const inviteLink = `${supabaseUrl.replace('kgkjrxwoojykdebtgutf.supabase.co', 'id-preview--55bd2b59-3728-4632-aca6-ed7498ac7c95.lovable.app')}/cadastro?token=${inviteToken}`;
+    // Get the origin from the request headers to build the correct invite link
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || 'https://id-preview--55bd2b59-3728-4632-aca6-ed7498ac7c95.lovable.app';
+    const inviteLink = `${origin}/cadastro?token=${inviteToken}`;
+    
+    console.log("Generated invite link:", inviteLink);
 
     const roleText = role === 'aluno' ? 'aluno' : 'professor';
     
