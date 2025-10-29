@@ -27,10 +27,11 @@ export default function Alunos() {
     return turmas.filter(turma => alunoMatriculas.some(m => m.turma_id === turma.id));
   };
 
-  const filteredAlunos = alunos.filter(aluno =>
-    aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    aluno.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAlunos = alunos.filter(aluno => {
+    if (!aluno?.nome || !aluno?.email) return false;
+    return aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           aluno.email.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   if (loading) {
     return (
@@ -122,7 +123,12 @@ export default function Alunos() {
 
       {/* Alunos List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredAlunos.map((aluno) => (
+        {filteredAlunos.map((aluno) => {
+          if (!aluno?.id || !aluno?.nome || !aluno?.email) {
+            console.error('Aluno inválido detectado:', aluno);
+            return null;
+          }
+          return (
           <Card key={aluno.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               {/* Header */}
@@ -198,7 +204,8 @@ export default function Alunos() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {filteredAlunos.length === 0 && (

@@ -35,15 +35,23 @@ export function useAlunosUnificado() {
         throw errorAlunos;
       }
 
-      // Converter para formato unificado
-      const alunosUnificados: AlunoUnificado[] = (alunosCadastrados || []).map(aluno => ({
-        id: aluno.id,
-        nome: aluno.nome,
-        email: aluno.email,
-        telefone: aluno.telefone || undefined,
-        tipo: 'cadastrado' as const,
-        user_id: aluno.user_id,
-      }));
+      // Converter para formato unificado e filtrar dados inválidos
+      const alunosUnificados: AlunoUnificado[] = (alunosCadastrados || [])
+        .filter(aluno => {
+          if (!aluno.id || !aluno.nome || !aluno.email) {
+            console.warn('Aluno com dados inválidos encontrado:', aluno);
+            return false;
+          }
+          return true;
+        })
+        .map(aluno => ({
+          id: aluno.id,
+          nome: aluno.nome,
+          email: aluno.email,
+          telefone: aluno.telefone || undefined,
+          tipo: 'cadastrado' as const,
+          user_id: aluno.user_id,
+        }));
 
       console.log('Alunos carregados:', alunosUnificados);
       setAlunos(alunosUnificados);
