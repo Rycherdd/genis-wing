@@ -27,8 +27,22 @@ export function ConviteForm({ open, onOpenChange, defaultRole }: ConviteFormProp
   const { sendInvite } = useConvites();
   const { user } = useAuth();
 
+  // Reset form quando fecha
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setEmail("");
+      setRole(defaultRole || "");
+    }
+    onOpenChange(newOpen);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !role) {
+      console.error("Email ou role não definido");
+      return;
+    }
     
     try {
       const validatedData = inviteSchema.parse({ email, role });
@@ -38,29 +52,42 @@ export function ConviteForm({ open, onOpenChange, defaultRole }: ConviteFormProp
       
       await sendInvite(validatedData.email, validatedData.role, userName);
       
-      // Reset form
+      // Reset form e fechar
       setEmail("");
       setRole(defaultRole || "");
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error("Validation errors:", error.errors);
+      } else {
+        console.error("Erro ao enviar convite:", error);
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Helpers para exibição
+  const getRoleLabel = () => {
+    if (!role) return 'Usuário';
+    return role === 'aluno' ? 'Aluno' : role === 'professor' ? 'Professor' : 'Usuário';
+  };
+
+  const getRoleDescription = () => {
+    if (!role) return 'usuário';
+    return role === 'aluno' ? 'aluno' : role === 'professor' ? 'professor' : 'usuário';
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
-            Convidar {role === 'aluno' ? 'Aluno' : role === 'professor' ? 'Professor' : 'Usuário'}
+            Convidar {getRoleLabel()}
           </DialogTitle>
           <DialogDescription>
-            Envie um convite por email para um novo {role === 'aluno' ? 'aluno' : role === 'professor' ? 'professor' : 'usuário'}.
+            Envie um convite por email para um novo {getRoleDescription()}.
           </DialogDescription>
         </DialogHeader>
         
@@ -79,11 +106,19 @@ export function ConviteForm({ open, onOpenChange, defaultRole }: ConviteFormProp
 
           <div className="space-y-2">
             <Label htmlFor="role">Tipo</Label>
-            <Select value={role} onValueChange={setRole} required>
-              <SelectTrigger>
+            <Select 
+              key={`role-select-${open}`}
+              value={role} 
+              onValueChange={(value) => {
+                console.log('Role selecionado:', value);
+                setRole(value);
+              }} 
+              required
+            >
+              <SelectTrigger id="role">
                 <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-50">
                 <SelectItem value="aluno">Aluno</SelectItem>
                 <SelectItem value="professor">Professor</SelectItem>
               </SelectContent>
@@ -94,7 +129,7 @@ export function ConviteForm({ open, onOpenChange, defaultRole }: ConviteFormProp
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
             >
               <X className="h-4 w-4 mr-2" />
               Cancelar
