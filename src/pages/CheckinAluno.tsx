@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useAulas } from "@/hooks/useAulas";
 import { useCheckins } from "@/hooks/useCheckins";
-import { useAlunos } from "@/hooks/useAlunos";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Clock, MapPin, CheckCircle2, Circle } from "lucide-react";
@@ -14,17 +13,29 @@ import { supabase } from "@/integrations/supabase/client";
 export default function CheckinAluno() {
   const { aulas, loading: isLoadingAulas } = useAulas();
   const { checkins, fazerCheckin, isFazendoCheckin } = useCheckins();
-  const { alunos } = useAlunos();
   const [observacao, setObservacao] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
+  const [aluno, setAluno] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUserId(user?.id || null);
-    });
+    const fetchUserAndAluno = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        
+        // Buscar dados do aluno logado
+        const { data: alunoData } = await supabase
+          .from('alunos')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        setAluno(alunoData);
+      }
+    };
+    
+    fetchUserAndAluno();
   }, []);
-
-  const aluno = alunos?.find((a) => a.user_id === userId);
 
   // Filtrar apenas aulas futuras ou do dia atual
   const aulasFuturas = aulas?.filter((aula) => {
