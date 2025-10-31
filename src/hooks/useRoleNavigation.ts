@@ -53,6 +53,7 @@ export function useRoleNavigation() {
         { label: 'Gerenciar Turmas', icon: 'BookOpen', url: '/turmas' },
         { label: 'Visualizar Turmas', icon: 'GraduationCap', url: '/turmas-aluno' },
         { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
+        { label: 'Check-ins', icon: 'CheckCircle', url: '/checkin' },
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
         { label: 'Formulários', icon: 'FileText', url: '/formularios' },
         { label: 'Conteúdos', icon: 'BookOpen', url: '/gerenciar-conteudos' },
@@ -82,6 +83,7 @@ export function useRoleNavigation() {
             { label: 'Gerenciar Turmas', icon: 'BookOpen', url: '/turmas' },
             { label: 'Visualizar Turmas', icon: 'GraduationCap', url: '/turmas-aluno' },
             { label: 'Aulas', icon: 'Calendar', url: '/aulas' },
+            { label: 'Check-ins', icon: 'CheckCircle', url: '/checkin' },
             { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
           ]
         },

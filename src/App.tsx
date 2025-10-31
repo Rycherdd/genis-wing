@@ -62,7 +62,7 @@ function AppRoutes() {
       <Route path="/meu-progresso" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MeuProgresso /></Layout></ProtectedRoute>} />
       <Route path="/formularios-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><FormulariosAluno /></Layout></ProtectedRoute>} />
       <Route path="/conteudos" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><ConteudosComplementares /></Layout></ProtectedRoute>} />
-      <Route path="/checkin" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><CheckinAluno /></Layout></ProtectedRoute>} />
+      <Route path="/checkin" element={<ProtectedRoute><Layout><CheckinAluno /></Layout></ProtectedRoute>} />
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
       
       {/* Gamification - accessible to all */}
