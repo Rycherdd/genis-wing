@@ -33,8 +33,8 @@ export function useCheckins(aulaId?: string) {
         .from("checkins")
         .select(`
           *,
-          alunos(nome, email),
-          aulas_agendadas(titulo, data, horario_inicio)
+          alunos!checkins_aluno_id_fkey(nome, email),
+          aulas_agendadas!checkins_aula_id_fkey(titulo, data, horario_inicio)
         `)
         .order("checkin_at", { ascending: false });
 
@@ -43,7 +43,11 @@ export function useCheckins(aulaId?: string) {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error("Erro ao buscar check-ins:", error);
+        throw error;
+      }
+      console.log("Check-ins carregados:", data);
       return data as Checkin[];
     },
   });
