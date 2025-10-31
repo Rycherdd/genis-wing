@@ -33,8 +33,8 @@ export function useCheckins(aulaId?: string) {
         .from("checkins")
         .select(`
           *,
-          alunos!checkins_aluno_id_fkey(nome, email),
-          aulas_agendadas!checkins_aula_id_fkey(titulo, data, horario_inicio)
+          alunos(nome, email),
+          aulas_agendadas(titulo, data, horario_inicio)
         `)
         .order("checkin_at", { ascending: false });
 
