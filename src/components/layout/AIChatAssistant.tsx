@@ -12,6 +12,19 @@ interface Message {
   content: string;
 }
 
+// Função para renderizar markdown simples
+const renderMarkdown = (text: string) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      const content = part.slice(2, -2);
+      return <strong key={index}>{content}</strong>;
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
+
 export function AIChatAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -178,7 +191,12 @@ export function AIChatAssistant() {
                       : "bg-muted"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">
+                    {message.role === "assistant" 
+                      ? renderMarkdown(message.content)
+                      : message.content
+                    }
+                  </p>
                 </div>
               </div>
             ))}
