@@ -48,7 +48,7 @@ function AppRoutes() {
       <Route path="/turmas" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Turmas /></Layout></ProtectedRoute>} />
       <Route path="/aulas" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Aulas /></Layout></ProtectedRoute>} />
       <Route path="/presenca" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Presenca /></Layout></ProtectedRoute>} />
-      <Route path="/agenda" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><Agenda /></Layout></ProtectedRoute>} />
+      <Route path="/agenda" element={<ProtectedRoute allowedRoles={['admin', 'professor', 'aluno']}><Layout><Agenda /></Layout></ProtectedRoute>} />
       <Route path="/formularios" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><FormulariosAulas /></Layout></ProtectedRoute>} />
       <Route path="/gerenciar-conteudos" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><GerenciarConteudos /></Layout></ProtectedRoute>} />
       

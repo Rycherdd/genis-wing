@@ -16,13 +16,32 @@ export function useRoleNavigation() {
     if (userRole === 'aluno') {
       return [
         { label: 'Meu Progresso', icon: 'CheckCircle', url: '/meu-progresso' },
-        { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
-        { label: 'Conteúdos Complementares', icon: 'BookOpen', url: '/conteudos' },
-        { label: 'Próximas Aulas', icon: 'Calendar', url: '/aulas-aluno' },
-        { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
-        { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },
-        { label: 'Formulários', icon: 'FileText', url: '/formularios-aluno' },
-        { label: 'Avisos', icon: 'Bell', url: '/avisos' },
+        { 
+          label: 'Aprendizado', 
+          icon: 'BookOpen',
+          subItems: [
+            { label: 'Conteúdos Complementares', icon: 'BookOpen', url: '/conteudos' },
+            { label: 'Próximas Aulas', icon: 'Calendar', url: '/aulas-aluno' },
+            { label: 'Turmas', icon: 'Users', url: '/turmas-aluno' },
+          ]
+        },
+        { 
+          label: 'Atividades', 
+          icon: 'FileText',
+          subItems: [
+            { label: 'Formulários', icon: 'FileText', url: '/formularios-aluno' },
+            { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
+            { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
+          ]
+        },
+        { 
+          label: 'Comunicação', 
+          icon: 'Bell',
+          subItems: [
+            { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
+            { label: 'Avisos', icon: 'Bell', url: '/avisos' },
+          ]
+        },
       ];
     }
     
