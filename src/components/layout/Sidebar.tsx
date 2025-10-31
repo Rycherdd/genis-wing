@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail, UserCog, CalendarDays, CheckSquare, Bell, Trophy } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, FileText, CreditCard, BarChart3, UserCircle, Settings, LogOut, Badge, GraduationCap, CheckCircle, Building, Mail, UserCog, CalendarDays, CheckSquare, Bell, Trophy, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRoleNavigation } from "@/hooks/useRoleNavigation";
+import { useRoleNavigation, NavigationItem } from "@/hooks/useRoleNavigation";
 import { ProfileDialog } from "@/components/profile/ProfileDialog";
 import { useProfile } from "@/hooks/useProfile";
 
@@ -25,12 +26,6 @@ const iconMap = {
   GraduationCap,
   Trophy,
 };
-
-interface NavigationItem {
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  href: string;
-}
 
 interface SidebarProps {
   onClose?: () => void;
@@ -80,10 +75,58 @@ export function Sidebar({ onClose }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
         {navigationItems.map((item, index) => {
           const IconComponent = iconMap[item.icon as keyof typeof iconMap];
-          const isActive = location.pathname === item.url;
+          
+          // Se o item tem subItems, renderizar como Collapsible
+          if (item.subItems && item.subItems.length > 0) {
+            const hasActiveSubItem = item.subItems.some(
+              subItem => subItem.url && location.pathname === subItem.url
+            );
+            
+            return (
+              <Collapsible key={index} defaultOpen={hasActiveSubItem}>
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-between gap-3 h-11 hover:bg-muted"
+                  >
+                    <div className="flex items-center gap-3">
+                      {IconComponent && <IconComponent className="h-5 w-5" />}
+                      <span className="font-medium">{item.label}</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-1 mt-1 ml-4">
+                  {item.subItems.map((subItem, subIndex) => {
+                    const SubIconComponent = iconMap[subItem.icon as keyof typeof iconMap];
+                    const isActive = subItem.url && location.pathname === subItem.url;
+                    return (
+                      <Button
+                        key={subIndex}
+                        variant={isActive ? "default" : "ghost"}
+                        className={cn(
+                          "w-full justify-start gap-3 h-10 text-sm",
+                          isActive && "bg-gradient-primary shadow-soft"
+                        )}
+                        asChild
+                      >
+                        <Link to={subItem.url || '#'} onClick={handleLinkClick}>
+                          {SubIconComponent && <SubIconComponent className="h-4 w-4" />}
+                          <span>{subItem.label}</span>
+                        </Link>
+                      </Button>
+                    );
+                  })}
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          }
+          
+          // Se não tem subItems, renderizar normalmente
+          const isActive = item.url && location.pathname === item.url;
           return (
             <Button
               key={index}
@@ -94,7 +137,7 @@ export function Sidebar({ onClose }: SidebarProps) {
               )}
               asChild
             >
-              <Link to={item.url} onClick={handleLinkClick}>
+              <Link to={item.url || '#'} onClick={handleLinkClick}>
                 {IconComponent && <IconComponent className="h-5 w-5" />}
                 <span className="font-medium">{item.label}</span>
               </Link>
