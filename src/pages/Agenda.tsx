@@ -199,7 +199,7 @@ export default function Agenda() {
             </div>
           ) : (
             <div className="space-y-2">
-              {eventos.filter(e => e.data >= new Date()).slice(0, 5).map((evento) => (
+              {eventos.slice(0, 10).map((evento) => (
                 <div
                   key={evento.id}
                   className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"

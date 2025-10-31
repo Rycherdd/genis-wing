@@ -79,19 +79,25 @@ export function useAgenda() {
 
         if (aulasError) throw aulasError;
 
-        const eventosAulas: EventoAgenda[] = (aulas || []).map(aula => ({
-          id: aula.id,
-          titulo: aula.titulo,
-          data: new Date(aula.data),
-          horario_inicio: aula.horario_inicio,
-          horario_fim: aula.horario_fim,
-          tipo: 'aula' as const,
-          descricao: aula.descricao || undefined,
-          local: aula.local || undefined,
-          status: aula.status,
-          turma_nome: aula.turmas?.nome,
-          professor_nome: aula.professores?.nome,
-        }));
+        const eventosAulas: EventoAgenda[] = (aulas || []).map(aula => {
+          // Parse da data corretamente (format: YYYY-MM-DD do banco)
+          const [year, month, day] = aula.data.split('-').map(Number);
+          const dataAula = new Date(year, month - 1, day);
+          
+          return {
+            id: aula.id,
+            titulo: aula.titulo,
+            data: dataAula,
+            horario_inicio: aula.horario_inicio,
+            horario_fim: aula.horario_fim,
+            tipo: 'aula' as const,
+            descricao: aula.descricao || undefined,
+            local: aula.local || undefined,
+            status: aula.status,
+            turma_nome: aula.turmas?.nome,
+            professor_nome: aula.professores?.nome,
+          };
+        });
 
         setEventos(eventosAulas);
       } else {
@@ -115,19 +121,25 @@ export function useAgenda() {
 
         if (aulasError) throw aulasError;
 
-        const eventosAulas: EventoAgenda[] = (aulas || []).map(aula => ({
-          id: aula.id,
-          titulo: aula.titulo,
-          data: new Date(aula.data),
-          horario_inicio: aula.horario_inicio,
-          horario_fim: aula.horario_fim,
-          tipo: 'aula' as const,
-          descricao: aula.descricao || undefined,
-          local: aula.local || undefined,
-          status: aula.status,
-          turma_nome: aula.turmas?.nome,
-          professor_nome: aula.professores?.nome,
-        }));
+        const eventosAulas: EventoAgenda[] = (aulas || []).map(aula => {
+          // Parse da data corretamente (format: YYYY-MM-DD do banco)
+          const [year, month, day] = aula.data.split('-').map(Number);
+          const dataAula = new Date(year, month - 1, day);
+          
+          return {
+            id: aula.id,
+            titulo: aula.titulo,
+            data: dataAula,
+            horario_inicio: aula.horario_inicio,
+            horario_fim: aula.horario_fim,
+            tipo: 'aula' as const,
+            descricao: aula.descricao || undefined,
+            local: aula.local || undefined,
+            status: aula.status,
+            turma_nome: aula.turmas?.nome,
+            professor_nome: aula.professores?.nome,
+          };
+        });
 
         setEventos(eventosAulas);
       }
