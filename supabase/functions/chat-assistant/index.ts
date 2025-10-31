@@ -76,25 +76,61 @@ const tools = [
 ];
 
 async function executarFuncao(functionName: string, args: any, supabase: any, userId: string) {
-  console.log(`Executando função: ${functionName} com args:`, args);
+  console.log(`Executando função: ${functionName} para usuário: ${userId} com args:`, args);
   
   switch (functionName) {
     case "buscar_proximas_aulas": {
       const limit = args.limit || 5;
+      
+      // Buscar role do usuário
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+      
+      const userRole = userRoles?.role;
+      console.log('User role:', userRole);
+      
       let query = supabase
         .from('aulas_agendadas')
         .select('*, turmas(nome), professores(nome)')
-        .gte('data', new Date().toISOString().split('T')[0])
         .order('data', { ascending: true })
         .order('horario_inicio', { ascending: true })
         .limit(limit);
+      
+      // Se for aluno, filtrar apenas aulas das turmas matriculadas
+      if (userRole === 'aluno') {
+        const { data: aluno } = await supabase
+          .from('alunos')
+          .select('id')
+          .eq('user_id', userId)
+          .single();
+        
+        if (aluno) {
+          const { data: matriculas } = await supabase
+            .from('matriculas')
+            .select('turma_id')
+            .eq('aluno_id', aluno.id)
+            .eq('status', 'ativa');
+          
+          const turmaIds = matriculas?.map(m => m.turma_id) || [];
+          if (turmaIds.length > 0) {
+            query = query.in('turma_id', turmaIds);
+          }
+        }
+      }
       
       if (args.turma_id) {
         query = query.eq('turma_id', args.turma_id);
       }
       
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('Erro buscar_proximas_aulas:', error);
+        throw error;
+      }
+      console.log('Aulas encontradas:', data?.length);
       return data;
     }
     
@@ -161,8 +197,21 @@ serve(async (req) => {
     );
 
     // Obter usuário autenticado
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id;
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      console.error('Erro de autenticação:', authError);
+      return new Response(
+        JSON.stringify({ error: "Usuário não autenticado" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+    
+    const userId = user.id;
+    console.log('Usuário autenticado:', userId);
 
     const systemPrompt = `Você é um assistente educacional especializado em ajudar professores, alunos e administradores com o sistema de gerenciamento educacional.
 

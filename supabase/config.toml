@@ -1,5 +1,8 @@
 project_id = "kgkjrxwoojykdebtgutf"
 
+[functions.chat-assistant]
+verify_jwt = true
+
 [functions.validate-invite]
 verify_jwt = false
 

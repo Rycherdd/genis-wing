@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   role: "user" | "assistant";
@@ -34,13 +35,19 @@ export function AIChatAssistant() {
     let assistantContent = "";
 
     try {
+      // Obter o token de sessão atual
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Você precisa estar autenticado para usar o assistente");
+      }
+
       const response = await fetch(
-        `https://kgkjrxwoojykdebtgutf.supabase.co/functions/v1/chat-assistant`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtna2pyeHdvb2p5a2RlYnRndXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNzY2OTcsImV4cCI6MjA3Mzk1MjY5N30.MJRmYLNO7Cwfg_rhLza1ukwS-h5jLSKYTaYZ7VSfF-g`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ messages: newMessages }),
         }
