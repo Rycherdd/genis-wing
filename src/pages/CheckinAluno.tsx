@@ -66,100 +66,127 @@ export default function CheckinAluno() {
     );
   }
 
+  // Verificar se aluno está cadastrado
+  if (!aluno) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Check-in nas Aulas</h1>
+          <p className="text-muted-foreground">
+            Faça check-in nas próximas aulas para confirmar sua presença
+          </p>
+        </div>
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">
+              Você ainda não está cadastrado como aluno no sistema. 
+              Entre em contato com o administrador.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Check-in nas Aulas</h1>
         <p className="text-muted-foreground">
-          Faça check-in nas próximas aulas para confirmar sua presença
+          Confirme sua participação nas próximas aulas fazendo check-in
         </p>
       </div>
 
-      <div className="grid gap-4">
-        {aulasFuturas?.map((aula) => {
-          const jaFezCheckin = verificarCheckin(aula.id);
-          
-          return (
-            <Card key={aula.id} className={jaFezCheckin ? "border-primary" : ""}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="flex items-center gap-2">
-                      {aula.titulo}
-                      {jaFezCheckin && (
-                        <Badge variant="default" className="gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Check-in feito
-                        </Badge>
-                      )}
-                    </CardTitle>
-                    <CardDescription className="mt-2">
-                      {aula.turmas?.nome}
-                    </CardDescription>
-                  </div>
-                  {aula.status && (
-                    <Badge variant={aula.status === "agendada" ? "secondary" : "outline"}>
-                      {aula.status}
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {format(new Date(aula.data), "dd/MM/yyyy", { locale: ptBR })}
-                      </p>
-                      <p>
-                        {aula.horario_inicio} - {aula.horario_fim}
-                      </p>
+      {aulasFuturas && aulasFuturas.length > 0 ? (
+        <div className="grid gap-4">
+          {aulasFuturas.map((aula) => {
+            const jaFezCheckin = verificarCheckin(aula.id);
+            
+            return (
+              <Card key={aula.id} className={jaFezCheckin ? "border-primary" : ""}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="flex items-center gap-2">
+                        {aula.titulo}
+                        {jaFezCheckin && (
+                          <Badge variant="default" className="gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Check-in feito
+                          </Badge>
+                        )}
+                      </CardTitle>
+                      <CardDescription className="mt-2">
+                        {aula.turmas?.nome}
+                      </CardDescription>
                     </div>
+                    {aula.status && (
+                      <Badge variant={aula.status === "agendada" ? "secondary" : "outline"}>
+                        {aula.status}
+                      </Badge>
+                    )}
                   </div>
-                  {aula.local && (
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>{aula.local}</span>
+                      <Clock className="h-4 w-4" />
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {format(new Date(aula.data), "dd/MM/yyyy", { locale: ptBR })}
+                        </p>
+                        <p>
+                          {aula.horario_inicio} - {aula.horario_fim}
+                        </p>
+                      </div>
+                    </div>
+                    {aula.local && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span>{aula.local}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {aula.descricao && (
+                    <p className="text-sm text-muted-foreground">{aula.descricao}</p>
+                  )}
+
+                  {!jaFezCheckin && (
+                    <div className="space-y-3">
+                      <Textarea
+                        placeholder="Observação (opcional)"
+                        value={observacao}
+                        onChange={(e) => setObservacao(e.target.value)}
+                        rows={2}
+                      />
+                      <Button
+                        onClick={() => handleCheckin(aula.id)}
+                        disabled={isFazendoCheckin || !aluno}
+                        className="w-full"
+                      >
+                        <Circle className="h-4 w-4 mr-2" />
+                        Fazer Check-in
+                      </Button>
                     </div>
                   )}
-                </div>
-
-                {aula.descricao && (
-                  <p className="text-sm text-muted-foreground">{aula.descricao}</p>
-                )}
-
-                {!jaFezCheckin && (
-                  <div className="space-y-3">
-                    <Textarea
-                      placeholder="Observação (opcional)"
-                      value={observacao}
-                      onChange={(e) => setObservacao(e.target.value)}
-                      rows={2}
-                    />
-                    <Button
-                      onClick={() => handleCheckin(aula.id)}
-                      disabled={isFazendoCheckin || !aluno}
-                      className="w-full"
-                    >
-                      <Circle className="h-4 w-4 mr-2" />
-                      Fazer Check-in
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        {!aulasFuturas || aulasFuturas.length === 0 && (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">Nenhuma aula disponível para check-in no momento.</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">
+              Nenhuma aula disponível para check-in no momento.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Certifique-se de que você está matriculado em uma turma com aulas agendadas.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
