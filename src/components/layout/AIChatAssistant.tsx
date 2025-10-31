@@ -14,14 +14,31 @@ interface Message {
 
 // Função para renderizar markdown simples
 const renderMarkdown = (text: string) => {
-  const parts = text.split(/(\*\*.*?\*\*)/g);
+  // Dividir em linhas para processar títulos
+  const lines = text.split('\n');
   
-  return parts.map((part, index) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      const content = part.slice(2, -2);
-      return <strong key={index}>{content}</strong>;
+  return lines.map((line, lineIndex) => {
+    // Processar títulos
+    if (line.startsWith('### ')) {
+      const content = line.slice(4);
+      return <h3 key={lineIndex} className="font-semibold text-sm mt-2 mb-1">{content}</h3>;
     }
-    return <span key={index}>{part}</span>;
+    if (line.startsWith('## ')) {
+      const content = line.slice(3);
+      return <h2 key={lineIndex} className="font-bold text-base mt-2 mb-1">{content}</h2>;
+    }
+    
+    // Processar negrito na linha
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    const rendered = parts.map((part, partIndex) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const content = part.slice(2, -2);
+        return <strong key={partIndex}>{content}</strong>;
+      }
+      return <span key={partIndex}>{part}</span>;
+    });
+    
+    return <div key={lineIndex}>{rendered}</div>;
   });
 };
 
