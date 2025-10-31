@@ -94,7 +94,7 @@ async function executarFuncao(functionName: string, args: any, supabase: any, us
       
       let query = supabase
         .from('aulas_agendadas')
-        .select('*, turmas!aulas_agendadas_turma_id_fkey(nome), professores(nome)')
+        .select('*, turmas!aulas_agendadas_turma_id_fkey(nome), professores!aulas_agendadas_professor_id_fkey(nome)')
         .order('data', { ascending: true })
         .order('horario_inicio', { ascending: true })
         .limit(limit);
