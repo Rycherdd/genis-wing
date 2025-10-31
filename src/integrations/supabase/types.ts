@@ -367,6 +367,54 @@ export type Database = {
         }
         Relationships: []
       }
+      checkins: {
+        Row: {
+          aluno_id: string
+          aula_id: string
+          checkin_at: string | null
+          created_at: string | null
+          id: string
+          observacao: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          aluno_id: string
+          aula_id: string
+          checkin_at?: string | null
+          created_at?: string | null
+          id?: string
+          observacao?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          aluno_id?: string
+          aula_id?: string
+          checkin_at?: string | null
+          created_at?: string | null
+          id?: string
+          observacao?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkins_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkins_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas_agendadas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conteudos_complementares: {
         Row: {
           avaliacao_id: string | null

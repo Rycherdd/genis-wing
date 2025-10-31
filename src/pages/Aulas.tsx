@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Calendar, Clock, Users, MapPin, MoreVertical, Edit, Eye, Trash2, Loader2, UserCheck } from "lucide-react";
+import { Search, Plus, Calendar, Clock, Users, MapPin, MoreVertical, Edit, Eye, Trash2, Loader2, UserCheck, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { useAulas } from "@/hooks/useAulas";
 import { AulaForm } from "@/components/forms/AulaForm";
 import { PresencaForm } from "@/components/forms/PresencaForm";
 import { AulaDetailsDialog } from "@/components/aulas/AulaDetailsDialog";
+import { CheckinsDialog } from "@/components/aulas/CheckinsDialog";
 
 export default function Aulas() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,6 +19,8 @@ export default function Aulas() {
   const [selectedAula, setSelectedAula] = useState<any>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editingAula, setEditingAula] = useState<any>(null);
+  const [checkinsDialogOpen, setCheckinsDialogOpen] = useState(false);
+  const [selectedAulaForCheckins, setSelectedAulaForCheckins] = useState<any>(null);
   const { aulas, loading, deleteAula } = useAulas();
 
   const filteredAulas = aulas.filter(aula =>
@@ -195,7 +198,14 @@ export default function Aulas() {
                       <UserCheck className="mr-2 h-4 w-4" />
                       Controlar Presença
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem onClick={() => {
+                      setSelectedAulaForCheckins(aula);
+                      setCheckinsDialogOpen(true);
+                    }}>
+                      <ClipboardCheck className="mr-2 h-4 w-4" />
+                      Ver Check-ins
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => deleteAula(aula.id)}
                     >
@@ -261,6 +271,18 @@ export default function Aulas() {
           open={!!selectedAulaForPresenca}
           onOpenChange={(open) => !open && setSelectedAulaForPresenca(null)}
           aula={selectedAulaForPresenca}
+        />
+      )}
+      
+      {selectedAulaForCheckins && (
+        <CheckinsDialog
+          aulaId={selectedAulaForCheckins.id}
+          aulaTitulo={selectedAulaForCheckins.titulo}
+          open={checkinsDialogOpen}
+          onOpenChange={(open) => {
+            setCheckinsDialogOpen(open);
+            if (!open) setSelectedAulaForCheckins(null);
+          }}
         />
       )}
       

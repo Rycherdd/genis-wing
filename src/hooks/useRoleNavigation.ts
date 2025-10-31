@@ -29,6 +29,7 @@ export function useRoleNavigation() {
           label: 'Atividades', 
           icon: 'FileText',
           subItems: [
+            { label: 'Check-in', icon: 'CheckCircle', url: '/checkin' },
             { label: 'Formulários', icon: 'FileText', url: '/formularios-aluno' },
             { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
             { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
