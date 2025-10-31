@@ -131,7 +131,21 @@ async function executarFuncao(functionName: string, args: any, supabase: any, us
         throw error;
       }
       console.log('Aulas encontradas:', data?.length);
-      return data;
+      
+      // Formatar dados para melhor compreensão
+      const aulasFormatadas = data?.map(aula => ({
+        titulo: aula.titulo,
+        turma: aula.turmas?.nome,
+        professor: aula.professores?.nome,
+        data: aula.data,
+        horario_inicio: aula.horario_inicio,
+        horario_fim: aula.horario_fim,
+        local: aula.local,
+        descricao: aula.descricao,
+        status: aula.status
+      }));
+      
+      return aulasFormatadas;
     }
     
     case "buscar_turmas": {
@@ -253,6 +267,14 @@ GAMIFICAÇÃO:
 - Sistema de níveis com XP
 - Badges por conquistas (presença, formulários, horas de estudo, streak)
 - Leaderboard competitivo
+
+INSTRUÇÕES DE FORMATAÇÃO:
+- Ao apresentar aulas, organize as informações de forma clara
+- Use formatação para destacar informações importantes (data, horário, local)
+- Seja conciso mas informativo
+- Sempre mencione o nome da turma e professor quando relevante
+- Para datas, use formato brasileiro (dd/mm/yyyy)
+- Para horários, use formato 24h (HH:mm)
 
 Sua função é ajudar os usuários a entender como usar o sistema, responder dúvidas sobre funcionalidades, dar dicas e explicar processos. Seja claro, objetivo e amigável.`;
 
