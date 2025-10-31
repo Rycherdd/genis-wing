@@ -32,6 +32,23 @@ const tools = [
   {
     type: "function",
     function: {
+      name: "buscar_aula_por_data",
+      description: "Busca aulas que aconteceram ou acontecerão em uma data específica (formato YYYY-MM-DD)",
+      parameters: {
+        type: "object",
+        properties: {
+          data: {
+            type: "string",
+            description: "Data da aula no formato YYYY-MM-DD"
+          }
+        },
+        required: ["data"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
       name: "buscar_turmas",
       description: "Busca informações sobre turmas",
       parameters: {
@@ -79,6 +96,67 @@ async function executarFuncao(functionName: string, args: any, supabase: any, us
   console.log(`Executando função: ${functionName} para usuário: ${userId} com args:`, args);
   
   switch (functionName) {
+    case "buscar_aula_por_data": {
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+      
+      const userRole = userRoles?.role;
+      console.log('User role:', userRole);
+      
+      let query = supabase
+        .from('aulas_agendadas')
+        .select('*, turmas!aulas_agendadas_turma_id_fkey(nome), professores!aulas_agendadas_professor_id_fkey(nome)')
+        .eq('data', args.data)
+        .order('horario_inicio', { ascending: true });
+      
+      // Se for aluno, filtrar apenas aulas das turmas matriculadas
+      if (userRole === 'aluno') {
+        const { data: aluno } = await supabase
+          .from('alunos')
+          .select('id')
+          .eq('user_id', userId)
+          .single();
+        
+        if (aluno) {
+          const { data: matriculas } = await supabase
+            .from('matriculas')
+            .select('turma_id')
+            .eq('aluno_id', aluno.id)
+            .eq('status', 'ativa');
+          
+          const turmaIds = matriculas?.map(m => m.turma_id) || [];
+          if (turmaIds.length > 0) {
+            query = query.in('turma_id', turmaIds);
+          }
+        }
+      }
+      
+      const { data, error } = await query;
+      if (error) {
+        console.error('Erro buscar_aula_por_data:', error);
+        throw error;
+      }
+      console.log(`Aulas encontradas para ${args.data}:`, data?.length);
+      
+      // Formatar dados
+      const aulasFormatadas = data?.map(aula => ({
+        titulo: aula.titulo,
+        turma: aula.turmas?.nome,
+        professor: aula.professores?.nome,
+        data: aula.data,
+        horario_inicio: aula.horario_inicio,
+        horario_fim: aula.horario_fim,
+        local: aula.local,
+        descricao: aula.descricao,
+        status: aula.status
+      }));
+      
+      return aulasFormatadas;
+    }
+    
     case "buscar_proximas_aulas": {
       const limit = args.limit || 5;
       
@@ -276,8 +354,8 @@ INSTRUÇÕES IMPORTANTES:
 1. RACIOCÍNIO COM DATAS:
    - Você SEMPRE sabe a data atual (veja acima)
    - Quando o usuário perguntar sobre "ontem", "hoje", "amanhã", calcule a data correta
-   - Compare as datas das aulas com a data calculada
-   - Exemplo: Se hoje é 2025-10-31, ontem foi 2025-10-30
+   - Use a função buscar_aula_por_data com a data calculada no formato YYYY-MM-DD
+   - Exemplo: Se hoje é 2025-10-31, ontem foi 2025-10-30, use buscar_aula_por_data com data "2025-10-30"
    
 2. FORMATAÇÃO:
    - Ao apresentar aulas, organize as informações de forma clara e simples
