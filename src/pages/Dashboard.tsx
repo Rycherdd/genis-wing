@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, Clock, CheckCircle, AlertTriangle, ArrowRight, BookOpen, Trophy, BarChart3, BookOpenCheck } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import { useAulas } from "@/hooks/useAulas";
 import { useRecentActivities } from "@/hooks/useRecentActivities";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useUserProgress } from "@/hooks/useUserProgress";
 
 const quickActions = [
   { label: "Cadastrar Professor", href: "/professores/novo" },
@@ -47,12 +49,59 @@ const upcomingClasses = [
 export default function Dashboard() {
   const [professorFormOpen, setProfessorFormOpen] = useState(false);
   const [turmaFormOpen, setTurmaFormOpen] = useState(false);
-  const { userRole } = useAuth();
+  const { user, userRole } = useAuth();
+  const [turmaId, setTurmaId] = useState<string | undefined>();
+  const [aulasAluno, setAulasAluno] = useState<any[]>([]);
   
   const { professores } = useProfessores();
   const { turmas } = useTurmas();
   const { aulas } = useAulas();
   const { activities: recentActivities, loading: activitiesLoading } = useRecentActivities();
+  const { summary: progressSummary } = useUserProgress();
+
+  // Buscar turma e aulas do aluno
+  useEffect(() => {
+    const fetchDadosAluno = async () => {
+      if (!user || userRole !== 'aluno') return;
+
+      const { data: alunoData } = await supabase
+        .from('alunos')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (alunoData) {
+        const { data: matriculaData } = await supabase
+          .from('matriculas')
+          .select('turma_id')
+          .eq('aluno_id', alunoData.id)
+          .eq('status', 'ativa')
+          .single();
+
+        if (matriculaData) {
+          setTurmaId(matriculaData.turma_id);
+
+          // Buscar aulas da turma do aluno
+          const { data: aulasData } = await supabase
+            .from('aulas_agendadas')
+            .select(`
+              *,
+              professores:professor_id(nome),
+              turmas:turma_id(nome)
+            `)
+            .eq('turma_id', matriculaData.turma_id)
+            .gte('data', new Date().toISOString().split('T')[0])
+            .order('data', { ascending: true })
+            .order('horario_inicio', { ascending: true })
+            .limit(3);
+
+          setAulasAluno(aulasData || []);
+        }
+      }
+    };
+
+    fetchDadosAluno();
+  }, [user, userRole]);
 
   // Ações rápidas baseadas no papel do usuário
   const quickActionsForRole = useMemo(() => {
@@ -76,6 +125,24 @@ export default function Dashboard() {
 
   // Calculate real metrics with memoization
   const metrics = useMemo(() => {
+    // Métricas para alunos
+    if (userRole === 'aluno' && progressSummary) {
+      const hoje = new Date().toDateString();
+      const aulasHoje = aulasAluno.filter(a => {
+        const aulaData = new Date(a.data).toDateString();
+        return hoje === aulaData;
+      }).length;
+
+      return {
+        aulasAssistidas: progressSummary.total_presencas || 0,
+        taxaPresenca: progressSummary.media_presenca ? `${progressSummary.media_presenca.toFixed(0)}%` : '0%',
+        aulasHoje,
+        horasAprendizado: progressSummary.total_horas ? progressSummary.total_horas.toFixed(1) : '0',
+        isAluno: true
+      };
+    }
+
+    // Métricas para admin/professor
     const professorAtivos = professores.filter(p => p.status === 'ativo').length;
     const turmasAtivas = turmas.filter(t => t.status === 'ativa').length;
     const hoje = new Date().toDateString();
@@ -96,41 +163,77 @@ export default function Dashboard() {
       professorNovos,
       turmasPlanejadas,
       aulasAgendadas,
-      totalDados: professores.length + turmas.length + aulas.length
+      totalDados: professores.length + turmas.length + aulas.length,
+      isAluno: false
     };
-  }, [professores, turmas, aulas]);
+  }, [professores, turmas, aulas, userRole, progressSummary, aulasAluno]);
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Metrics Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title="Professores Ativos"
-          value={metrics.professorAtivos.toString()}
-          change={`+${metrics.professorNovos} este mês`}
-          changeType="positive"
-          icon={Users}
-        />
-        <MetricCard
-          title="Turmas em Andamento"
-          value={metrics.turmasAtivas.toString()}
-          change={`${metrics.turmasPlanejadas} planejadas`}
-          changeType="positive"
-          icon={GraduationCap}
-        />
-        <MetricCard
-          title="Aulas Hoje"
-          value={metrics.aulasHoje.toString()}
-          change={`${metrics.aulasAgendadas} agendadas`}
-          changeType="neutral"
-          icon={Calendar}
-        />
-        <MetricCard
-          title="Total de Dados"
-          value={metrics.totalDados.toString()}
-          change="Sistema funcionando"
-          changeType="positive"
-          icon={DollarSign}
-        />
+        {metrics.isAluno ? (
+          <>
+            <MetricCard
+              title="Aulas Assistidas"
+              value={metrics.aulasAssistidas.toString()}
+              change="Total de presenças"
+              changeType="positive"
+              icon={BookOpenCheck}
+            />
+            <MetricCard
+              title="Taxa de Presença"
+              value={metrics.taxaPresenca}
+              change="Baseado nas aulas concluídas"
+              changeType={parseInt(metrics.taxaPresenca) >= 75 ? "positive" : "neutral"}
+              icon={CheckCircle}
+            />
+            <MetricCard
+              title="Aulas Hoje"
+              value={metrics.aulasHoje.toString()}
+              change="Suas aulas de hoje"
+              changeType="neutral"
+              icon={Calendar}
+            />
+            <MetricCard
+              title="Horas de Aprendizado"
+              value={`${metrics.horasAprendizado}h`}
+              change="Total de horas"
+              changeType="positive"
+              icon={Clock}
+            />
+          </>
+        ) : (
+          <>
+            <MetricCard
+              title="Professores Ativos"
+              value={metrics.professorAtivos.toString()}
+              change={`+${metrics.professorNovos} este mês`}
+              changeType="positive"
+              icon={Users}
+            />
+            <MetricCard
+              title="Turmas em Andamento"
+              value={metrics.turmasAtivas.toString()}
+              change={`${metrics.turmasPlanejadas} planejadas`}
+              changeType="positive"
+              icon={GraduationCap}
+            />
+            <MetricCard
+              title="Aulas Hoje"
+              value={metrics.aulasHoje.toString()}
+              change={`${metrics.aulasAgendadas} agendadas`}
+              changeType="neutral"
+              icon={Calendar}
+            />
+            <MetricCard
+              title="Total de Dados"
+              value={metrics.totalDados.toString()}
+              change="Sistema funcionando"
+              changeType="positive"
+              icon={DollarSign}
+            />
+          </>
+        )}
       </div>
 
       <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-3">
@@ -223,13 +326,16 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            {aulas.length > 0 ? "Próximas Aulas" : "Nenhuma Aula Cadastrada"}
+            {userRole === 'aluno' ? 
+              (aulasAluno.length > 0 ? "Minhas Próximas Aulas" : "Nenhuma Aula Agendada") :
+              (aulas.length > 0 ? "Próximas Aulas" : "Nenhuma Aula Cadastrada")
+            }
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {aulas.length > 0 ? (
+          {(userRole === 'aluno' ? aulasAluno : aulas).length > 0 ? (
             <div className="space-y-4">
-              {aulas.slice(0, 3).map((aula) => (
+              {(userRole === 'aluno' ? aulasAluno : aulas.slice(0, 3)).map((aula) => (
                 <div key={aula.id} className="flex items-center justify-between p-4 rounded-lg border bg-card shadow-soft">
                   <div className="flex items-center gap-4">
                     <div className="text-center">
@@ -260,8 +366,13 @@ export default function Dashboard() {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhuma aula cadastrada ainda.</p>
-              <p className="text-sm">Comece criando professores e turmas!</p>
+              <p>{userRole === 'aluno' ? 'Nenhuma aula agendada para você.' : 'Nenhuma aula cadastrada ainda.'}</p>
+              <p className="text-sm">
+                {userRole === 'aluno' ? 
+                  'Suas próximas aulas aparecerão aqui.' : 
+                  'Comece criando professores e turmas!'
+                }
+              </p>
             </div>
           )}
         </CardContent>

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useGamification } from "@/hooks/useGamification";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { GamificationCard } from "@/components/gamification/GamificationCard";
@@ -9,10 +10,42 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Award, BarChart3, History } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Gamificacao() {
+  const { user, userRole } = useAuth();
+  const [turmaId, setTurmaId] = useState<string | undefined>();
   const { gamification, badges, allBadges, historico, loading } = useGamification();
-  const { leaderboard, loading: leaderboardLoading } = useLeaderboard();
+  const { leaderboard, loading: leaderboardLoading } = useLeaderboard(turmaId);
+
+  // Buscar turma do aluno
+  useEffect(() => {
+    const fetchTurmaAluno = async () => {
+      if (!user || userRole !== 'aluno') return;
+
+      const { data: alunoData } = await supabase
+        .from('alunos')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (alunoData) {
+        const { data: matriculaData } = await supabase
+          .from('matriculas')
+          .select('turma_id')
+          .eq('aluno_id', alunoData.id)
+          .eq('status', 'ativa')
+          .single();
+
+        if (matriculaData) {
+          setTurmaId(matriculaData.turma_id);
+        }
+      }
+    };
+
+    fetchTurmaAluno();
+  }, [user, userRole]);
 
   if (loading) {
     return (
@@ -110,7 +143,17 @@ export default function Gamificacao() {
             {leaderboardLoading ? (
               <Skeleton className="h-96" />
             ) : (
-              <LeaderboardTable leaderboard={leaderboard} />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    {userRole === 'aluno' ? 'Ranking da Minha Turma' : 'Ranking Geral'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <LeaderboardTable leaderboard={leaderboard} />
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 
