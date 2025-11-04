@@ -67,6 +67,13 @@ export function useCheckins(aulaId?: string) {
         throw error;
       }
       console.log("✅ Check-ins carregados:", data?.length || 0, data);
+      
+      // Verificar se os dados de alunos estão vindo
+      if (data && data.length > 0) {
+        console.log("📋 Primeiro check-in completo:", JSON.stringify(data[0], null, 2));
+        console.log("👤 Dados do aluno no primeiro check-in:", data[0].alunos);
+      }
+      
       return data as Checkin[];
     },
   });
