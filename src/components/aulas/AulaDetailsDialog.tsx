@@ -1,8 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, MapPin, User, FileText, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, MapPin, User, FileText, Users, Download } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
 
 interface AulaDetailsDialogProps {
   open: boolean;
@@ -12,6 +14,32 @@ interface AulaDetailsDialogProps {
 
 export function AulaDetailsDialog({ open, onOpenChange, aula }: AulaDetailsDialogProps) {
   if (!aula) return null;
+
+  const handleDownloadPDF = async () => {
+    try {
+      toast.loading("Baixando PDF...");
+      
+      const response = await fetch(aula.pdf_url);
+      if (!response.ok) throw new Error("Erro ao baixar PDF");
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${aula.titulo.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.dismiss();
+      toast.success("PDF baixado com sucesso!");
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Erro ao baixar o PDF");
+      console.error(error);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     // Usar split para evitar problema de timezone
@@ -124,14 +152,15 @@ export function AulaDetailsDialog({ open, onOpenChange, aula }: AulaDetailsDialo
                 <FileText className="h-4 w-4" />
                 Material de Apoio
               </label>
-              <a 
-                href={aula.pdf_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="mt-2 text-sm text-primary hover:underline"
+              <Button
+                onClick={handleDownloadPDF}
+                variant="outline"
+                size="sm"
+                className="mt-2"
               >
-                Ver PDF da Aula
-              </a>
+                <Download className="h-4 w-4 mr-2" />
+                Baixar PDF da Aula
+              </Button>
             </div>
           )}
 
