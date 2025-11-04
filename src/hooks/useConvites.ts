@@ -20,10 +20,10 @@ export function useConvites() {
       const { data, error } = await supabase
         .from('convites')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('Convites carregados:', data);
       setConvites(data || []);
     } catch (error) {
       console.error('Erro ao buscar convites:', error);
@@ -111,8 +111,7 @@ export function useConvites() {
       const { error } = await supabase
         .from('convites')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('id', id);
 
       if (error) throw error;
 
