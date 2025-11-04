@@ -1210,6 +1210,7 @@ export type Database = {
         Returns: undefined
       }
       marcar_revisao: { Args: { p_conteudo_id: string }; Returns: undefined }
+      recalcular_todos_progressos: { Args: never; Returns: undefined }
       verificar_badges: { Args: { p_user_id: string }; Returns: undefined }
     }
     Enums: {
