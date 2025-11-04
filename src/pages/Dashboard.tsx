@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, Clock, CheckCircle, AlertTriangle, ArrowRight, BookOpen } from "lucide-react";
+import { Users, GraduationCap, Calendar, DollarSign, TrendingUp, Clock, CheckCircle, AlertTriangle, ArrowRight, BookOpen, Trophy, BarChart3, BookOpenCheck } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { useTurmas } from "@/hooks/useTurmas";
 import { useAulas } from "@/hooks/useAulas";
 import { useRecentActivities } from "@/hooks/useRecentActivities";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const quickActions = [
   { label: "Cadastrar Professor", href: "/professores/novo" },
@@ -46,11 +47,32 @@ const upcomingClasses = [
 export default function Dashboard() {
   const [professorFormOpen, setProfessorFormOpen] = useState(false);
   const [turmaFormOpen, setTurmaFormOpen] = useState(false);
+  const { userRole } = useAuth();
   
   const { professores } = useProfessores();
   const { turmas } = useTurmas();
   const { aulas } = useAulas();
   const { activities: recentActivities, loading: activitiesLoading } = useRecentActivities();
+
+  // Ações rápidas baseadas no papel do usuário
+  const quickActionsForRole = useMemo(() => {
+    if (userRole === 'aluno') {
+      return [
+        { label: "Minhas Turmas", href: "/turmas-aluno", icon: GraduationCap },
+        { label: "Minhas Aulas", href: "/aulas-aluno", icon: BookOpen },
+        { label: "Meu Progresso", href: "/meu-progresso", icon: BarChart3 },
+        { label: "Gamificação", href: "/gamificacao", icon: Trophy },
+      ];
+    }
+    
+    // Ações para admin/professor
+    return [
+      { label: "Ver Turmas com Alunos", href: "/turmas-aluno", icon: GraduationCap, action: null },
+      { label: "Cadastrar Professor", href: null, icon: Users, action: () => setProfessorFormOpen(true) },
+      { label: "Nova Turma", href: null, icon: BookOpen, action: () => setTurmaFormOpen(true) },
+      { label: "Lançar Presença", href: "/presenca", icon: CheckCircle, action: null },
+    ];
+  }, [userRole]);
 
   // Calculate real metrics with memoization
   const metrics = useMemo(() => {
@@ -121,42 +143,31 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button 
-              asChild
-              variant="outline" 
-              className="w-full justify-start"
-            >
-              <Link to="/turmas-aluno">
-                <GraduationCap className="mr-2 h-4 w-4" />
-                Ver Turmas com Alunos
-              </Link>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => setProfessorFormOpen(true)}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              Cadastrar Professor
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => setTurmaFormOpen(true)}
-            >
-              <BookOpen className="mr-2 h-4 w-4" />
-              Nova Turma
-            </Button>
-            <Button 
-              asChild
-              variant="outline" 
-              className="w-full justify-start"
-            >
-              <Link to="/presenca">
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Lançar Presença
-              </Link>
-            </Button>
+            {quickActionsForRole.map((action, index) => (
+              action.href ? (
+                <Button 
+                  key={index}
+                  asChild
+                  variant="outline" 
+                  className="w-full justify-start"
+                >
+                  <Link to={action.href}>
+                    <action.icon className="mr-2 h-4 w-4" />
+                    {action.label}
+                  </Link>
+                </Button>
+              ) : (
+                <Button 
+                  key={index}
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={action.action || undefined}
+                >
+                  <action.icon className="mr-2 h-4 w-4" />
+                  {action.label}
+                </Button>
+              )
+            ))}
           </CardContent>
         </Card>
 
