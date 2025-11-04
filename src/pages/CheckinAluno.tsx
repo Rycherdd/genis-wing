@@ -43,7 +43,7 @@ export default function CheckinAluno() {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     return dataAula >= hoje;
-  }).slice(0, 10);
+  });
 
   const verificarCheckin = (aulaId: string) => {
     return checkins?.some((c) => c.aula_id === aulaId && c.aluno_id === aluno?.id);
