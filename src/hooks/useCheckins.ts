@@ -26,9 +26,23 @@ export function useCheckins(aulaId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: checkins, isLoading } = useQuery({
+  const { data: checkins, isLoading, error: queryError } = useQuery({
     queryKey: ["checkins", aulaId],
     queryFn: async () => {
+      console.log("🔍 Buscando check-ins...", { aulaId });
+      
+      // Verificar usuário atual
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("👤 Usuário atual:", user?.email);
+      
+      // Verificar role do usuário
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user?.id || "")
+        .single();
+      console.log("🎭 Role do usuário:", roleData?.role);
+      
       let query = supabase
         .from("checkins")
         .select(`
@@ -44,10 +58,15 @@ export function useCheckins(aulaId?: string) {
 
       const { data, error } = await query;
       if (error) {
-        console.error("Erro ao buscar check-ins:", error);
+        console.error("❌ Erro ao buscar check-ins:", error);
+        toast({
+          title: "Erro ao carregar check-ins",
+          description: error.message,
+          variant: "destructive",
+        });
         throw error;
       }
-      console.log("Check-ins carregados:", data);
+      console.log("✅ Check-ins carregados:", data?.length || 0, data);
       return data as Checkin[];
     },
   });
