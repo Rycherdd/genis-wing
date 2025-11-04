@@ -45,6 +45,11 @@ export default function Aulas() {
     return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString('pt-BR');
   };
 
+  const formatTime = (timeString: string) => {
+    // Remove os segundos do formato HH:MM:SS
+    return timeString.slice(0, 5);
+  };
+
   // Calcular estatísticas reais
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -237,7 +242,7 @@ export default function Aulas() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>{aula.horario_inicio} - {aula.horario_fim}</span>
+                  <span>{formatTime(aula.horario_inicio)} - {formatTime(aula.horario_fim)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
