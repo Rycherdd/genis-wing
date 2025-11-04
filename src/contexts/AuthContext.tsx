@@ -45,13 +45,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               
               console.log('Role check result:', { data, error, userId: session.user.id });
               
-              // Se não encontrou role, usuário foi desativado - fazer logout
+              // Se não encontrou role, usuário foi desativado
               if (!data) {
-                console.log('❌ Usuário sem role ativa, fazendo logout...');
-                await supabase.auth.signOut();
+                console.log('❌ Usuário sem role ativa');
                 setUserRole(null);
                 setUser(null);
                 setSession(null);
+                
+                // Fazer logout apenas se ainda houver sessão ativa
+                try {
+                  const { data: currentSession } = await supabase.auth.getSession();
+                  if (currentSession.session) {
+                    await supabase.auth.signOut();
+                  }
+                } catch (e) {
+                  console.error('Error during forced logout:', e);
+                }
+                
                 toast({
                   title: "Acesso revogado",
                   description: "Sua conta foi desativada.",
@@ -63,10 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               }
             } catch (error) {
               console.error('Error fetching user role:', error);
-              await supabase.auth.signOut();
               setUserRole(null);
-              setUser(null);
-              setSession(null);
             }
           }, 0);
         } else {
@@ -94,13 +101,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           console.log('Initial role check:', { data, userId: session.user.id });
           
-          // Se não encontrou role, usuário foi desativado - fazer logout
+          // Se não encontrou role, usuário foi desativado
           if (!data) {
-            console.log('❌ Usuário sem role ativa na inicialização, fazendo logout...');
-            await supabase.auth.signOut();
+            console.log('❌ Usuário sem role ativa na inicialização');
             setUserRole(null);
             setUser(null);
             setSession(null);
+            
+            // Fazer logout apenas uma vez
+            try {
+              await supabase.auth.signOut();
+            } catch (e) {
+              console.error('Error during init logout:', e);
+            }
+            
             toast({
               title: "Acesso revogado",
               description: "Sua conta foi desativada.",
@@ -112,10 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } catch (error) {
           console.error('Error fetching user role on init:', error);
-          await supabase.auth.signOut();
           setUserRole(null);
-          setUser(null);
-          setSession(null);
         }
       }
       
@@ -191,8 +202,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      // Limpar estado local primeiro
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      
       const { error } = await supabase.auth.signOut();
-      if (error) {
+      
+      // Ignorar erro de sessão não encontrada (já está deslogado)
+      if (error && !error.message.includes('session_not_found')) {
         toast({
           title: "Erro ao sair",
           description: error.message,
@@ -200,11 +218,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
     } catch (error: any) {
-      toast({
-        title: "Erro ao sair",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Ignorar erro de sessão não encontrada
+      if (!error?.message?.includes('session_not_found')) {
+        toast({
+          title: "Erro ao sair",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
