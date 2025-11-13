@@ -26,6 +26,7 @@ import Gamificacao from "./pages/Gamificacao";
 import ConteudosComplementares from "./pages/ConteudosComplementares";
 import GerenciarConteudos from "./pages/GerenciarConteudos";
 import CheckinAluno from "./pages/CheckinAluno";
+import RadarCompetencias from "./pages/RadarCompetencias";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
@@ -67,6 +68,9 @@ function AppRoutes() {
       
       {/* Gamification - accessible to all */}
       <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
+      
+      {/* Radar de Competências - Admin & Professor */}
+      <Route path="/radar-competencias" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><RadarCompetencias /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
