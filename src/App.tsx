@@ -69,7 +69,13 @@ function AppRoutes() {
       {/* Gamification - accessible to all */}
       <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
       
-      {/* Radar de Competências - Admin & Professor */}
+      {/* Conteúdos Complementares */}
+      <Route path="/conteudos" element={<ProtectedRoute><Layout><ConteudosComplementares /></Layout></ProtectedRoute>} />
+      
+      {/* Check-in */}
+      <Route path="/checkin" element={<ProtectedRoute><Layout><CheckinAluno /></Layout></ProtectedRoute>} />
+      
+      {/* DNA Genis - Admin & Professor */}
       <Route path="/radar-competencias" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><RadarCompetencias /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
