@@ -57,6 +57,7 @@ export function useRoleNavigation() {
         { label: 'Presença', icon: 'CheckSquare', url: '/presenca' },
         { label: 'Formulários', icon: 'FileText', url: '/formularios' },
         { label: 'Conteúdos', icon: 'BookOpen', url: '/gerenciar-conteudos' },
+        { label: 'Radar de Competências', icon: 'BarChart3', url: '/radar-competencias' },
         { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
         { label: 'Agenda', icon: 'CalendarDays', url: '/agenda' },
         { label: 'Avisos', icon: 'Bell', url: '/avisos' },
@@ -93,6 +94,7 @@ export function useRoleNavigation() {
           subItems: [
             { label: 'Formulários', icon: 'FileText', url: '/formularios' },
             { label: 'Conteúdos', icon: 'BookOpen', url: '/gerenciar-conteudos' },
+            { label: 'Radar de Competências', icon: 'BarChart3', url: '/radar-competencias' },
             { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
           ]
         },

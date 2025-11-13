@@ -25,6 +25,7 @@ const iconMap = {
   UserCog,
   GraduationCap,
   Trophy,
+  BarChart3,
 };
 
 interface SidebarProps {
