@@ -66,7 +66,6 @@ const alunos = [
 
 const professores = [
   { id: "1", nome: "Gabriel" },
-  { id: "2", nome: "Ricardo" },
 ];
 
 const turmas = [
