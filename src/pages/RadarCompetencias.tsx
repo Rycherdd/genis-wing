@@ -100,7 +100,7 @@ export default function RadarCompetencias() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Radar de Competências</h1>
+        <h1 className="text-3xl font-bold">DNA Genis</h1>
         <p className="text-muted-foreground">
           Visualize a evolução das competências ao longo do tempo
         </p>
@@ -276,7 +276,7 @@ export default function RadarCompetencias() {
       {/* Gráfico de Radar */}
       <Card>
         <CardHeader>
-          <CardTitle>Radar de Competências - {alunoSelecionado?.nome}</CardTitle>
+          <CardTitle>DNA Genis - {alunoSelecionado?.nome}</CardTitle>
           <CardDescription>
             Professor: {professorSelecionado?.nome} | Turma: {turmaSelecionada?.nome}
           </CardDescription>
