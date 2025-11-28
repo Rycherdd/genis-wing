@@ -71,8 +71,8 @@ function AppRoutes() {
       <Route path="/checkin" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><CheckinAluno /></Layout></ProtectedRoute>} />
       <Route path="/checkins-gerenciar" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><CheckinsGerenciar /></Layout></ProtectedRoute>} />
       
-      {/* DNA Genis - Admin & Professor only */}
-      <Route path="/radar-competencias" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><RadarCompetencias /></Layout></ProtectedRoute>} />
+      {/* DNA Genis - All authenticated users */}
+      <Route path="/radar-competencias" element={<ProtectedRoute><Layout><RadarCompetencias /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />

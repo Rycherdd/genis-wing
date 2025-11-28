@@ -33,6 +33,7 @@ export function useRoleNavigation() {
             { label: 'Formulários', icon: 'FileText', url: '/formularios-aluno' },
             { label: 'Minhas Presenças', icon: 'CheckSquare', url: '/minhas-presencas' },
             { label: 'Gamificação', icon: 'Trophy', url: '/gamificacao' },
+            { label: 'DNA Genis', icon: 'BarChart3', url: '/radar-competencias' },
           ]
         },
         { 
