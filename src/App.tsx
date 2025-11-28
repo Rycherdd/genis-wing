@@ -54,26 +54,20 @@ function AppRoutes() {
       <Route path="/formularios" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><FormulariosAulas /></Layout></ProtectedRoute>} />
       <Route path="/gerenciar-conteudos" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><GerenciarConteudos /></Layout></ProtectedRoute>} />
       
-      {/* All authenticated users */}
-      <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
-      
       {/* Student Routes */}
       <Route path="/aulas-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><AulasAluno /></Layout></ProtectedRoute>} />
       <Route path="/minhas-presencas" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MinhasPresencas /></Layout></ProtectedRoute>} />
       <Route path="/meu-progresso" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><MeuProgresso /></Layout></ProtectedRoute>} />
       <Route path="/formularios-aluno" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><FormulariosAluno /></Layout></ProtectedRoute>} />
+      
+      {/* Routes accessible to all authenticated users */}
+      <Route path="/turmas-aluno" element={<ProtectedRoute><Layout><TurmasAluno /></Layout></ProtectedRoute>} />
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
-      
-      {/* Gamification - accessible to all */}
       <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
-      
-      {/* Conteúdos Complementares */}
       <Route path="/conteudos" element={<ProtectedRoute><Layout><ConteudosComplementares /></Layout></ProtectedRoute>} />
-      
-      {/* Check-in */}
       <Route path="/checkin" element={<ProtectedRoute><Layout><CheckinAluno /></Layout></ProtectedRoute>} />
       
-      {/* DNA Genis - Admin & Professor */}
+      {/* DNA Genis - Admin & Professor only */}
       <Route path="/radar-competencias" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><RadarCompetencias /></Layout></ProtectedRoute>} />
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
