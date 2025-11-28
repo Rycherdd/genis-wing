@@ -26,6 +26,7 @@ import Gamificacao from "./pages/Gamificacao";
 import ConteudosComplementares from "./pages/ConteudosComplementares";
 import GerenciarConteudos from "./pages/GerenciarConteudos";
 import CheckinAluno from "./pages/CheckinAluno";
+import CheckinsGerenciar from "./pages/CheckinsGerenciar";
 import RadarCompetencias from "./pages/RadarCompetencias";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -65,7 +66,10 @@ function AppRoutes() {
       <Route path="/avisos" element={<ProtectedRoute><Layout><Avisos /></Layout></ProtectedRoute>} />
       <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
       <Route path="/conteudos" element={<ProtectedRoute><Layout><ConteudosComplementares /></Layout></ProtectedRoute>} />
-      <Route path="/checkin" element={<ProtectedRoute><Layout><CheckinAluno /></Layout></ProtectedRoute>} />
+      
+      {/* Check-in routes - different pages based on role */}
+      <Route path="/checkin" element={<ProtectedRoute allowedRoles={['aluno']}><Layout><CheckinAluno /></Layout></ProtectedRoute>} />
+      <Route path="/checkins-gerenciar" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><CheckinsGerenciar /></Layout></ProtectedRoute>} />
       
       {/* DNA Genis - Admin & Professor only */}
       <Route path="/radar-competencias" element={<ProtectedRoute allowedRoles={['admin', 'professor']}><Layout><RadarCompetencias /></Layout></ProtectedRoute>} />
