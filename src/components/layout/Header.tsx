@@ -27,6 +27,9 @@ const pageNames: Record<string, string> = {
   "/meu-progresso": "Meu Progresso",
   "/conteudos": "Conteúdos Complementares",
   "/gerenciar-conteudos": "Gerenciar Conteúdos",
+  "/checkin": "Check-in",
+  "/checkins-gerenciar": "Gerenciar Check-ins",
+  "/radar-competencias": "DNA Genis",
   "/login": "Login",
   "/cadastro": "Cadastro",
 };
